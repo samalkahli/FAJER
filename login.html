@@ -13,7 +13,7 @@
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; font-size: 16px; }
         button { background: #cba26a; color: #000; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-top: 10px; }
         button:hover { opacity: 0.8; }
-        #status { color: #ff4d4d; font-size: 13px; margin-top: 15px; line-height: 1.4; word-break: break-all; }
+        #status { color: #ff4d4d; font-size: 13px; margin-top: 15px; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -27,21 +27,15 @@
     </div>
 
     <script>
-        // مفتاح الـ API الصحيح 100%
+        // تم تصحيح المفتاح بناءً على لقطة الشاشة (N كبيرة بدلاً من n صغيرة)
         const firebaseConfig = {
-            apiKey: "AIzaSyCn7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
+            apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
             projectId: "athnta-gallary",
             storageBucket: "athnta-gallary.firebasestorage.app",
             messagingSenderId: "814746418768",
             appId: "1:814746418768:web:e4e08b4cee435498269b55"
         };
-
-        // فحص أولي للمفتاح قبل البدء
-        if(firebaseConfig.apiKey.includes(" ") || firebaseConfig.apiKey.length < 30) {
-            document.getElementById('status').innerText = "تنبيه: مفتاح الـ API يبدو غير مكتمل أو يحتوي مسافات!";
-        }
-
         firebase.initializeApp(firebaseConfig);
 
         function login() {
@@ -51,7 +45,7 @@
             const btn = document.getElementById('loginBtn');
 
             if(!email || !pass) {
-                status.innerText = "الرجاء إدخال البيانات";
+                status.innerText = "الرجاء إدخال البريد وكلمة المرور";
                 return;
             }
 
@@ -67,9 +61,12 @@
                 .catch((error) => { 
                     btn.innerText = "دخول";
                     btn.disabled = false;
-                    // عرض تفاصيل الخطأ بدقة
-                    status.innerText = "فشل الدخول: " + error.message;
-                    console.log("Error Code:", error.code);
+                    console.error("Error Code:", error.code);
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                        status.innerText = "البريد أو كلمة المرور غير صحيحة";
+                    } else {
+                        status.innerText = "خطأ: " + error.message;
+                    }
                 });
         }
     </script>
