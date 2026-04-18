@@ -10,44 +10,27 @@
     <style>
         :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; --border: rgba(255,255,255,0.1); }
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; display: none; }
-        
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; display: none; }
         header { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); position: relative; background: #000; }
         .logo { height: 70px; filter: drop-shadow(0 0 8px rgba(203, 162, 106, 0.4)); }
         .logout-btn { position: absolute; left: 20px; top: 35px; background: #dc3545; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
         .tabs { display: flex; justify-content: center; gap: 10px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
         .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 10px 25px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-size: 16px; }
         .tabs button.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
-
-        .tab-content { display: none; max-width: 900px; margin: 20px auto; padding: 0 15px; animation: fadeIn 0.4s; }
+        .tab-content { display: none; max-width: 900px; margin: 20px auto; padding: 0 15px; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .admin-box { background: var(--card-bg); padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .admin-box { background: var(--card-bg); padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border); }
         h2 { border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--primary); margin-top: 0; font-size: 20px; }
-        
         input, select { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 8px; background: #0b0b0b; color: #fff; margin-bottom: 15px; font-size: 15px; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; }
-
-        .drop-zone { border: 2px dashed #444; padding: 40px 20px; text-align: center; border-radius: 10px; cursor: pointer; background: rgba(255,255,255,0.02); margin-bottom: 15px; transition: 0.3s; color: #888; }
-        .drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: rgba(203,162,106,0.05); color: var(--primary); }
-        
-        button.action-btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 17px; transition: 0.3s; }
-        button.action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(203, 162, 106, 0.3); }
-
-        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #151515; margin-bottom: 12px; border-radius: 10px; border: 1px solid var(--border); }
-        .list-item img { width: 65px; height: 65px; border-radius: 8px; object-fit: cover; border: 1px solid #333; }
-        .item-info { flex-grow: 1; margin: 0 15px; }
-        .item-info strong { display: block; font-size: 16px; color: var(--primary); }
-        .item-info small { color: #888; }
-
+        .drop-zone { border: 2px dashed #444; padding: 30px; text-align: center; border-radius: 10px; cursor: pointer; background: rgba(255,255,255,0.02); margin-bottom: 15px; transition: 0.3s; color: #888; }
+        .drop-zone.dragover { border-color: var(--primary); background: rgba(203,162,106,0.05); }
+        button.action-btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 17px; }
+        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #151515; margin-bottom: 12px; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap; }
+        .list-item img { width: 65px; height: 65px; border-radius: 8px; object-fit: cover; }
         .btn-group { display: flex; gap: 8px; }
-        .danger-btn { background: #441111; color: #ff4d4d; border: 1px solid #661111; padding: 8px 15px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-        .danger-btn:hover { background: #ff4d4d; color: #fff; }
-        .edit-btn { background: #1a1a00; color: #ffc107; border: 1px solid #444400; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
-
-        /* Modal */
+        .danger-btn { background: #441111; color: #ff4d4d; border: 1px solid #661111; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .edit-btn { background: #1a1a00; color: #ffc107; border: 1px solid #444400; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .sub-badge { background: #222; padding: 5px 10px; border-radius: 15px; font-size: 12px; margin-left: 5px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #333; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal-content { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid var(--primary); width: 90%; max-width: 500px; position: relative; }
@@ -67,39 +50,32 @@
 
     <div id="productsTab" class="tab-content active">
         <div class="admin-box">
-            <h2>إضافة منتج جديد ✨</h2>
-            <input type="text" id="productName" placeholder="اسم المنتج (مثال: بخور ملكي)">
+            <h2>إضافة منتج ✨</h2>
+            <input type="text" id="productName" placeholder="اسم المنتج">
             <div style="display: flex; gap: 10px;">
                 <select id="productMainCat" onchange="loadSubCats('productMainCat', 'productSubCat')"></select>
                 <select id="productSubCat"><option value="">اختر القسم الرئيسي أولاً</option></select>
             </div>
-            <div class="drop-zone" id="prodDropZone">
-                <span id="prodDropText">اسحب صورة المنتج هنا أو اضغط للاختيار 📸</span>
-                <input type="file" id="productImageFile" style="display:none;" accept="image/*">
-            </div>
-            <button class="action-btn" id="prodSubmitBtn" onclick="saveProduct()">رفع وحفظ المنتج</button>
+            <div class="drop-zone" id="prodDropZone"> اسحب الصورة هنا أو اضغط للاختيار 📸 <input type="file" id="productImageFile" style="display:none;" accept="image/*"> </div>
+            <button class="action-btn" id="prodSubmitBtn" onclick="saveProduct()">رفع وحفظ</button>
         </div>
         <div id="productsList"></div>
     </div>
 
     <div id="catsTab" class="tab-content">
         <div class="admin-box">
-            <h2>إنشاء قسم رئيسي (بصورة غلاف) 🖼️</h2>
-            <input type="text" id="newMainCatName" placeholder="اسم القسم (مثال: العطور)">
-            <div class="drop-zone" id="catDropZone">
-                <span id="catDropText">اسحب صورة غلاف القسم هنا 📂</span>
-                <input type="file" id="catImageFile" style="display:none;" accept="image/*">
-            </div>
-            <button class="action-btn" onclick="saveMainCategory()">إنشاء القسم الرئيسي</button>
+            <h2>إنشاء قسم رئيسي 🖼️</h2>
+            <input type="text" id="newMainCatName" placeholder="اسم القسم الرئيسي">
+            <div class="drop-zone" id="catDropZone"> اسحب غلاف القسم هنا 📂 <input type="file" id="catImageFile" style="display:none;" accept="image/*"> </div>
+            <button class="action-btn" onclick="saveMainCategory()">إنشاء القسم</button>
         </div>
-        
         <div class="admin-box">
-            <h2>إضافة قسم فرعي داخل رئيسي 🔗</h2>
+            <h2>إضافة قسم فرعي 🔗</h2>
             <div style="display: flex; gap: 10px;">
-                <select id="mainCatForSub" style="flex:1;"></select>
-                <input type="text" id="newSubCatName" placeholder="اسم القسم الفرعي" style="flex:1;">
+                <select id="mainCatForSub"></select>
+                <input type="text" id="newSubCatName" placeholder="اسم الفرعي">
             </div>
-            <button class="action-btn" onclick="saveSubCategory()" style="background: #444; color: #fff;">إضافة القسم الفرعي</button>
+            <button class="action-btn" onclick="saveSubCategory()">إضافة</button>
         </div>
         <div id="categoriesAdminList"></div>
     </div>
@@ -107,21 +83,17 @@
     <div class="modal" id="editProductModal">
         <div class="modal-content">
             <button style="position:absolute; left:15px; top:15px; background:none; border:none; color:#fff; cursor:pointer; font-size:24px;" onclick="closeModal()">×</button>
-            <h2 style="color:var(--primary)">تعديل بيانات المنتج</h2>
+            <h2 style="color:var(--primary)">تعديل المنتج</h2>
             <input type="hidden" id="editDocId">
             <input type="text" id="editProductName">
             <select id="editProductMainCat" onchange="loadSubCats('editProductMainCat', 'editProductSubCat')"></select>
             <select id="editProductSubCat"></select>
-            <div class="drop-zone" id="editDropZone">
-                <span id="editDropText">تغيير الصورة (اختياري)</span>
-                <input type="file" id="editImageFile" style="display:none;" accept="image/*">
-            </div>
-            <button class="action-btn" id="updateBtn" onclick="updateProduct()">حفظ التغييرات</button>
+            <div class="drop-zone" id="editDropZone"> تغيير الصورة (اختياري) <input type="file" id="editImageFile" style="display:none;" accept="image/*"> </div>
+            <button class="action-btn" id="updateBtn" onclick="updateProduct()">حفظ</button>
         </div>
     </div>
 
     <script>
-        // الإعدادات المصلحة (CN كبيرة)
         const firebaseConfig = {
             apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
@@ -131,166 +103,120 @@
             appId: "1:814746418768:web:e4e08b4cee435498269b55"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+        const db = firebase.firestore(), auth = firebase.auth();
 
-        // حماية الصفحة
-        auth.onAuthStateChanged(user => {
-            if (user) { document.body.style.display = 'block'; init(); }
-            else { window.location.href = 'login.html'; }
-        });
-
+        auth.onAuthStateChanged(user => { if (user) { document.body.style.display = 'block'; init(); } else { window.location.href = 'login.html'; } });
         function logout() { auth.signOut().then(() => window.location.href = 'login.html'); }
 
         let siteCategories = {};
         let currentImgUrl = "";
 
-        // نظام السحب والإفلات المطور
-        function initDragDrop(zoneId, inputId, textId) {
-            const zone = document.getElementById(zoneId), input = document.getElementById(inputId), text = document.getElementById(textId);
-            zone.onclick = () => input.click();
-            zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('dragover'); };
-            zone.ondragleave = () => zone.classList.remove('dragover');
-            zone.ondrop = (e) => {
-                e.preventDefault();
-                zone.classList.remove('dragover');
-                input.files = e.dataTransfer.files;
-                text.innerText = "تم اختيار: " + input.files[0].name;
-                text.style.color = "#cba26a";
-            };
-            input.onchange = () => {
-                if(input.files.length) {
-                    text.innerText = "تم اختيار: " + input.files[0].name;
-                    text.style.color = "#cba26a";
-                }
-            };
+        function initDZ(zId, iId) {
+            const z = document.getElementById(zId), i = document.getElementById(iId);
+            z.onclick = () => i.click();
+            z.ondragover = (e) => { e.preventDefault(); z.classList.add('dragover'); };
+            z.ondragleave = () => z.classList.remove('dragover');
+            z.ondrop = (e) => { e.preventDefault(); z.classList.remove('dragover'); i.files = e.dataTransfer.files; };
         }
-        initDragDrop('prodDropZone', 'productImageFile', 'prodDropText');
-        initDragDrop('catDropZone', 'catImageFile', 'catDropText');
-        initDragDrop('editDropZone', 'editImageFile', 'editDropText');
+        initDZ('prodDropZone', 'productImageFile'); initDZ('catDropZone', 'catImageFile'); initDZ('editDropZone', 'editImageFile');
 
-        // الرفع لـ ImgBB
-        const imgbbKey = "28f606ee4a697fac01f86c4f0a3cb51b"; 
-        async function uploadImg(file) {
-            let fd = new FormData(); fd.append('image', file);
-            let res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: 'POST', body: fd });
-            let d = await res.json(); return d.data.display_url;
+        const imgbbKey = "28f606ee4a697fac01f86c4f0a3cb51b";
+        async function upImg(f) {
+            let fd = new FormData(); fd.append('image', f);
+            let r = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: 'POST', body: fd });
+            let d = await r.json(); return d.data.display_url;
         }
 
-        // جلب التصنيفات الفرعية
-        window.loadSubCats = function(mId, sId, selectedSub = '') {
-            const mVal = document.getElementById(mId).value, sSelect = document.getElementById(sId);
-            sSelect.innerHTML = '<option value="">(بدون قسم فرعي)</option>';
-            if(mVal && siteCategories[mVal] && siteCategories[mVal].subs) {
-                siteCategories[mVal].subs.forEach(sub => {
-                    const isSel = sub === selectedSub ? 'selected' : '';
-                    sSelect.innerHTML += `<option value="${sub}" ${isSel}>${sub}</option>`;
-                });
-            }
+        window.loadSubCats = (mId, sId, sel = '') => {
+            const m = document.getElementById(mId).value, s = document.getElementById(sId);
+            s.innerHTML = '<option value="">(بدون فرعي)</option>';
+            if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
-        // إدارة التصنيفات
         async function saveMainCategory() {
-            const name = document.getElementById('newMainCatName').value, file = document.getElementById('catImageFile').files[0];
-            if(!name || !file) return alert("يرجى كتابة الاسم واختيار صورة غلاف!");
-            const url = await uploadImg(file);
-            await db.collection("categories").doc(name).set({ imageUrl: url, subs: [] });
-            location.reload();
+            const n = document.getElementById('newMainCatName').value, f = document.getElementById('catImageFile').files[0];
+            if(!n || !f) return alert("اكمل البيانات");
+            const url = await upImg(f); await db.collection("categories").doc(n).set({ imageUrl: url, subs: [] }); location.reload();
         }
 
         async function saveSubCategory() {
-            const main = document.getElementById('mainCatForSub').value, sub = document.getElementById('newSubCatName').value;
-            if(!main || !sub) return alert("اختر القسم الرئيسي واكتب اسم الفرعي!");
-            await db.collection("categories").doc(main).update({ subs: firebase.firestore.FieldValue.arrayUnion(sub) });
-            location.reload();
+            const m = document.getElementById('mainCatForSub').value, s = document.getElementById('newSubCatName').value;
+            if(!m || !s) return alert("اكمل البيانات");
+            await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(s) }); location.reload();
         }
 
-        // إدارة المنتجات
+        // --- ميزة تعديل الصنف الفرعي الجديدة ---
+        window.editSubCat = async (mainCat, oldSub) => {
+            const newSub = prompt(`تعديل القسم الفرعي "${oldSub}" إلى:`, oldSub);
+            if (newSub && newSub !== oldSub) {
+                // 1. تحديث قائمة التصنيفات
+                await db.collection("categories").doc(mainCat).update({
+                    subs: firebase.firestore.FieldValue.arrayRemove(oldSub)
+                });
+                await db.collection("categories").doc(mainCat).update({
+                    subs: firebase.firestore.FieldValue.arrayUnion(newSub)
+                });
+                // 2. تحديث جميع المنتجات المرتبطة
+                const prods = await db.collection("products").where("mainCategory", "==", mainCat).where("subCategory", "==", oldSub).get();
+                const batch = db.batch();
+                prods.forEach(doc => batch.update(doc.ref, { subCategory: newSub }));
+                await batch.commit();
+                alert("تم التعديل بنجاح!"); location.reload();
+            }
+        };
+
         async function saveProduct() {
-            const btn = document.getElementById('prodSubmitBtn'), name = document.getElementById('productName').value, 
-                  main = document.getElementById('productMainCat').value, sub = document.getElementById('productSubCat').value, 
-                  file = document.getElementById('productImageFile').files[0];
-            
-            if(!name || !main || !file) return alert("أكمل بيانات المنتج والصورة!");
-            btn.innerText = "جاري الرفع..."; btn.disabled = true;
-            
-            const url = await uploadImg(file);
-            await db.collection("products").add({
-                name: name, mainCategory: main, subCategory: sub || "عام",
-                imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            const n = document.getElementById('productName').value, m = document.getElementById('productMainCat').value, s = document.getElementById('productSubCat').value, f = document.getElementById('productImageFile').files[0];
+            if(!n || !m || !f) return alert("اكمل البيانات");
+            const url = await upImg(f);
+            await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             location.reload();
         }
 
-        window.openEditModal = function(id, name, main, sub, img) {
+        window.openEditModal = (id, n, m, s, img) => {
             document.getElementById('editProductModal').classList.add('active');
-            document.getElementById('editDocId').value = id;
-            document.getElementById('editProductName').value = name;
-            currentImgUrl = img;
-            document.getElementById('editProductMainCat').value = main;
-            loadSubCats('editProductMainCat', 'editProductSubCat', sub);
+            document.getElementById('editDocId').value = id; document.getElementById('editProductName').value = n;
+            document.getElementById('editProductMainCat').value = m; currentImgUrl = img;
+            loadSubCats('editProductMainCat', 'editProductSubCat', s);
         };
         window.closeModal = () => document.getElementById('editProductModal').classList.remove('active');
 
         async function updateProduct() {
-            const id = document.getElementById('editDocId').value, name = document.getElementById('editProductName').value,
-                  main = document.getElementById('editProductMainCat').value, sub = document.getElementById('editProductSubCat').value,
-                  file = document.getElementById('editImageFile').files[0];
-            
-            let url = currentImgUrl;
-            if(file) url = await uploadImg(file);
-            
-            await db.collection("products").doc(id).update({
-                name: name, mainCategory: main, subCategory: sub || "عام", imageUrl: url
-            });
+            const id = document.getElementById('editDocId').value, n = document.getElementById('editProductName').value, m = document.getElementById('editProductMainCat').value, s = document.getElementById('editProductSubCat').value, f = document.getElementById('editImageFile').files[0];
+            let url = currentImgUrl; if(f) url = await upImg(f);
+            await db.collection("products").doc(id).update({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url });
             location.reload();
         }
 
-        window.deleteP = async (id) => { if(confirm("حذف هذا المنتج نهائياً؟")) { await db.collection("products").doc(id).delete(); location.reload(); } };
-        window.deleteC = async (id) => { if(confirm("حذف القسم؟ (لن تُحذف المنتجات المرتبطة به)")) { await db.collection("categories").doc(id).delete(); location.reload(); } };
+        window.deleteP = async (id) => { if(confirm("حذف المنتج؟")) { await db.collection("products").doc(id).delete(); location.reload(); } };
+        window.deleteC = async (id) => { if(confirm("حذف القسم الرئيسي؟")) { await db.collection("categories").doc(id).delete(); location.reload(); } };
+        window.deleteSub = async (m, s) => { if(confirm("حذف القسم الفرعي؟")) { await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); location.reload(); } };
 
         window.switchTab = (e, id) => {
-            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             e.target.classList.add('active'); document.getElementById(id).classList.add('active');
         };
 
         async function init() {
             const cSnap = await db.collection("categories").get();
-            const pMain = document.getElementById('productMainCat'), sMain = document.getElementById('mainCatForSub'), 
-                  eMain = document.getElementById('editProductMainCat'), cList = document.getElementById('categoriesAdminList');
-            
-            pMain.innerHTML = sMain.innerHTML = eMain.innerHTML = '<option value="">-- اختر القسم --</option>';
-            
+            const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editProductMainCat'), cL = document.getElementById('categoriesAdminList');
+            pM.innerHTML = sM.innerHTML = eM.innerHTML = '<option value="">-- اختر القسم --</option>';
             cSnap.forEach(doc => {
-                siteCategories[doc.id] = doc.data();
-                const opt = `<option value="${doc.id}">${doc.id}</option>`;
-                pMain.innerHTML += opt; sMain.innerHTML += opt; eMain.innerHTML += opt;
-                cList.innerHTML += `
-                    <div class="list-item">
-                        <div style="display:flex; align-items:center;">
-                            <img src="${doc.data().imageUrl}">
-                            <div class="item-info"><strong>${doc.id}</strong><small>${doc.data().subs.length} أقسام فرعية</small></div>
-                        </div>
-                        <button class="danger-btn" onclick="deleteC('${doc.id}')">حذف القسم</button>
-                    </div>`;
+                siteCategories[doc.id] = doc.data(); const opt = `<option value="${doc.id}">${doc.id}</option>`;
+                pM.innerHTML += opt; sM.innerHTML += opt; eM.innerHTML += opt;
+                let subsH = doc.data().subs.map(s => `
+                    <div class="sub-badge">
+                        ${s} 
+                        <span onclick="editSubCat('${doc.id}', '${s}')" style="cursor:pointer; color:var(--primary)">✎</span>
+                        <span onclick="deleteSub('${doc.id}', '${s}')" style="cursor:pointer; color:red">×</span>
+                    </div>`).join('');
+                cL.innerHTML += `<div class="list-item"><div style="display:flex;align-items:center;"><img src="${doc.data().imageUrl}"><div style="margin-right:15px;"><strong>${doc.id}</strong><br>${subsH}</div></div><button class="danger-btn" onclick="deleteC('${doc.id}')">حذف القسم</button></div>`;
             });
-
             const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
-            const pList = document.getElementById('productsList');
+            const pL = document.getElementById('productsList');
             pSnap.forEach(doc => {
                 const p = doc.data();
-                pList.innerHTML += `
-                    <div class="list-item">
-                        <div style="display:flex; align-items:center;">
-                            <img src="${p.imageUrl}">
-                            <div class="item-info"><strong>${p.name}</strong><small>${p.mainCategory} > ${p.subCategory}</small></div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="edit-btn" onclick="openEditModal('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button>
-                            <button class="danger-btn" onclick="deleteP('${doc.id}')">حذف</button>
-                        </div>
-                    </div>`;
+                pL.innerHTML += `<div class="list-item"><div style="display:flex;align-items:center;"><img src="${p.imageUrl}"><div style="margin-right:15px;"><strong>${p.name}</strong><br><small>${p.mainCategory} > ${p.subCategory}</small></div></div><div class="btn-group"><button class="edit-btn" onclick="openEditModal('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button><button class="danger-btn" onclick="deleteP('${doc.id}')">حذف</button></div></div>`;
             });
         }
     </script>
