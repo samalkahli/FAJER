@@ -10,31 +10,26 @@
     <style>
         :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; --border: rgba(255,255,255,0.1); }
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; display: none; /* إخفاء الصفحة حتى التأكد من الدخول */ }
         header { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); position: relative;}
         .logo { height: 60px; filter: drop-shadow(0 0 5px rgba(203, 162, 106, 0.5)); }
         .logout-btn { position: absolute; left: 20px; top: 35px; background: #dc3545; color: #fff; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
-        
         .tabs { display: flex; justify-content: center; gap: 5px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
         .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
         .tabs button.active { background: var(--primary); color: #000; border-color: var(--primary); }
         .tab-content { display: none; max-width: 800px; margin: 20px auto; padding: 0 15px; }
         .tab-content.active { display: block; }
-        
         .admin-box { background: var(--card-bg); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border); }
         h2 { border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--primary); margin-top: 0; }
         input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 15px; }
-        
         .drop-zone { border: 2px dashed rgba(203,162,106,0.5); padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; background: rgba(203,162,106,0.05); margin-bottom: 15px; transition: 0.3s; }
         .drop-zone.dragover { background: rgba(203,162,106,0.2); border-color: var(--primary); }
-        
         button.action-btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
         .list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); margin-bottom: 10px; border-radius: 8px; flex-wrap: wrap; gap: 10px;}
         .list-item img { width: 60px; height: 60px; border-radius: 5px; object-fit: cover; }
         .btn-group { display: flex; gap: 5px; }
         .danger-btn { background: #dc3545; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
         .edit-btn { background: #ffc107; color: #000; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal-content { background: var(--card-bg); padding: 30px; border-radius: 10px; border: 1px solid var(--primary); width: 90%; max-width: 450px; position: relative; }
@@ -101,8 +96,7 @@
             <input type="text" id="editProductName">
             <select id="editProductMainCat" onchange="loadSubCats('editProductMainCat', 'editProductSubCat')"></select>
             <select id="editProductSubCat"></select>
-            <div class="drop-zone" id="editDropZone">
-                تغيير الصورة (اختياري)
+            <div class="drop-zone" id="editDropZone">تغيير الصورة (اختياري)
                 <input type="file" id="editImageFile" style="display:none;" accept="image/*">
                 <div id="editFileName" style="color:var(--primary); margin-top:5px;"></div>
             </div>
@@ -111,22 +105,28 @@
     </div>
 
     <script>
+        // استخدام المفتاح المصحح (N كبيرة)
         const firebaseConfig = {
-            apiKey: "AIzaSyCn7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
+            apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
             projectId: "athnta-gallary",
             storageBucket: "athnta-gallary.firebasestorage.app",
             messagingSenderId: "814746418768",
             appId: "1:814746418768:web:e4e08b4cee435498269b55"
         };
-        const imgbbAPIKey = "28f606ee4a697fac01f86c4f0a3cb51b"; 
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // حماية الصفحة: إذا لم يسجل دخوله يطرده لصفحة login
-        auth.onAuthStateChanged(user => { if (!user) window.location.href = 'login.html'; });
+        // فحص حالة الدخول فوراً
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.body.style.display = 'block'; // إظهار الصفحة إذا كان مسجل دخول
+                init(); 
+            } else {
+                window.location.href = 'login.html'; // طرده للوجن إذا لم يسجل دخول
+            }
+        });
 
         function logout() { auth.signOut().then(() => window.location.href = 'login.html'); }
 
@@ -136,16 +136,18 @@
         // السحب والإفلات
         function setupDZ(zId, iId, tId) {
             const z = document.getElementById(zId), i = document.getElementById(iId), t = document.getElementById(tId);
+            if(!z) return;
             z.onclick = () => i.click();
             z.ondragover = (e) => { e.preventDefault(); z.classList.add('dragover'); };
             z.ondragleave = () => z.classList.remove('dragover');
             z.ondrop = (e) => { e.preventDefault(); z.classList.remove('dragover'); i.files = e.dataTransfer.files; t.innerText = i.files[0].name; };
-            i.onchange = () => { t.innerText = i.files[0].name; };
+            i.onchange = () => { if(i.files.length) t.innerText = i.files[0].name; };
         }
         setupDZ('prodDropZone', 'productImageFile', 'prodFileName');
         setupDZ('catDropZone', 'catImageFile', 'catFileName');
         setupDZ('editDropZone', 'editImageFile', 'editFileName');
 
+        const imgbbAPIKey = "28f606ee4a697fac01f86c4f0a3cb51b"; 
         async function upload(file) {
             let fd = new FormData(); fd.append('image', file);
             let res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbAPIKey}`, { method: 'POST', body: fd });
@@ -199,7 +201,7 @@
         async function deleteP(id) { if(confirm("حذف؟")) { await db.collection("products").doc(id).delete(); location.reload(); } }
         async function deleteC(id) { if(confirm("حذف القسم؟")) { await db.collection("categories").doc(id).delete(); location.reload(); } }
 
-        function switchTab(e, id) {
+        window.switchTab = function(e, id) {
             document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             e.target.classList.add('active'); document.getElementById(id).classList.add('active');
@@ -223,7 +225,6 @@
                 pList.innerHTML += `<div class="list-item"><div style="display:flex;align-items:center;"><img src="${p.imageUrl}"><div><strong>${p.name}</strong><br><small>${p.mainCategory}</small></div></div><div class="btn-group"><button class="edit-btn" onclick="openEditModal('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button><button class="danger-btn" onclick="deleteP('${doc.id}')">حذف</button></div></div>`;
             });
         }
-        init();
     </script>
 </body>
 </html>
