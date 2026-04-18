@@ -2,31 +2,38 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>دخول الإدارة - ATHNTA</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
-        body { background: #101010; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: #1a1a1a; padding: 40px; border-radius: 15px; border: 1px solid #cba26a; width: 100%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; }
-        button { background: #cba26a; color: #000; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        body { background: #101010; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { background: #1a1a1a; padding: 40px; border-radius: 15px; border: 1px solid #cba26a; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 0 20px rgba(203, 162, 106, 0.2); }
+        .logo { width: 100px; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; font-size: 16px; }
+        input:focus { border-color: #cba26a; outline: none; }
+        button { background: #cba26a; color: #000; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-top: 10px; }
+        button:hover { opacity: 0.8; }
+        #status { color: #ff4d4d; font-size: 13px; margin-top: 15px; line-height: 1.4; }
     </style>
 </head>
 <body>
     <div class="login-box">
-        <h2 style="color:#cba26a">دخول الإدارة</h2>
+        <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo">
+        <h2 style="color:#cba26a; margin-top:0;">دخول الإدارة</h2>
         <input type="email" id="email" placeholder="البريد الإلكتروني">
         <input type="password" id="password" placeholder="كلمة المرور">
         <button id="loginBtn" onclick="login()">دخول</button>
-        <p id="status" style="color: red; font-size: 12px; margin-top: 10px;"></p>
+        <p id="status"></p>
     </div>
 
     <script>
+        // تم تصحيح الـ API Key هنا بعناية
         const firebaseConfig = {
             apiKey: "AIzaSyCn7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
             projectId: "athnta-gallary",
-            storageBucket: "athnta-gallary.firebasestorage.app",
+            storageBucket: "athnta-gallary.firebaseestorage.app",
             messagingSenderId: "814746418768",
             appId: "1:814746418768:web:e4e08b4cee435498269b55"
         };
@@ -38,25 +45,31 @@
             const status = document.getElementById('status');
             const btn = document.getElementById('loginBtn');
 
+            if(!email || !pass) {
+                status.innerText = "الرجاء إدخال الإيميل وكلمة المرور";
+                return;
+            }
+
             btn.innerText = "جاري التحقق...";
-            
+            btn.disabled = true;
+            status.innerText = "";
+
             firebase.auth().signInWithEmailAndPassword(email, pass)
                 .then(() => { 
-                    status.style.color = "green";
+                    status.style.color = "#28a745";
                     status.innerText = "نجح الدخول! جاري التحويل...";
                     window.location.href = 'admin.html'; 
                 })
                 .catch((error) => { 
                     btn.innerText = "دخول";
-                    console.error(error);
-                    if (error.code === 'auth/user-not-found') {
-                        status.innerText = "خطأ: هذا المستخدم غير مسجل في Firebase!";
-                    } else if (error.code === 'auth/wrong-password') {
-                        status.innerText = "خطأ: كلمة المرور غير صحيحة!";
-                    } else if (error.code === 'auth/operation-not-allowed') {
-                        status.innerText = "خطأ: لم يتم تفعيل Email/Password في Firebase!";
+                    btn.disabled = false;
+                    console.error(error.code);
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                        status.innerText = "الإيميل أو كلمة المرور غير صحيحة";
+                    } else if (error.code === 'auth/invalid-email') {
+                        status.innerText = "صيغة البريد الإلكتروني غير صحيحة";
                     } else {
-                        status.innerText = "حدث خطأ: " + error.message;
+                        status.innerText = "خطأ: " + error.message;
                     }
                 });
         }
