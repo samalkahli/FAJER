@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة ATHNTA الاحترافية</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; --border: rgba(255,255,255,0.1); }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; }
+        
+        header { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); }
+        .logo { height: 60px; max-width: 100%; margin-bottom: 10px; filter: drop-shadow(0 0 5px rgba(203, 162, 106, 0.5)); object-fit: contain;}
+        
+        .tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+        .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .tabs button.active { background: var(--primary); color: #000; border-color: var(--primary); }
+        .tab-content { display: none; max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        .tab-content.active { display: block; }
+        
+        .admin-box { background: var(--card-bg); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border); }
+        h2 { border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--primary); margin-top: 0; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; background: rgba(0,0,0,0.3); color: #fff; margin-bottom: 15px; }
+        
+        /* تأثيرات السحب والإفلات */
+        .drop-zone { border: 2px dashed rgba(203,162,106,0.5); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; background: rgba(203,162,106,0.05); margin-bottom: 15px; transition: 0.3s; }
+        .drop-zone:hover, .drop-zone.dragover { background: rgba(203,162,106,0.2); border-color: var(--primary); }
+        
+        button.action-btn { background: var(--primary); color: #000; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button.action-btn:hover { opacity: 0.8; }
+        button.action-btn:disabled { background: #555; cursor: not-allowed; }
+        
+        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); margin-bottom: 10px; border-radius: 5px; flex-wrap: wrap; gap: 10px;}
+        .list-item img { width: 60px; height: 60px; border-radius: 5px; object-fit: cover; margin-left: 15px; }
+        .btn-group { display: flex; gap: 5px; }
+        .danger-btn { background: #dc3545; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        .edit-btn { background: #ffc107; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+
+        /* نافذة التعديل المنبثقة */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 10px; border: 1px solid var(--primary); width: 90%; max-width: 400px; position: relative; }
+        .close-modal { position: absolute; top: 10px; left: 10px; background: none; border: none; font-size: 1.5rem; color: #fff; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" alt="ATHNTA Logo" class="logo">
+        <h2 style="margin: 0;">لوحة تحكم الإدارة</h2>
+    </header>
+
+    <div class="tabs">
+        <button class="active" onclick="switchTab(event, 'productsTab')">إدارة المنتجات</button>
+        <button onclick="switchTab(event, 'catsTab')">إدارة التصنيفات</button>
+    </div>
+
+    <div id="productsTab" class="tab-content active">
+        <div class="admin-box">
+            <h2>إضافة منتج جديد</h2>
+            <input type="text" id="productName" placeholder="اسم المنتج">
+            <div style="display: flex; gap: 10px;">
+                <select id="productMainCat" onchange="loadSubCatsForProduct('productMainCat', 'productSubCat')"></select>
+                <select id="productSubCat"><option value="">اختر التصنيف الرئيسي أولاً</option></select>
+            </div>
+            <div class="drop-zone" id="prodDropZone">
+                اسحب الصورة وأفلتها هنا أو اضغط للاختيار 🖼️
+                <input type="file" id="productImageFile" style="display:none;" accept="image/*">
+                <div id="prodFileName" style="color:var(--primary); font-size: 13px; margin-top:5px;"></div>
+            </div>
+            <button class="action-btn" id="prodSubmitBtn" onclick="saveProduct()">رفع المنتج</button>
+        </div>
+
+        <div class="admin-box">
+            <h2>المنتجات الحالية (تعديل وحذف)</h2>
+            <div id="productsList">جاري التحميل...</div>
+        </div>
+    </div>
+
+    <div id="catsTab" class="tab-content">
+        <div class="admin-box">
+            <h2>إضافة تصنيف رئيسي (بطاقة مصورة)</h2>
+            <input type="text" id="newMainCatName" placeholder="اسم التصنيف (مثال: كابات)">
+            <div class="drop-zone" id="catDropZone">
+                اسحب صورة الغلاف للتصنيف وأفلتها هنا 🖼️
+                <input type="file" id="catImageFile" style="display:none;" accept="image/*">
+                <div id="catFileName" style="color:var(--primary); font-size: 13px; margin-top:5px;"></div>
+            </div>
+            <button class="action-btn" id="catSubmitBtn" onclick="saveMainCategory()">إنشاء التصنيف</button>
+        </div>
+
+        <div class="admin-box">
+            <h2>إضافة تصنيف فرعي</h2>
+            <div style="display: flex; gap: 10px;">
+                <select id="mainCatForSub"></select>
+                <input type="text" id="newSubCatName" placeholder="اسم الفرعي (مثال: رياضي)">
+            </div>
+            <button class="action-btn" onclick="saveSubCategory()">إضافة الفرعي</button>
+        </div>
+
+        <div class="admin-box">
+            <h2>التصنيفات الحالية (تعديل وحذف)</h2>
+            <div id="categoriesAdminList">جاري التحميل...</div>
+        </div>
+    </div>
+
+    <div class="modal" id="editProductModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <h2>تعديل المنتج</h2>
+            <input type="hidden" id="editDocId">
+            <input type="text" id="editProductName" placeholder="اسم المنتج">
+            <select id="editProductMainCat" onchange="loadSubCatsForProduct('editProductMainCat', 'editProductSubCat')"></select>
+            <select id="editProductSubCat"><option value="">بدون تصنيف فرعي</option></select>
+            
+            <div class="drop-zone" id="editDropZone" style="padding: 10px;">
+                اسحب صورة جديدة (اختياري)
+                <input type="file" id="editImageFile" style="display:none;" accept="image/*">
+                <div id="editFileName" style="color:var(--primary); font-size: 12px; margin-top:5px;"></div>
+            </div>
+            
+            <button class="action-btn" id="updateBtn" onclick="updateProduct()">حفظ التعديلات</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
+            authDomain: "athnta-gallary.firebaseapp.com",
+            projectId: "athnta-gallary",
+            storageBucket: "athnta-gallary.firebasestorage.app",
+            messagingSenderId: "814746418768",
+            appId: "1:814746418768:web:e4e08b4cee435498269b55"
+        };
+        const imgbbAPIKey = "28f606ee4a697fac01f86c4f0a3cb51b"; 
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        let siteCategories = {};
+        let currentEditImageUrl = "";
+
+        window.switchTab = function(e, tabId) {
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            initAdmin();
+        }
+
+        // ==========================================
+        // تفعيل السحب والإفلات (Drag & Drop)
+        // ==========================================
+        function setupDropZone(zoneId, inputId, textId) {
+            const zone = document.getElementById(zoneId);
+            const input = document.getElementById(inputId);
+            const text = document.getElementById(textId);
+
+            zone.addEventListener('click', () => input.click());
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                if(e.dataTransfer.files.length) {
+                    input.files = e.dataTransfer.files;
+                    text.innerText = "تم اختيار: " + input.files[0].name;
+                }
+            });
+            input.addEventListener('change', () => {
+                if(input.files.length) text.innerText = "تم اختيار: " + input.files[0].name;
+            });
+        }
+        setupDropZone('prodDropZone', 'productImageFile', 'prodFileName');
+        setupDropZone('catDropZone', 'catImageFile', 'catFileName');
+        setupDropZone('editDropZone', 'editImageFile', 'editFileName');
+
+        async function uploadToImgBB(file) {
+            let formData = new FormData();
+            formData.append('image', file);
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbAPIKey}`, { method: 'POST', body: formData });
+            const data = await res.json();
+            if(!data.success) throw new Error("فشل الرفع لـ ImgBB");
+            return data.data.display_url;
+        }
+
+        // ==========================================
+        // إدارة التصنيفات (إضافة، تعديل، حذف)
+        // ==========================================
+        async function saveMainCategory() {
+            const name = document.getElementById('newMainCatName').value.trim();
+            const file = document.getElementById('catImageFile').files[0];
+            const btn = document.getElementById('catSubmitBtn');
+            if(!name || !file) return alert("اكتب الاسم واختر صورة الغلاف!");
+
+            btn.disabled = true; btn.innerText = "جاري الرفع...";
+            try {
+                const imgUrl = await uploadToImgBB(file);
+                await db.collection("categories").doc(name).set({ imageUrl: imgUrl, subs: [] });
+                alert("تم إنشاء التصنيف الرئيسي بنجاح!");
+                document.getElementById('newMainCatName').value = '';
+                document.getElementById('catFileName').innerText = '';
+                initAdmin();
+            } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.innerText = "إنشاء التصنيف"; }
+        }
+
+        async function saveSubCategory() {
+            const mainCat = document.getElementById('mainCatForSub').value;
+            const subCat = document.getElementById('newSubCatName').value.trim();
+            if(!mainCat || !subCat) return alert("اختر الرئيسي واكتب الفرعي!");
+            
+            await db.collection("categories").doc(mainCat).update({
+                subs: firebase.firestore.FieldValue.arrayUnion(subCat)
+            });
+            document.getElementById('newSubCatName').value = '';
+            initAdmin();
+        }
+
+        // تعديل اسم تصنيف رئيسي
+        window.editMainCategory = async function(oldName) {
+            const newName = prompt("أدخل الاسم الجديد للتصنيف:", oldName);
+            if(newName && newName.trim() !== "" && newName !== oldName) {
+                try {
+                    // 1. إنشاء التصنيف الجديد بنسخ البيانات القديمة
+                    const oldData = siteCategories[oldName];
+                    await db.collection("categories").doc(newName).set(oldData);
+                    
+                    // 2. تحديث المنتجات التي كانت تابعة للتصنيف القديم
+                    const prods = await db.collection("products").where("mainCategory", "==", oldName).get();
+                    const batch = db.batch();
+                    prods.forEach(doc => batch.update(doc.ref, { mainCategory: newName }));
+                    await batch.commit();
+
+                    // 3. حذف التصنيف القديم
+                    await db.collection("categories").doc(oldName).delete();
+                    
+                    alert("تم تعديل الاسم بنجاح!");
+                    initAdmin();
+                } catch(e) { alert("حدث خطأ: " + e.message); }
+            }
+        }
+
+        // تعديل اسم تصنيف فرعي
+        window.editSubCategory = async function(mainCat, oldSubName) {
+            const newSubName = prompt("أدخل الاسم الجديد للفرعي:", oldSubName);
+            if(newSubName && newSubName.trim() !== "" && newSubName !== oldSubName) {
+                // إزالة القديم وإضافة الجديد
+                await db.collection("categories").doc(mainCat).update({
+                    subs: firebase.firestore.FieldValue.arrayRemove(oldSubName)
+                });
+                await db.collection("categories").doc(mainCat).update({
+                    subs: firebase.firestore.FieldValue.arrayUnion(newSubName)
+                });
+                // تحديث المنتجات
+                const prods = await db.collection("products").where("mainCategory", "==", mainCat).where("subCategory", "==", oldSubName).get();
+                const batch = db.batch();
+                prods.forEach(doc => batch.update(doc.ref, { subCategory: newSubName }));
+                await batch.commit();
+
+                initAdmin();
+            }
+        }
+
+        window.deleteCategory = async function(catId) {
+            if(confirm("تحذير: سيتم حذف التصنيف. متأكد؟")) {
+                await db.collection("categories").doc(catId).delete();
+                initAdmin();
+            }
+        }
+        window.deleteSubCategory = async function(mainCat, subCat) {
+            if(confirm(`حذف الفرعي "${subCat}"؟`)) {
+                await db.collection("categories").doc(mainCat).update({ subs: firebase.firestore.FieldValue.arrayRemove(subCat) });
+                initAdmin();
+            }
+        }
+
+        // ==========================================
+        // إدارة المنتجات (إضافة، تعديل، حذف)
+        // ==========================================
+        window.loadSubCatsForProduct = function(mainSelectId, subSelectId, selectedSub = '') {
+            const mainCat = document.getElementById(mainSelectId).value;
+            const subSelect = document.getElementById(subSelectId);
+            subSelect.innerHTML = '<option value="">بدون تصنيف فرعي</option>';
+            if(mainCat && siteCategories[mainCat] && siteCategories[mainCat].subs) {
+                siteCategories[mainCat].subs.forEach(s => {
+                    subSelect.innerHTML += `<option value="${s}" ${s === selectedSub ? 'selected' : ''}>${s}</option>`;
+                });
+            }
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById('productName').value;
+            const mainCat = document.getElementById('productMainCat').value;
+            const subCat = document.getElementById('productSubCat').value;
+            const file = document.getElementById('productImageFile').files[0];
+            const btn = document.getElementById('prodSubmitBtn');
+
+            if(!name || !mainCat || !file) return alert("أكمل بيانات المنتج واختر صورة!");
+
+            btn.disabled = true; btn.innerText = "جاري الرفع...";
+            try {
+                const imgUrl = await uploadToImgBB(file);
+                await db.collection("products").add({
+                    name: name, mainCategory: mainCat, subCategory: subCat || "عام", imageUrl: imgUrl, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("تم إضافة المنتج!");
+                document.getElementById('productName').value = '';
+                document.getElementById('prodFileName').innerText = '';
+                initAdmin();
+            } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.innerText = "رفع المنتج"; }
+        }
+
+        // فتح نافذة التعديل
+        window.openEditModal = function(id, name, mainC, subC, img) {
+            document.getElementById('editProductModal').classList.add('active');
+            document.getElementById('editDocId').value = id;
+            document.getElementById('editProductName').value = name;
+            
+            const mainSel = document.getElementById('editProductMainCat');
+            mainSel.innerHTML = '';
+            for(let cat in siteCategories) {
+                mainSel.innerHTML += `<option value="${cat}" ${cat === mainC ? 'selected' : ''}>${cat}</option>`;
+            }
+            
+            loadSubCatsForProduct('editProductMainCat', 'editProductSubCat', subC);
+            currentEditImageUrl = img;
+            document.getElementById('editImageFile').value = '';
+            document.getElementById('editFileName').innerText = '';
+        }
+
+        window.closeModal = function() { document.getElementById('editProductModal').classList.remove('active'); }
+
+        // حفظ التعديلات
+        window.updateProduct = async function() {
+            const id = document.getElementById('editDocId').value;
+            const name = document.getElementById('editProductName').value;
+            const mainCat = document.getElementById('editProductMainCat').value;
+            const subCat = document.getElementById('editProductSubCat').value;
+            const file = document.getElementById('editImageFile').files[0];
+            const btn = document.getElementById('updateBtn');
+
+            btn.disabled = true; btn.innerText = "جاري التحديث...";
+            try {
+                let imgUrl = currentEditImageUrl;
+                if(file) { imgUrl = await uploadToImgBB(file); } // إذا رفع صورة جديدة
+
+                await db.collection("products").doc(id).update({
+                    name: name, mainCategory: mainCat, subCategory: subCat || "عام", imageUrl: imgUrl
+                });
+                alert("تم تعديل المنتج!");
+                closeModal();
+                initAdmin();
+            } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.innerText = "حفظ التعديلات"; }
+        }
+
+        window.deleteProduct = async function(docId) {
+            if(confirm("سيتم حذف المنتج نهائياً من المعرض. متأكد؟")) {
+                await db.collection("products").doc(docId).delete();
+                initAdmin();
+            }
+        }
+
+        // ==========================================
+        // التحميل الأولي
+        // ==========================================
+        async function initAdmin() {
+            const catSnap = await db.collection("categories").get();
+            siteCategories = {};
+            
+            const prodMain = document.getElementById('productMainCat');
+            const subMain = document.getElementById('mainCatForSub');
+            const catList = document.getElementById('categoriesAdminList');
+            
+            prodMain.innerHTML = '<option value="">اختر التصنيف الرئيسي</option>';
+            subMain.innerHTML = '';
+            catList.innerHTML = '';
+
+            catSnap.forEach(doc => {
+                const d = doc.data();
+                siteCategories[doc.id] = d;
+                const opt = `<option value="${doc.id}">${doc.id}</option>`;
+                prodMain.innerHTML += opt;
+                subMain.innerHTML += opt;
+
+                let subsHtml = d.subs.map(s => `
+                    <span style="background:#444; padding:3px 8px; border-radius:10px; font-size:11px; margin-left:5px; display:inline-block; margin-bottom:5px;">
+                        ${s} 
+                        <button style="background:none; border:none; color:#ffc107; cursor:pointer; padding:0 2px;" onclick="editSubCategory('${doc.id}', '${s}')">✎</button>
+                        <button style="background:none; border:none; color:red; cursor:pointer; padding:0 2px;" onclick="deleteSubCategory('${doc.id}', '${s}')">x</button>
+                    </span>
+                `).join('');
+                
+                catList.innerHTML += `
+                    <div class="list-item" style="flex-direction:column; align-items:flex-start;">
+                        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                            <div style="display:flex; align-items:center;">
+                                <img src="${d.imageUrl}" style="width:40px; height:40px;">
+                                <strong>${doc.id}</strong>
+                            </div>
+                            <div class="btn-group">
+                                <button class="edit-btn" onclick="editMainCategory('${doc.id}')">تعديل الاسم</button>
+                                <button class="danger-btn" onclick="deleteCategory('${doc.id}')">حذف</button>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px; width:100%">
+                            <span style="font-size:12px; color:#aaa;">التصنيفات الفرعية:</span> ${subsHtml || '<span style="font-size:12px; color:#666">لا يوجد</span>'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            const pList = document.getElementById('productsList');
+            pList.innerHTML = '';
+            const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
+            pSnap.forEach(doc => {
+                const p = doc.data();
+                pList.innerHTML += `
+                    <div class="list-item">
+                        <div style="display:flex; align-items:center; flex:1">
+                            <img src="${p.imageUrl}">
+                            <div>
+                                <div style="font-weight:bold">${p.name}</div>
+                                <div style="font-size:12px; color:#aaa;">${p.mainCategory} > ${p.subCategory}</div>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="edit-btn" onclick="openEditModal('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button>
+                            <button class="danger-btn" onclick="deleteProduct('${doc.id}')">حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        initAdmin();
+    </script>
+</body>
+</html>
