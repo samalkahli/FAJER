@@ -3,74 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATHNTA - معرض الفخامة</title>
+    <title>ATHNTA | فخامة الاختيار</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
-        :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; }
-        body { font-family: 'Times New Roman', serif; background: var(--background); margin: 0; color: var(--text-main); overflow-x: hidden; }
-        
-        header { text-align: center; padding: 30px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo { height: 70px; cursor: pointer; filter: drop-shadow(0 0 5px var(--primary)); max-width: 100%; object-fit: contain; }
-
-        /* تعديل شبكة التصنيفات لتصبح 2 في كل صف بالجوال */
-        .home-categories { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); /* تجعلها 2 بجانب بعض افتراضياً */
-            gap: 12px; 
-            max-width: 1100px; 
-            margin: 20px auto; 
-            padding: 15px; 
+        :root {
+            --primary: #cba26a;
+            --primary-light: #e5c38d;
+            --background: #080808;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --gold-glow: rgba(203, 162, 106, 0.3);
         }
 
-        /* في الشاشات الكبيرة (الكمبيوتر) ترجع 3 أو 4 بجانب بعض */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--background);
+            background-image: radial-gradient(circle at 50% -20%, #1a1a1a, #080808);
+            margin: 0;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* تنسيق الهيدر */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            position: relative;
+        }
+
+        .logo {
+            height: 100px;
+            cursor: pointer;
+            filter: drop-shadow(0 0 15px var(--gold-glow));
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(2deg);
+        }
+
+        /* شبكة التصنيفات الحيوية */
+        .home-categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
         @media (min-width: 768px) {
-            .home-categories { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
-            .logo { height: 90px; }
+            .home-categories {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 30px;
+            }
         }
 
-        .cat-card { position: relative; border-radius: 10px; overflow: hidden; cursor: pointer; aspect-ratio: 1/1; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .cat-card:hover img { transform: scale(1.1); }
-        .cat-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); display: flex; align-items: flex-end; justify-content: center; padding: 10px; }
-        .cat-overlay h2 { margin: 0; color: var(--primary); font-size: 1.1rem; text-align: center; text-shadow: 0 2px 4px #000; }
+        .cat-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 0.8 / 1;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            transition: all 0.4s ease;
+        }
 
-        /* شاشة عرض المنتجات */
-        .products-view { display: none; padding: 15px; max-width: 1200px; margin: 0 auto; }
-        .products-view.active { display: block; animation: fadeIn 0.4s; }
-        
-        .sub-cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; justify-content: center; }
-        .sub-cats button { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; transition: 0.3s; }
-        .sub-cats button.active { background: var(--primary); color: #000; font-weight: bold; }
+        .cat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px var(--gold-glow);
+        }
 
-        /* شبكة المنتجات تصبح أيضاً 2 بجانب بعض في الجوال */
-        .gallery { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 12px; 
+        .cat-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .cat-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .cat-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, transparent 60%);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .cat-overlay h2 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* شاشة عرض المنتجات المذهلة */
+        .products-view {
+            display: none;
+            padding: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .products-view.active { display: block; }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 15px;
+        }
+
+        .back-btn {
+            background: rgba(203, 162, 106, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        /* أزرار الأقسام الفرعية */
+        .sub-cats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 35px;
+            justify-content: center;
+        }
+
+        .sub-cats button {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .sub-cats button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        /* المعرض */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
 
         @media (min-width: 768px) {
-            .gallery { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 30px;
+            }
         }
 
-        .item { background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
-        .item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .item h3 { padding: 10px; text-align: center; margin: 0; font-size: 0.9rem; font-weight: normal; color: #eee; }
+        .item {
+            background: var(--glass);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
 
-        .back-btn { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+        .item:hover {
+            border-color: var(--primary);
+            transform: scale(1.03);
+        }
+
+        .item img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+
+        .item h3 {
+            padding: 15px;
+            text-align: center;
+            margin: 0;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.3);
+            color: #ddd;
+        }
+
+        /* رسالة ترحيبية */
+        .welcome-msg {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1.5s ease;
+        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .welcome-msg h1 { font-weight: 300; letter-spacing: 3px; color: var(--primary); margin-bottom: 5px; }
+        .welcome-msg p { color: #888; font-size: 0.9rem; }
+
     </style>
 </head>
 <body>
-    <header><img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo" onclick="location.reload()"></header>
-    
-    <div class="home-categories" id="home"></div>
+
+    <header>
+        <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo" onclick="location.reload()">
+    </header>
+
+    <div id="home-section">
+        <div class="welcome-msg">
+            <h1>ATHNTA</h1>
+            <p>حيث تلتقي الأصالة بالفخامة</p>
+        </div>
+        <div class="home-categories" id="home"></div>
+    </div>
 
     <div class="products-view" id="view">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 id="title" style="color:var(--primary); font-size: 1.3rem; margin:0;"></h2>
-            <button onclick="location.reload()" class="back-btn">عودة</button>
+        <div class="view-header">
+            <h2 id="title" style="color:var(--primary); margin:0;"></h2>
+            <button onclick="location.reload()" class="back-btn">← العودة للرئيسية</button>
         </div>
         <div class="sub-cats" id="subs"></div>
         <div class="gallery" id="gallery"></div>
@@ -105,23 +286,28 @@
         }
 
         window.openCat = (id) => {
-            document.getElementById('home').style.display = 'none';
+            document.getElementById('home-section').style.display = 'none';
             document.getElementById('view').classList.add('active');
             document.getElementById('title').innerText = id;
             const subBox = document.getElementById('subs');
-            subBox.innerHTML = `<button class="active" onclick="filter('${id}', 'all', event)">الكل</button>`;
+            subBox.innerHTML = `<button class="active" onclick="filter('${id}', 'all', event)">جميع المجموعات</button>`;
             if(cats[id].subs) {
                 cats[id].subs.forEach(s => subBox.innerHTML += `<button onclick="filter('${id}', '${s}', event)">${s}</button>`);
             }
             filter(id, 'all');
-            window.scrollTo(0,0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         window.filter = (main, sub, e) => {
-            if(e) { document.querySelectorAll('.sub-cats button').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); }
-            let f = prods.filter(p => p.mainCategory === main);
-            if(sub !== 'all') f = f.filter(p => p.subCategory === sub);
-            document.getElementById('gallery').innerHTML = f.map(p => `
+            if(e) { 
+                document.querySelectorAll('.sub-cats button').forEach(b=>b.classList.remove('active')); 
+                e.target.classList.add('active'); 
+            }
+            let filtered = prods.filter(p => p.mainCategory === main);
+            if(sub !== 'all') filtered = filtered.filter(p => p.subCategory === sub);
+            
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = filtered.map(p => `
                 <div class="item">
                     <img src="${p.imageUrl}" loading="lazy">
                     <h3>${p.name}</h3>
