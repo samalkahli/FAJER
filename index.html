@@ -3,71 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATHNTA - المعرض</title>
+    <title>ATHNTA - معرض الفخامة</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
-        :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; --text-muted: #aaaaaa; }
-        * { box-sizing: border-box; }
-        body { font-family: 'Times New Roman', Times, serif; background: var(--background); margin: 0; color: var(--text-main); }
+        :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; }
+        body { font-family: 'Times New Roman', serif; background: var(--background); margin: 0; color: var(--text-main); overflow-x: hidden; }
         
-        header { text-align: center; padding: 40px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo { height: 80px; max-width: 100%; margin-bottom: 15px; filter: drop-shadow(0 0 5px rgba(203, 162, 106, 0.5)); cursor: pointer; object-fit: contain;}
-        h1 { margin: 0; font-size: 2.2rem; color: var(--primary); letter-spacing: 2px; }
+        header { text-align: center; padding: 30px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo { height: 70px; cursor: pointer; filter: drop-shadow(0 0 5px var(--primary)); max-width: 100%; object-fit: contain; }
 
-        .home-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        .cat-card { position: relative; border-radius: 12px; overflow: hidden; cursor: pointer; aspect-ratio: 4/3; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.3s; }
-        .cat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(203, 162, 106, 0.3); }
+        /* تعديل شبكة التصنيفات لتصبح 2 في كل صف بالجوال */
+        .home-categories { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); /* تجعلها 2 بجانب بعض افتراضياً */
+            gap: 12px; 
+            max-width: 1100px; 
+            margin: 20px auto; 
+            padding: 15px; 
+        }
+
+        /* في الشاشات الكبيرة (الكمبيوتر) ترجع 3 أو 4 بجانب بعض */
+        @media (min-width: 768px) {
+            .home-categories { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
+            .logo { height: 90px; }
+        }
+
+        .cat-card { position: relative; border-radius: 10px; overflow: hidden; cursor: pointer; aspect-ratio: 1/1; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .cat-card:hover img { transform: scale(1.1); }
-        .cat-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); display: flex; align-items: flex-end; justify-content: center; padding: 20px; }
-        .cat-overlay h2 { margin: 0; color: var(--primary); font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 1px;}
+        .cat-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); display: flex; align-items: flex-end; justify-content: center; padding: 10px; }
+        .cat-overlay h2 { margin: 0; color: var(--primary); font-size: 1.1rem; text-align: center; text-shadow: 0 2px 4px #000; }
 
-        .products-view { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .products-view.active { display: block; animation: fadeIn 0.5s; }
+        /* شاشة عرض المنتجات */
+        .products-view { display: none; padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .products-view.active { display: block; animation: fadeIn 0.4s; }
         
-        .section-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(203,162,106,0.3); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;}
-        .back-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 8px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
-        .back-btn:hover { background: var(--primary); color: #000; }
-        .section-title { font-size: 1.5rem; color: var(--primary); margin: 0; }
+        .sub-cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; justify-content: center; }
+        .sub-cats button { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; transition: 0.3s; }
+        .sub-cats button.active { background: var(--primary); color: #000; font-weight: bold; }
 
-        .sub-cats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; justify-content: center; }
-        .sub-cats button { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-main); padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
-        .sub-cats button.active, .sub-cats button:hover { background: var(--primary); color: #000; border-color: var(--primary); }
+        /* شبكة المنتجات تصبح أيضاً 2 بجانب بعض في الجوال */
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+        }
 
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; }
-        .item { background: var(--card-bg); border-radius: 8px; overflow: hidden; transition: 0.3s; }
-        .item:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(203, 162, 106, 0.2); }
+        @media (min-width: 768px) {
+            .gallery { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
+        }
+
+        .item { background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
         .item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .item h3 { margin: 0; padding: 15px; text-align: center; font-size: 16px; font-weight: normal; }
+        .item h3 { padding: 10px; text-align: center; margin: 0; font-size: 0.9rem; font-weight: normal; color: #eee; }
 
-        #loading { text-align: center; padding: 50px; font-size: 1.2rem; color: var(--primary); }
+        .back-btn { background: none; border: 1px solid var(--primary); color: var(--primary); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
+    <header><img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo" onclick="location.reload()"></header>
+    
+    <div class="home-categories" id="home"></div>
 
-    <header>
-        <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" alt="ATHNTA Logo" class="logo" onclick="showHome()">
-        <h1>معرض الفخامة</h1>
-    </header>
-
-    <div id="loading">جاري تحميل الفخامة... ⏳</div>
-
-    <div class="home-categories" id="homeCategories"></div>
-
-    <div class="products-view" id="productsView">
-        <div class="section-header">
-            <h2 class="section-title" id="currentSectionTitle">القسم</h2>
-            <button class="back-btn" onclick="showHome()">➔ العودة للتصنيفات</button>
+    <div class="products-view" id="view">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 id="title" style="color:var(--primary); font-size: 1.3rem; margin:0;"></h2>
+            <button onclick="location.reload()" class="back-btn">عودة</button>
         </div>
-        <div class="sub-cats" id="subCatsContainer"></div>
-        <div class="gallery" id="galleryContainer"></div>
+        <div class="sub-cats" id="subs"></div>
+        <div class="gallery" id="gallery"></div>
     </div>
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyCn7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
+            apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
             projectId: "athnta-gallary",
             storageBucket: "athnta-gallary.firebasestorage.app",
@@ -76,82 +87,47 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        
-        let allProducts = [];
-        let siteCategories = {}; 
+        let prods = [], cats = {};
 
-        async function initApp() {
-            try {
-                const catSnap = await db.collection("categories").get();
-                const homeContainer = document.getElementById('homeCategories');
-                
-                catSnap.forEach(doc => {
-                    const data = doc.data();
-                    siteCategories[doc.id] = data; 
-                    const catImage = data.imageUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500';
-                    
-                    homeContainer.innerHTML += `
-                        <div class="cat-card" onclick="openCategory('${doc.id}')">
-                            <img src="${catImage}" loading="lazy">
-                            <div class="cat-overlay"><h2>${doc.id}</h2></div>
-                        </div>
-                    `;
-                });
-
-                const prodSnap = await db.collection("products").orderBy("timestamp", "desc").get();
-                prodSnap.forEach(doc => allProducts.push(doc.data()));
-                
-                document.getElementById('loading').style.display = 'none';
-            } catch (e) { alert("خطأ في التحميل: " + e.message); }
-        }
-
-        function showHome() {
-            document.getElementById('homeCategories').style.display = 'grid';
-            document.getElementById('productsView').classList.remove('active');
-        }
-
-        window.openCategory = function(mainCat) {
-            document.getElementById('homeCategories').style.display = 'none';
-            document.getElementById('productsView').classList.add('active');
-            document.getElementById('currentSectionTitle').innerText = mainCat;
-
-            const subContainer = document.getElementById('subCatsContainer');
-            const subs = siteCategories[mainCat].subs || [];
-            
-            subContainer.innerHTML = `<button class="active" onclick="filterSub('${mainCat}', 'all', event)">عرض الكل</button>`;
-            subs.forEach(sub => {
-                subContainer.innerHTML += `<button onclick="filterSub('${mainCat}', '${sub}', event)">${sub}</button>`;
+        async function start() {
+            const cSnap = await db.collection("categories").get();
+            const homeBox = document.getElementById('home');
+            cSnap.forEach(doc => {
+                cats[doc.id] = doc.data();
+                homeBox.innerHTML += `
+                    <div class="cat-card" onclick="openCat('${doc.id}')">
+                        <img src="${doc.data().imageUrl}" loading="lazy">
+                        <div class="cat-overlay"><h2>${doc.id}</h2></div>
+                    </div>`;
             });
-
-            filterSub(mainCat, 'all', { target: subContainer.firstChild });
+            const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
+            pSnap.forEach(doc => prods.push(doc.data()));
         }
 
-        window.filterSub = function(mainCat, subCat, event) {
-            if(event && event.target) {
-                document.querySelectorAll('.sub-cats button').forEach(b => b.classList.remove('active'));
-                event.target.classList.add('active');
+        window.openCat = (id) => {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('view').classList.add('active');
+            document.getElementById('title').innerText = id;
+            const subBox = document.getElementById('subs');
+            subBox.innerHTML = `<button class="active" onclick="filter('${id}', 'all', event)">الكل</button>`;
+            if(cats[id].subs) {
+                cats[id].subs.forEach(s => subBox.innerHTML += `<button onclick="filter('${id}', '${s}', event)">${s}</button>`);
             }
+            filter(id, 'all');
+            window.scrollTo(0,0);
+        }
 
-            let filtered = allProducts.filter(p => p.mainCategory === mainCat);
-            if(subCat !== 'all') {
-                filtered = filtered.filter(p => p.subCategory === subCat);
-            }
-
-            const container = document.getElementById('galleryContainer');
-            if(filtered.length === 0) {
-                container.innerHTML = '<h3 style="grid-column: 1/-1; text-align:center; color:#777;">لا توجد تصاميم هنا حالياً.</h3>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map(p => `
+        window.filter = (main, sub, e) => {
+            if(e) { document.querySelectorAll('.sub-cats button').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); }
+            let f = prods.filter(p => p.mainCategory === main);
+            if(sub !== 'all') f = f.filter(p => p.subCategory === sub);
+            document.getElementById('gallery').innerHTML = f.map(p => `
                 <div class="item">
                     <img src="${p.imageUrl}" loading="lazy">
                     <h3>${p.name}</h3>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
-
-        initApp();
+        start();
     </script>
 </body>
 </html>
