@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة ATHNTA - لوحة التحكم</title>
+    <title>إدارة ATHNTA - لوحة التحكم الشاملة</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -11,30 +11,47 @@
         :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; --border: rgba(255,255,255,0.1); }
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; display: none; }
+        
         header { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); position: relative; background: #000; }
         .logo { height: 60px; filter: drop-shadow(0 0 5px var(--primary)); }
         .logout-btn { position: absolute; left: 15px; top: 25px; background: #dc3545; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
+
         .tabs { display: flex; justify-content: center; gap: 8px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
         .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 12px 20px; border-radius: 8px; cursor: pointer; flex: 1; font-size: 16px; }
-        .tabs button.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
+        .tabs button.active { background: var(--primary); color: #000; font-weight: bold; }
+
         .tab-content { display: none; max-width: 800px; margin: 15px auto; padding: 0 10px; }
         .tab-content.active { display: block; }
+
         .admin-box { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
         h2 { border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--primary); margin-top: 0; font-size: 18px; }
+        
         input, select { width: 100%; padding: 15px; border: 1px solid #333; border-radius: 10px; background: #000; color: #fff; margin-bottom: 15px; font-size: 16px; }
-        .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s; background: #0d0d0d; position: relative; min-height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; margin-bottom: 15px; }
+
+        /* شريط التحميل */
+        .progress-container { display: none; background: #000; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--primary); }
+        .progress-bar { width: 0%; height: 10px; background: var(--primary); border-radius: 5px; transition: 0.3s; }
+        .progress-text { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14px; color: var(--primary); }
+
+        .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; background: #0d0d0d; min-height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; margin-bottom: 15px; }
         .drop-zone img { max-height: 120px; border-radius: 8px; margin-bottom: 10px; display: none; }
         .drop-zone.has-img span { display: none; }
         .drop-zone.has-img img { display: block; }
+
         button.action-btn { background: var(--primary); color: #000; border: none; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; }
+
+        /* أزرار كبيرة للجوال */
         .list-item { background: #151515; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
         .item-row { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
         .item-row img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; }
-        .btn-group-large { display: flex; gap: 10px; }
+        
+        .btn-group-large { display: flex; gap: 10px; margin-top: 10px; }
         .btn-group-large button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
         .danger-btn { background: #441111; color: #ff4d4d; border: 1px solid #661111; }
         .edit-btn { background: #1a1a00; color: #ffc107; border: 1px solid #444400; }
-        .sub-tag { background: #222; padding: 8px 12px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid #333; margin: 5px; }
+
+        .sub-tag { background: #222; padding: 10px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; margin: 5px 0; width: 100%; }
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
         .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--primary); width: 100%; max-width: 450px; }
@@ -52,6 +69,16 @@
         <button onclick="switchTab(event, 'catsTab')">التصنيفات</button>
     </div>
 
+    <div id="uploadProgress" class="tab-content" style="display:none; padding:0 10px;">
+        <div class="progress-container" id="pBox" style="display:block;">
+            <div class="progress-bar" id="pBar"></div>
+            <div class="progress-text">
+                <span id="pStatus">جاري معالجة الصورة...</span>
+                <span id="pPercent">0%</span>
+            </div>
+        </div>
+    </div>
+
     <div id="productsTab" class="tab-content active">
         <div class="admin-box">
             <h2>إضافة منتج ✨</h2>
@@ -63,7 +90,7 @@
             <div class="drop-zone" id="prodDZ" onclick="document.getElementById('productFile').click()">
                 <img id="prodPrev">
                 <span>اضغط لاختيار صورة المنتج 📸</span>
-                <input type="file" id="productFile" style="display:none;" accept="image/*" onchange="preview(this, 'prodPrev', 'prodDZ')">
+                <input type="file" id="productFile" style="display:none;" onchange="preview(this, 'prodPrev', 'prodDZ')">
             </div>
             <button class="action-btn" id="prodBtn" onclick="saveProduct()">رفع وحفظ المنتج</button>
         </div>
@@ -77,9 +104,9 @@
             <div class="drop-zone" id="catDZ" onclick="document.getElementById('catFile').click()">
                 <img id="catPrev">
                 <span>صورة غلاف القسم 📂</span>
-                <input type="file" id="catFile" style="display:none;" accept="image/*" onchange="preview(this, 'catPrev', 'catDZ')">
+                <input type="file" id="catFile" style="display:none;" onchange="preview(this, 'catPrev', 'catDZ')">
             </div>
-            <button class="action-btn" onclick="saveMainCategory()">إنشاء القسم</button>
+            <button class="action-btn" id="catBtn" onclick="saveMainCategory()">إنشاء القسم</button>
         </div>
         <div class="admin-box">
             <h2>إضافة فرعي 🔗</h2>
@@ -100,10 +127,10 @@
             <div class="drop-zone" id="editDZ" onclick="document.getElementById('editFile').click()">
                 <img id="editPrev">
                 <span>تغيير الصورة (اختياري)</span>
-                <input type="file" id="editFile" style="display:none;" accept="image/*" onchange="preview(this, 'editPrev', 'editDZ')">
+                <input type="file" id="editFile" style="display:none;" onchange="preview(this, 'editPrev', 'editDZ')">
             </div>
             <div class="btn-group-large">
-                <button class="edit-btn" onclick="updateProduct()">حفظ التعديل</button>
+                <button class="edit-btn" id="updateBtn" onclick="updateProduct()">حفظ التعديل</button>
                 <button class="danger-btn" onclick="closeModal()">إلغاء</button>
             </div>
         </div>
@@ -121,46 +148,30 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(), auth = firebase.auth();
 
-        // --- نظام إدارة الجلسة (ساعة واحدة) ---
-        function updateSession() {
-            localStorage.setItem('lastActive', Date.now());
+        // نظام الجلسة (ساعة)
+        function updateS() { localStorage.setItem('at', Date.now()); }
+        function checkS() { if (localStorage.getItem('at') && (Date.now() - localStorage.getItem('at') > 3600000)) logout(); }
+        setInterval(checkS, 30000);
+        auth.onAuthStateChanged(u => { if(u){updateS(); document.body.style.display='block'; init();} else window.location.href='login.html'; });
+        function logout() { localStorage.clear(); auth.signOut().then(()=>window.location.href='login.html'); }
+
+        // شريط التحميل المحاكي
+        function showProgress(show) {
+            document.getElementById('uploadProgress').style.display = show ? 'block' : 'none';
+            if(!show) { document.getElementById('pBar').style.width = '0%'; document.getElementById('pPercent').innerText = '0%'; }
         }
 
-        function checkSession() {
-            const lastActive = localStorage.getItem('lastActive');
-            const oneHour = 60 * 60 * 1000; // ساعة بالملي ثانية
-            if (lastActive && (Date.now() - lastActive > oneHour)) {
-                alert("انتهت الجلسة (ساعة). يرجى تسجيل الدخول مجدداً.");
-                logout();
-            }
+        async function fakeProgress() {
+            let p = 0;
+            return new Promise(res => {
+                let itv = setInterval(() => {
+                    p += Math.random() * 15;
+                    if(p >= 90) { clearInterval(itv); res(); }
+                    document.getElementById('pBar').style.width = p + '%';
+                    document.getElementById('pPercent').innerText = Math.floor(p) + '%';
+                }, 200);
+            });
         }
-
-        // تحديث النشاط عند أي حركة
-        window.addEventListener('mousemove', updateSession);
-        window.addEventListener('keypress', updateSession);
-        window.addEventListener('click', updateSession);
-        window.addEventListener('scroll', updateSession);
-        
-        // فحص الجلسة كل دقيقة
-        setInterval(checkSession, 60000);
-
-        auth.onAuthStateChanged(user => { 
-            if (user) { 
-                updateSession(); // بدأ التوقيت فور الدخول
-                document.body.style.display = 'block'; 
-                init(); 
-            } else { 
-                window.location.href = 'login.html'; 
-            } 
-        });
-
-        function logout() { 
-            localStorage.removeItem('lastActive');
-            auth.signOut().then(() => window.location.href = 'login.html'); 
-        }
-
-        let siteCategories = {};
-        let currentImg = "";
 
         function preview(input, imgId, zoneId) {
             if (input.files && input.files[0]) {
@@ -186,29 +197,45 @@
             if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
+        // الرفع مع شريط التحميل
         async function saveProduct() {
-            const btn = document.getElementById('prodBtn'), n = document.getElementById('productName').value, m = document.getElementById('productMainCat').value, s = document.getElementById('productSubCat').value, f = document.getElementById('productFile').files[0];
+            const n = document.getElementById('productName').value, m = document.getElementById('productMainCat').value, s = document.getElementById('productSubCat').value, f = document.getElementById('productFile').files[0];
             if(!n || !m || !f) return alert("أكمل البيانات");
-            btn.innerText = "جاري الرفع..."; btn.disabled = true;
+            showProgress(true);
+            await fakeProgress();
             const url = await up(f);
             await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById('pBar').style.width = '100%'; document.getElementById('pPercent').innerText = '100%';
             alert("تم الرفع بنجاح! ✅"); location.reload();
         }
 
         async function saveMainCategory() {
             const n = document.getElementById('newMainCat').value, f = document.getElementById('catFile').files[0];
             if(!n || !f) return alert("أكمل البيانات");
+            showProgress(true); await fakeProgress();
             const url = await up(f);
             await db.collection("categories").doc(n).set({ imageUrl: url, subs: [] });
-            alert("تم إنشاء القسم بنجاح! ✅"); location.reload();
+            alert("تم بنجاح! ✅"); location.reload();
         }
 
         async function saveSubCategory() {
             const m = document.getElementById('mainCatForSub').value, s = document.getElementById('newSubCat').value;
             if(!m || !s) return alert("أكمل البيانات");
             await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(s) });
-            alert("تمت إضافة الفرعي بنجاح! ✅"); location.reload();
+            alert("تمت الإضافة! ✅"); location.reload();
         }
+
+        // --- ميزة تعديل الصنف الفرعي ---
+        window.editSub = async (m, oldS) => {
+            const newS = prompt("تعديل القسم الفرعي:", oldS);
+            if(newS && newS !== oldS) {
+                await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(oldS) });
+                await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(newS) });
+                const ps = await db.collection("products").where("mainCategory","==",m).where("subCategory","==",oldS).get();
+                const b = db.batch(); ps.forEach(d => b.update(d.ref, {subCategory: newS}));
+                await b.commit(); location.reload();
+            }
+        };
 
         window.openEdit = (id, n, m, s, img) => {
             document.getElementById('editModal').classList.add('active');
@@ -221,6 +248,7 @@
 
         async function updateProduct() {
             const id = document.getElementById('editId').value, n = document.getElementById('editName').value, m = document.getElementById('editMainCat').value, s = document.getElementById('editSubCat').value, f = document.getElementById('editFile').files[0];
+            showProgress(true); await fakeProgress();
             let url = currentImg; if(f) url = await up(f);
             await db.collection("products").doc(id).update({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url });
             alert("تم التعديل! ✅"); location.reload();
@@ -236,6 +264,7 @@
             e.target.classList.add('active'); document.getElementById(id).classList.add('active');
         };
 
+        let siteCategories = {};
         async function init() {
             const cSnap = await db.collection("categories").get();
             const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editMainCat'), cL = document.getElementById('categoriesAdminList');
@@ -243,8 +272,15 @@
             cSnap.forEach(doc => {
                 siteCategories[doc.id] = doc.data(); const opt = `<option value="${doc.id}">${doc.id}</option>`;
                 pM.innerHTML += opt; sM.innerHTML += opt; eM.innerHTML += opt;
-                let subs = doc.data().subs.map(s => `<div class="sub-tag">${s} <span onclick="delS('${doc.id}','${s}')" style="color:red; cursor:pointer">×</span></div>`).join('');
-                cL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${doc.data().imageUrl}"><strong>${doc.id}</strong></div><div style="display:flex; flex-wrap:wrap;">${subs}</div><button class="danger-btn" style="width:100%; padding:12px; margin-top:10px; border-radius:10px; cursor:pointer;" onclick="delC('${doc.id}')">حذف القسم بالكامل</button></div>`;
+                let subs = doc.data().subs.map(s => `
+                    <div class="sub-tag">
+                        <span>${s}</span>
+                        <div>
+                            <button onclick="editSub('${doc.id}','${s}')" style="background:none; border:none; color:var(--primary); font-size:18px; margin-left:10px;">✎</button>
+                            <button onclick="delS('${doc.id}','${s}')" style="background:none; border:none; color:red; font-size:18px;">×</button>
+                        </div>
+                    </div>`).join('');
+                cL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${doc.data().imageUrl}"><strong>${doc.id}</strong></div>${subs}<button class="danger-btn" style="width:100%; padding:15px; margin-top:15px;" onclick="delC('${doc.id}')">حذف القسم بالكامل</button></div>`;
             });
             const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
             const pL = document.getElementById('productsList');
