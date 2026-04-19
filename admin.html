@@ -29,18 +29,17 @@
         input, select { width: 100%; padding: 15px; border: 1px solid #333; border-radius: 10px; background: #000; color: #fff; margin-bottom: 15px; font-size: 16px; }
 
         /* شريط التحميل */
-        .progress-container { display: none; background: #000; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--primary); }
-        .progress-bar { width: 0%; height: 10px; background: var(--primary); border-radius: 5px; transition: 0.3s; }
-        .progress-text { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14px; color: var(--primary); }
+        #uploadProgress { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: #000; z-index: 1000; display: none; }
+        #pBar { height: 100%; width: 0%; background: var(--primary); transition: 0.3s; box-shadow: 0 0 10px var(--primary); }
 
         .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; background: #0d0d0d; min-height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; margin-bottom: 15px; }
         .drop-zone img { max-height: 120px; border-radius: 8px; margin-bottom: 10px; display: none; }
         .drop-zone.has-img span { display: none; }
         .drop-zone.has-img img { display: block; }
 
-        button.action-btn { background: var(--primary); color: #000; border: none; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; }
+        button.action-btn { background: var(--primary); color: #000; border: none; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.3s; }
+        button.action-btn:disabled { background: #444; color: #888; }
 
-        /* أزرار كبيرة للجوال */
         .list-item { background: #151515; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
         .item-row { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
         .item-row img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; }
@@ -50,14 +49,19 @@
         .danger-btn { background: #441111; color: #ff4d4d; border: 1px solid #661111; }
         .edit-btn { background: #1a1a00; color: #ffc107; border: 1px solid #444400; }
 
-        .sub-tag { background: #222; padding: 10px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; margin: 5px 0; width: 100%; }
+        .sub-tag { background: #222; padding: 10px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; margin: 5px 0; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
         .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--primary); width: 100%; max-width: 450px; }
+        
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #000; padding: 15px 25px; border-radius: 10px; font-weight: bold; display: none; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
+
+    <div id="uploadProgress"><div id="pBar"></div></div>
+    <div id="toast" class="toast">تم الإجراء بنجاح! ✅</div>
 
     <header>
         <button class="logout-btn" onclick="logout()">خروج</button>
@@ -65,18 +69,8 @@
     </header>
 
     <div class="tabs">
-        <button class="active" onclick="switchTab(event, 'productsTab')">المنتجات</button>
-        <button onclick="switchTab(event, 'catsTab')">التصنيفات</button>
-    </div>
-
-    <div id="uploadProgress" class="tab-content" style="display:none; padding:0 10px;">
-        <div class="progress-container" id="pBox" style="display:block;">
-            <div class="progress-bar" id="pBar"></div>
-            <div class="progress-text">
-                <span id="pStatus">جاري معالجة الصورة...</span>
-                <span id="pPercent">0%</span>
-            </div>
-        </div>
+        <button class="active" id="btnProductsTab" onclick="switchTab(event, 'productsTab')">المنتجات</button>
+        <button id="btnCatsTab" onclick="switchTab(event, 'catsTab')">التصنيفات</button>
     </div>
 
     <div id="productsTab" class="tab-content active">
@@ -112,7 +106,7 @@
             <h2>إضافة فرعي 🔗</h2>
             <select id="mainCatForSub"></select>
             <input type="text" id="newSubCat" placeholder="اسم القسم الفرعي">
-            <button class="action-btn" onclick="saveSubCategory()" style="background:#444; color:#fff;">إضافة فرعي</button>
+            <button class="action-btn" id="subBtn" onclick="saveSubCategory()" style="background:#444; color:#fff;">إضافة فرعي</button>
         </div>
         <div id="categoriesAdminList"></div>
     </div>
@@ -155,22 +149,31 @@
         auth.onAuthStateChanged(u => { if(u){updateS(); document.body.style.display='block'; init();} else window.location.href='login.html'; });
         function logout() { localStorage.clear(); auth.signOut().then(()=>window.location.href='login.html'); }
 
-        // شريط التحميل المحاكي
-        function showProgress(show) {
-            document.getElementById('uploadProgress').style.display = show ? 'block' : 'none';
-            if(!show) { document.getElementById('pBar').style.width = '0%'; document.getElementById('pPercent').innerText = '0%'; }
+        // إشعارات وتوكيدات
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3000);
         }
 
-        async function fakeProgress() {
-            let p = 0;
+        async function startProgress() {
+            document.getElementById('uploadProgress').style.display = 'block';
+            let p = 0, bar = document.getElementById('pBar');
             return new Promise(res => {
                 let itv = setInterval(() => {
-                    p += Math.random() * 15;
+                    p += Math.random() * 20;
                     if(p >= 90) { clearInterval(itv); res(); }
-                    document.getElementById('pBar').style.width = p + '%';
-                    document.getElementById('pPercent').innerText = Math.floor(p) + '%';
-                }, 200);
+                    bar.style.width = p + '%';
+                }, 150);
             });
+        }
+
+        function endProgress() {
+            document.getElementById('pBar').style.width = '100%';
+            setTimeout(() => {
+                document.getElementById('uploadProgress').style.display = 'none';
+                document.getElementById('pBar').style.width = '0%';
+            }, 500);
         }
 
         function preview(input, imgId, zoneId) {
@@ -197,43 +200,58 @@
             if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
-        // الرفع مع شريط التحميل
+        // الرفع الذكي بدون ريلود
         async function saveProduct() {
             const n = document.getElementById('productName').value, m = document.getElementById('productMainCat').value, s = document.getElementById('productSubCat').value, f = document.getElementById('productFile').files[0];
             if(!n || !m || !f) return alert("أكمل البيانات");
-            showProgress(true);
-            await fakeProgress();
+            
+            await startProgress();
             const url = await up(f);
             await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('pBar').style.width = '100%'; document.getElementById('pPercent').innerText = '100%';
-            alert("تم الرفع بنجاح! ✅"); location.reload();
+            
+            endProgress();
+            showToast("تم رفع المنتج بنجاح! ✅");
+            document.getElementById('productName').value = ''; 
+            document.getElementById('prodDZ').classList.remove('has-img');
+            init(); // تحديث القائمة فقط
         }
 
         async function saveMainCategory() {
             const n = document.getElementById('newMainCat').value, f = document.getElementById('catFile').files[0];
             if(!n || !f) return alert("أكمل البيانات");
-            showProgress(true); await fakeProgress();
+            await startProgress();
             const url = await up(f);
             await db.collection("categories").doc(n).set({ imageUrl: url, subs: [] });
-            alert("تم بنجاح! ✅"); location.reload();
+            endProgress();
+            showToast("تم إنشاء القسم! ✅");
+            document.getElementById('newMainCat').value = '';
+            document.getElementById('catDZ').classList.remove('has-img');
+            init();
         }
 
         async function saveSubCategory() {
             const m = document.getElementById('mainCatForSub').value, s = document.getElementById('newSubCat').value;
             if(!m || !s) return alert("أكمل البيانات");
+            await startProgress();
             await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(s) });
-            alert("تمت الإضافة! ✅"); location.reload();
+            endProgress();
+            showToast("تمت إضافة القسم الفرعي! ✅");
+            document.getElementById('newSubCat').value = '';
+            init();
         }
 
-        // --- ميزة تعديل الصنف الفرعي ---
         window.editSub = async (m, oldS) => {
             const newS = prompt("تعديل القسم الفرعي:", oldS);
             if(newS && newS !== oldS) {
+                await startProgress();
                 await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(oldS) });
                 await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(newS) });
                 const ps = await db.collection("products").where("mainCategory","==",m).where("subCategory","==",oldS).get();
                 const b = db.batch(); ps.forEach(d => b.update(d.ref, {subCategory: newS}));
-                await b.commit(); location.reload();
+                await b.commit();
+                endProgress();
+                showToast("تم التعديل! ✅");
+                init();
             }
         };
 
@@ -248,20 +266,25 @@
 
         async function updateProduct() {
             const id = document.getElementById('editId').value, n = document.getElementById('editName').value, m = document.getElementById('editMainCat').value, s = document.getElementById('editSubCat').value, f = document.getElementById('editFile').files[0];
-            showProgress(true); await fakeProgress();
+            await startProgress();
             let url = currentImg; if(f) url = await up(f);
             await db.collection("products").doc(id).update({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url });
-            alert("تم التعديل! ✅"); location.reload();
+            endProgress();
+            closeModal();
+            showToast("تم تعديل المنتج! ✅");
+            init();
         }
 
-        window.delP = async (id) => { if(confirm("حذف؟")) { await db.collection("products").doc(id).delete(); location.reload(); } };
-        window.delC = async (id) => { if(confirm("حذف القسم؟")) { await db.collection("categories").doc(id).delete(); location.reload(); } };
-        window.delS = async (m, s) => { if(confirm("حذف الفرعي؟")) { await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); location.reload(); } };
+        window.delP = async (id) => { if(confirm("حذف؟")) { await db.collection("products").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
+        window.delC = async (id) => { if(confirm("حذف القسم؟")) { await db.collection("categories").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
+        window.delS = async (m, s) => { if(confirm("حذف الفرعي؟")) { await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); showToast("تم الحذف 🗑️"); init(); } };
 
         window.switchTab = (e, id) => {
             document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            e.target.classList.add('active'); document.getElementById(id).classList.add('active');
+            if(e) e.target.classList.add('active');
+            else document.getElementById('btnProductsTab').classList.add('active');
+            document.getElementById(id).classList.add('active');
         };
 
         let siteCategories = {};
@@ -269,21 +292,16 @@
             const cSnap = await db.collection("categories").get();
             const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editMainCat'), cL = document.getElementById('categoriesAdminList');
             pM.innerHTML = sM.innerHTML = eM.innerHTML = '<option value="">اختر القسم</option>';
+            cL.innerHTML = '';
             cSnap.forEach(doc => {
                 siteCategories[doc.id] = doc.data(); const opt = `<option value="${doc.id}">${doc.id}</option>`;
                 pM.innerHTML += opt; sM.innerHTML += opt; eM.innerHTML += opt;
-                let subs = doc.data().subs.map(s => `
-                    <div class="sub-tag">
-                        <span>${s}</span>
-                        <div>
-                            <button onclick="editSub('${doc.id}','${s}')" style="background:none; border:none; color:var(--primary); font-size:18px; margin-left:10px;">✎</button>
-                            <button onclick="delS('${doc.id}','${s}')" style="background:none; border:none; color:red; font-size:18px;">×</button>
-                        </div>
-                    </div>`).join('');
+                let subs = doc.data().subs.map(s => `<div class="sub-tag"><span>${s}</span><div><button onclick="editSub('${doc.id}','${s}')" style="background:none; border:none; color:var(--primary); font-size:18px; margin-left:10px;">✎</button><button onclick="delS('${doc.id}','${s}')" style="background:none; border:none; color:red; font-size:18px;">×</button></div></div>`).join('');
                 cL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${doc.data().imageUrl}"><strong>${doc.id}</strong></div>${subs}<button class="danger-btn" style="width:100%; padding:15px; margin-top:15px;" onclick="delC('${doc.id}')">حذف القسم بالكامل</button></div>`;
             });
             const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
             const pL = document.getElementById('productsList');
+            pL.innerHTML = '';
             pSnap.forEach(doc => {
                 const p = doc.data();
                 pL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${p.imageUrl}"><div><strong>${p.name}</strong><br><small>${p.mainCategory} > ${p.subCategory}</small></div></div><div class="btn-group-large"><button class="edit-btn" onclick="openEdit('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button><button class="danger-btn" onclick="delP('${doc.id}')">حذف</button></div></div>`;
