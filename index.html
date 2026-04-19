@@ -8,62 +8,50 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         :root {
-            /* خريطة الألوان الكلاسيكية الجديدة */
-            --bg-body: #fdfdfc; /* أوف وايت ناعم جداً للخلفية */
-            --bg-header: #ffffff; /* أبيض نقي للهيدر */
-            --text-main: #121212; /* أسود ملكي للنصوص */
-            --gold-classic: #c5a059; /* ذهبي مطفي كلاسيكي */
-            --silver-classic: #e0e0e0; /* فضي ناعم للحدود */
-            
-            /* الحفاظ على تأثيرات الزجاج والوهج بالألوان الجديدة */
-            --glass-bg: rgba(255, 255, 255, 0.5); /* زجاجي فاتح */
-            --glass-border: rgba(0, 0, 0, 0.05); /* حدود زجاجية ناعمة جداً */
-            --glow-effect: rgba(197, 160, 89, 0.2); /* وهج ذهبي خفيف */
+            --bg-main: #fdfdfc; /* أوف وايت */
+            --bg-pure: #ffffff;
+            --text-dark: #121212; /* أسود ملكي */
+            --gold-classic: #c5a059; /* ذهبي مطفي */
+            --silver-classic: #e0e0e0; /* فضي ناعم */
+            --glass: rgba(255, 255, 255, 0.4);
+            --gold-glow: rgba(197, 160, 89, 0.3);
         }
 
         body {
-            font-family: 'Times New Roman', serif; /* خط كلاسيكي للعناوين */
-            background-color: var(--bg-body);
+            font-family: 'Times New Roman', serif;
+            background: var(--bg-main);
             background-image: radial-gradient(circle at 50% -20%, #ffffff, #fdfdfc);
             margin: 0;
-            color: var(--text-main);
+            color: var(--text-dark);
             overflow-x: hidden;
             min-height: 100vh;
         }
 
-        /* تنسيق الهيدر الأنيق */
+        /* هيدر فخم */
         header {
             text-align: center;
             padding: 40px 20px;
-            background: var(--bg-header);
+            background: linear-gradient(to bottom, var(--bg-pure), transparent);
             position: relative;
-            border-bottom: 1px solid var(--silver-classic);
         }
 
         .logo {
-            height: 100px;
+            height: 90px;
             cursor: pointer;
-            filter: grayscale(0.2); /* لمسة كلاسيكية للشعار */
+            filter: drop-shadow(0 0 10px var(--gold-glow));
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .logo:hover {
-            transform: scale(1.1) rotate(2deg);
-        }
+        .logo:hover { transform: scale(1.1) rotate(2deg); }
 
-        /* رسالة ترحيبية كلاسيكية */
-        .welcome-msg {
-            text-align: center;
-            margin: 40px 0;
-            animation: fadeIn 1.5s ease;
-        }
+        /* الترحيب */
+        .welcome-msg { text-align: center; margin: 20px 0 40px; animation: fadeIn 1.5s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .welcome-msg h1 { font-weight: 300; letter-spacing: 4px; color: var(--text-dark); margin-bottom: 5px; }
+        .welcome-msg h1::after { content:''; display:block; width:40px; height:1px; background:var(--gold-classic); margin: 8px auto; }
+        .welcome-msg p { color: #888; font-size: 0.9rem; font-style: italic; }
 
-        .welcome-msg h1 { font-weight: 300; letter-spacing: 3px; color: var(--text-main); margin-bottom: 5px; }
-        .welcome-msg h1::after { content:''; display:block; width:50px; height:1px; background:var(--gold-classic); margin: 10px auto; }
-        .welcome-msg p { color: #666; font-size: 0.9rem; }
-
-        /* شبكة التصنيفات الحيوية والتأثيرات الزجاجية */
+        /* شبكة التصنيفات الزجاجية (2 في الصف للجوال) */
         .home-categories {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -74,65 +62,59 @@
         }
 
         @media (min-width: 768px) {
-            .home-categories {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 30px;
-            }
+            .home-categories { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
         }
 
         .cat-card {
             position: relative;
-            border-radius: 15px; /* حواف أنعم قليلاً للطابع الكلاسيكي */
+            border-radius: 15px;
             overflow: hidden;
             cursor: pointer;
             aspect-ratio: 0.8 / 1;
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            backdrop-filter: blur(5px); /* تأثير الزجاج */
-            transition: all 0.4s ease;
+            border: 1px solid var(--silver-classic);
+            background: var(--glass);
+            backdrop-filter: blur(8px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* الحفاظ على تأثيرات التمرير القوية */
         .cat-card:hover {
             transform: translateY(-10px);
             border-color: var(--gold-classic);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.05), 0 0 15px var(--glow-effect);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1), 0 0 15px var(--gold-glow);
         }
 
         .cat-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: sepia(0.1); /* لمسة دافئة للصور */
+            filter: sepia(0.1);
             transition: transform 0.6s ease;
         }
 
-        .cat-card:hover img {
-            transform: scale(1.1);
-        }
+        .cat-card:hover img { transform: scale(1.1); }
 
         .cat-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 10%, transparent 60%);
+            background: linear-gradient(to top, rgba(18,18,18,0.85) 5%, transparent 60%);
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
         }
 
         .cat-overlay h2 {
             margin: 0;
-            color: var(--off-white);
-            font-size: 1.2rem;
+            color: #fff;
+            font-size: 1.1rem;
             font-weight: 300;
             letter-spacing: 1px;
             border-bottom: 1px solid var(--gold-classic);
             padding-bottom: 5px;
         }
 
-        /* شاشة عرض المنتجات المذهلة والحفاظ على الحركة */
+        /* شاشة عرض المنتجات الانسيابية */
         .products-view {
             display: none;
             padding: 20px;
@@ -141,11 +123,7 @@
             animation: slideUp 0.6s ease-out;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         .products-view.active { display: block; }
 
         .view-header {
@@ -158,89 +136,55 @@
         }
 
         .back-btn {
-            background: var(--text-main);
+            background: var(--text-dark);
             border: none;
             color: var(--silver-classic);
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 10px 22px;
+            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
             transition: 0.3s;
         }
+        .back-btn:hover { background: var(--gold-classic); color: #000; }
 
-        .back-btn:hover {
-            background: var(--gold-classic);
-            color: #000;
-        }
-
-        /* أزرار الأقسام الفرعية بالألوان الكلاسيكية */
-        .sub-cats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 35px;
-            justify-content: center;
-        }
-
+        /* أزرار فرعية فخمة */
+        .sub-cats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 35px; justify-content: center; }
         .sub-cats button {
-            background: var(--bg-header);
+            background: var(--bg-pure);
             border: 1px solid var(--silver-classic);
             color: #666;
-            padding: 10px 25px;
-            border-radius: 0; /* زوايا حادة للكلاسيكية */
+            padding: 10px 20px;
             cursor: pointer;
             transition: 0.3s;
+            font-size: 0.85rem;
         }
-
         .sub-cats button.active {
-            background: var(--text-main);
+            background: var(--text-dark);
             border-color: var(--gold-classic);
             color: var(--gold-classic);
-            font-weight: bold;
+            box-shadow: 0 4px 10px var(--gold-glow);
         }
 
-        /* المعرض وتأثيرات التمرير */
+        /* المعرض (2 في الصف) */
         .gallery {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
-
-        @media (min-width: 768px) {
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-                gap: 30px;
-            }
-        }
+        @media (min-width: 768px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; } }
 
         .item {
-            background: var(--bg-header);
-            border-radius: 8px;
+            background: var(--bg-pure);
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--silver-classic);
             transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
-
-        .item:hover {
-            border-color: var(--gold-classic);
-            transform: scale(1.03);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-
-        .item img {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-        }
-
-        .item h3 {
-            padding: 15px;
-            text-align: center;
-            margin: 0;
-            font-size: 1rem;
-            color: var(--text-main);
-            background: rgba(0,0,0,0.02);
-        }
+        .item:hover { border-color: var(--gold-classic); transform: scale(1.03); box-shadow: 0 10px 20px var(--gold-glow); }
+        .item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .item h3 { padding: 15px; text-align: center; margin: 0; font-size: 0.9rem; color: var(--text-dark); background: rgba(0,0,0,0.01); }
 
     </style>
 </head>
@@ -253,14 +197,14 @@
     <div id="home-section">
         <div class="welcome-msg">
             <h1>ATHNTA</h1>
-            <p>العراقة في كل تفصيل، الفخامة في كل اختيار</p>
+            <p>حيث تلتقي فخامة الماضي بحداثة الحاضر</p>
         </div>
         <div class="home-categories" id="home"></div>
     </div>
 
     <div class="products-view" id="view">
         <div class="view-header">
-            <h2 id="title" style="color:var(--text-main); margin:0; font-weight: 300;"></h2>
+            <h2 id="title" style="color:var(--text-dark); margin:0; font-weight: 300; letter-spacing: 1px;"></h2>
             <button onclick="location.reload()" class="back-btn">← العودة</button>
         </div>
         <div class="sub-cats" id="subs"></div>
@@ -301,23 +245,16 @@
             document.getElementById('title').innerText = id;
             const subBox = document.getElementById('subs');
             subBox.innerHTML = `<button class="active" onclick="filter('${id}', 'all', event)">الكل</button>`;
-            if(cats[id].subs) {
-                cats[id].subs.forEach(s => subBox.innerHTML += `<button onclick="filter('${id}', '${s}', event)">${s}</button>`);
-            }
+            if(cats[id].subs) { cats[id].subs.forEach(s => subBox.innerHTML += `<button onclick="filter('${id}', '${s}', event)">${s}</button>`); }
             filter(id, 'all');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         window.filter = (main, sub, e) => {
-            if(e) { 
-                document.querySelectorAll('.sub-cats button').forEach(b=>b.classList.remove('active')); 
-                e.target.classList.add('active'); 
-            }
+            if(e) { document.querySelectorAll('.sub-cats button').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); }
             let filtered = prods.filter(p => p.mainCategory === main);
             if(sub !== 'all') filtered = filtered.filter(p => p.subCategory === sub);
-            
-            const gallery = document.getElementById('gallery');
-            gallery.innerHTML = filtered.map(p => `
+            document.getElementById('gallery').innerHTML = filtered.map(p => `
                 <div class="item">
                     <img src="${p.imageUrl}" loading="lazy">
                     <h3>${p.name}</h3>
