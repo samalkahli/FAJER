@@ -3,37 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة ATHNTA - لوحة التحكم الشاملة</title>
+    <title>إدارة ATHNTA - لوحة التحكم</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
         :root { --primary: #cba26a; --background: #101010; --card-bg: #1a1a1a; --text-main: #ffffff; --border: rgba(255,255,255,0.1); }
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; display: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--background); margin: 0; color: var(--text-main); padding-bottom: 50px; display: none; }
         header { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); position: relative; background: #000; }
-        .logo { height: 70px; filter: drop-shadow(0 0 8px rgba(203, 162, 106, 0.4)); }
-        .logout-btn { position: absolute; left: 20px; top: 35px; background: #dc3545; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .tabs { display: flex; justify-content: center; gap: 10px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
-        .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 10px 25px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-size: 16px; }
+        .logo { height: 60px; filter: drop-shadow(0 0 5px var(--primary)); }
+        .logout-btn { position: absolute; left: 15px; top: 25px; background: #dc3545; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .tabs { display: flex; justify-content: center; gap: 8px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+        .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 12px 20px; border-radius: 8px; cursor: pointer; flex: 1; font-size: 16px; }
         .tabs button.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
-        .tab-content { display: none; max-width: 900px; margin: 20px auto; padding: 0 15px; }
+        .tab-content { display: none; max-width: 800px; margin: 15px auto; padding: 0 10px; }
         .tab-content.active { display: block; }
-        .admin-box { background: var(--card-bg); padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border); }
-        h2 { border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--primary); margin-top: 0; font-size: 20px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 8px; background: #0b0b0b; color: #fff; margin-bottom: 15px; font-size: 15px; }
-        .drop-zone { border: 2px dashed #444; padding: 30px; text-align: center; border-radius: 10px; cursor: pointer; background: rgba(255,255,255,0.02); margin-bottom: 15px; transition: 0.3s; color: #888; }
-        .drop-zone.dragover { border-color: var(--primary); background: rgba(203,162,106,0.05); }
-        button.action-btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 17px; }
-        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #151515; margin-bottom: 12px; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap; }
-        .list-item img { width: 65px; height: 65px; border-radius: 8px; object-fit: cover; }
-        .btn-group { display: flex; gap: 8px; }
-        .danger-btn { background: #441111; color: #ff4d4d; border: 1px solid #661111; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-        .edit-btn { background: #1a1a00; color: #ffc107; border: 1px solid #444400; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-        .sub-badge { background: #222; padding: 5px 10px; border-radius: 15px; font-size: 12px; margin-left: 5px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #333; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; }
+        .admin-box { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); }
+        h2 { border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--primary); margin-top: 0; font-size: 18px; }
+        input, select { width: 100%; padding: 15px; border: 1px solid #333; border-radius: 10px; background: #000; color: #fff; margin-bottom: 15px; font-size: 16px; }
+        .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s; background: #0d0d0d; position: relative; min-height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; margin-bottom: 15px; }
+        .drop-zone img { max-height: 120px; border-radius: 8px; margin-bottom: 10px; display: none; }
+        .drop-zone.has-img span { display: none; }
+        .drop-zone.has-img img { display: block; }
+        button.action-btn { background: var(--primary); color: #000; border: none; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; }
+        .list-item { background: #151515; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .item-row { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .item-row img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; }
+        .btn-group-large { display: flex; gap: 10px; }
+        .btn-group-large button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .danger-btn { background: #441111; color: #ff4d4d; border: 1px solid #661111; }
+        .edit-btn { background: #1a1a00; color: #ffc107; border: 1px solid #444400; }
+        .sub-tag { background: #222; padding: 8px 12px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid #333; margin: 5px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid var(--primary); width: 90%; max-width: 500px; position: relative; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--primary); width: 100%; max-width: 450px; }
     </style>
 </head>
 <body>
@@ -44,8 +48,8 @@
     </header>
 
     <div class="tabs">
-        <button class="active" onclick="switchTab(event, 'productsTab')">📦 المنتجات</button>
-        <button onclick="switchTab(event, 'catsTab')">📁 التصنيفات</button>
+        <button class="active" onclick="switchTab(event, 'productsTab')">المنتجات</button>
+        <button onclick="switchTab(event, 'catsTab')">التصنيفات</button>
     </div>
 
     <div id="productsTab" class="tab-content active">
@@ -54,42 +58,54 @@
             <input type="text" id="productName" placeholder="اسم المنتج">
             <div style="display: flex; gap: 10px;">
                 <select id="productMainCat" onchange="loadSubCats('productMainCat', 'productSubCat')"></select>
-                <select id="productSubCat"><option value="">اختر القسم الرئيسي أولاً</option></select>
+                <select id="productSubCat"></select>
             </div>
-            <div class="drop-zone" id="prodDropZone"> اسحب الصورة هنا أو اضغط للاختيار 📸 <input type="file" id="productImageFile" style="display:none;" accept="image/*"> </div>
-            <button class="action-btn" id="prodSubmitBtn" onclick="saveProduct()">رفع وحفظ</button>
+            <div class="drop-zone" id="prodDZ" onclick="document.getElementById('productFile').click()">
+                <img id="prodPrev">
+                <span>اضغط لاختيار صورة المنتج 📸</span>
+                <input type="file" id="productFile" style="display:none;" accept="image/*" onchange="preview(this, 'prodPrev', 'prodDZ')">
+            </div>
+            <button class="action-btn" id="prodBtn" onclick="saveProduct()">رفع وحفظ المنتج</button>
         </div>
         <div id="productsList"></div>
     </div>
 
     <div id="catsTab" class="tab-content">
         <div class="admin-box">
-            <h2>إنشاء قسم رئيسي 🖼️</h2>
-            <input type="text" id="newMainCatName" placeholder="اسم القسم الرئيسي">
-            <div class="drop-zone" id="catDropZone"> اسحب غلاف القسم هنا 📂 <input type="file" id="catImageFile" style="display:none;" accept="image/*"> </div>
+            <h2>قسم رئيسي جديد 🖼️</h2>
+            <input type="text" id="newMainCat" placeholder="اسم القسم الرئيسي">
+            <div class="drop-zone" id="catDZ" onclick="document.getElementById('catFile').click()">
+                <img id="catPrev">
+                <span>صورة غلاف القسم 📂</span>
+                <input type="file" id="catFile" style="display:none;" accept="image/*" onchange="preview(this, 'catPrev', 'catDZ')">
+            </div>
             <button class="action-btn" onclick="saveMainCategory()">إنشاء القسم</button>
         </div>
         <div class="admin-box">
-            <h2>إضافة قسم فرعي 🔗</h2>
-            <div style="display: flex; gap: 10px;">
-                <select id="mainCatForSub"></select>
-                <input type="text" id="newSubCatName" placeholder="اسم الفرعي">
-            </div>
-            <button class="action-btn" onclick="saveSubCategory()">إضافة</button>
+            <h2>إضافة فرعي 🔗</h2>
+            <select id="mainCatForSub"></select>
+            <input type="text" id="newSubCat" placeholder="اسم القسم الفرعي">
+            <button class="action-btn" onclick="saveSubCategory()" style="background:#444; color:#fff;">إضافة فرعي</button>
         </div>
         <div id="categoriesAdminList"></div>
     </div>
 
-    <div class="modal" id="editProductModal">
+    <div class="modal" id="editModal">
         <div class="modal-content">
-            <button style="position:absolute; left:15px; top:15px; background:none; border:none; color:#fff; cursor:pointer; font-size:24px;" onclick="closeModal()">×</button>
             <h2 style="color:var(--primary)">تعديل المنتج</h2>
-            <input type="hidden" id="editDocId">
-            <input type="text" id="editProductName">
-            <select id="editProductMainCat" onchange="loadSubCats('editProductMainCat', 'editProductSubCat')"></select>
-            <select id="editProductSubCat"></select>
-            <div class="drop-zone" id="editDropZone"> تغيير الصورة (اختياري) <input type="file" id="editImageFile" style="display:none;" accept="image/*"> </div>
-            <button class="action-btn" id="updateBtn" onclick="updateProduct()">حفظ</button>
+            <input type="hidden" id="editId">
+            <input type="text" id="editName">
+            <select id="editMainCat" onchange="loadSubCats('editMainCat', 'editSubCat')"></select>
+            <select id="editSubCat"></select>
+            <div class="drop-zone" id="editDZ" onclick="document.getElementById('editFile').click()">
+                <img id="editPrev">
+                <span>تغيير الصورة (اختياري)</span>
+                <input type="file" id="editFile" style="display:none;" accept="image/*" onchange="preview(this, 'editPrev', 'editDZ')">
+            </div>
+            <div class="btn-group-large">
+                <button class="edit-btn" onclick="updateProduct()">حفظ التعديل</button>
+                <button class="danger-btn" onclick="closeModal()">إلغاء</button>
+            </div>
         </div>
     </div>
 
@@ -105,23 +121,60 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(), auth = firebase.auth();
 
-        auth.onAuthStateChanged(user => { if (user) { document.body.style.display = 'block'; init(); } else { window.location.href = 'login.html'; } });
-        function logout() { auth.signOut().then(() => window.location.href = 'login.html'); }
+        // --- نظام إدارة الجلسة (ساعة واحدة) ---
+        function updateSession() {
+            localStorage.setItem('lastActive', Date.now());
+        }
+
+        function checkSession() {
+            const lastActive = localStorage.getItem('lastActive');
+            const oneHour = 60 * 60 * 1000; // ساعة بالملي ثانية
+            if (lastActive && (Date.now() - lastActive > oneHour)) {
+                alert("انتهت الجلسة (ساعة). يرجى تسجيل الدخول مجدداً.");
+                logout();
+            }
+        }
+
+        // تحديث النشاط عند أي حركة
+        window.addEventListener('mousemove', updateSession);
+        window.addEventListener('keypress', updateSession);
+        window.addEventListener('click', updateSession);
+        window.addEventListener('scroll', updateSession);
+        
+        // فحص الجلسة كل دقيقة
+        setInterval(checkSession, 60000);
+
+        auth.onAuthStateChanged(user => { 
+            if (user) { 
+                updateSession(); // بدأ التوقيت فور الدخول
+                document.body.style.display = 'block'; 
+                init(); 
+            } else { 
+                window.location.href = 'login.html'; 
+            } 
+        });
+
+        function logout() { 
+            localStorage.removeItem('lastActive');
+            auth.signOut().then(() => window.location.href = 'login.html'); 
+        }
 
         let siteCategories = {};
-        let currentImgUrl = "";
+        let currentImg = "";
 
-        function initDZ(zId, iId) {
-            const z = document.getElementById(zId), i = document.getElementById(iId);
-            z.onclick = () => i.click();
-            z.ondragover = (e) => { e.preventDefault(); z.classList.add('dragover'); };
-            z.ondragleave = () => z.classList.remove('dragover');
-            z.ondrop = (e) => { e.preventDefault(); z.classList.remove('dragover'); i.files = e.dataTransfer.files; };
+        function preview(input, imgId, zoneId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById(imgId).src = e.target.result;
+                    document.getElementById(zoneId).classList.add('has-img');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
-        initDZ('prodDropZone', 'productImageFile'); initDZ('catDropZone', 'catImageFile'); initDZ('editDropZone', 'editImageFile');
 
         const imgbbKey = "28f606ee4a697fac01f86c4f0a3cb51b";
-        async function upImg(f) {
+        async function up(f) {
             let fd = new FormData(); fd.append('image', f);
             let r = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: 'POST', body: fd });
             let d = await r.json(); return d.data.display_url;
@@ -133,90 +186,71 @@
             if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
+        async function saveProduct() {
+            const btn = document.getElementById('prodBtn'), n = document.getElementById('productName').value, m = document.getElementById('productMainCat').value, s = document.getElementById('productSubCat').value, f = document.getElementById('productFile').files[0];
+            if(!n || !m || !f) return alert("أكمل البيانات");
+            btn.innerText = "جاري الرفع..."; btn.disabled = true;
+            const url = await up(f);
+            await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            alert("تم الرفع بنجاح! ✅"); location.reload();
+        }
+
         async function saveMainCategory() {
-            const n = document.getElementById('newMainCatName').value, f = document.getElementById('catImageFile').files[0];
-            if(!n || !f) return alert("اكمل البيانات");
-            const url = await upImg(f); await db.collection("categories").doc(n).set({ imageUrl: url, subs: [] }); location.reload();
+            const n = document.getElementById('newMainCat').value, f = document.getElementById('catFile').files[0];
+            if(!n || !f) return alert("أكمل البيانات");
+            const url = await up(f);
+            await db.collection("categories").doc(n).set({ imageUrl: url, subs: [] });
+            alert("تم إنشاء القسم بنجاح! ✅"); location.reload();
         }
 
         async function saveSubCategory() {
-            const m = document.getElementById('mainCatForSub').value, s = document.getElementById('newSubCatName').value;
-            if(!m || !s) return alert("اكمل البيانات");
-            await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(s) }); location.reload();
+            const m = document.getElementById('mainCatForSub').value, s = document.getElementById('newSubCat').value;
+            if(!m || !s) return alert("أكمل البيانات");
+            await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(s) });
+            alert("تمت إضافة الفرعي بنجاح! ✅"); location.reload();
         }
 
-        // --- ميزة تعديل الصنف الفرعي الجديدة ---
-        window.editSubCat = async (mainCat, oldSub) => {
-            const newSub = prompt(`تعديل القسم الفرعي "${oldSub}" إلى:`, oldSub);
-            if (newSub && newSub !== oldSub) {
-                // 1. تحديث قائمة التصنيفات
-                await db.collection("categories").doc(mainCat).update({
-                    subs: firebase.firestore.FieldValue.arrayRemove(oldSub)
-                });
-                await db.collection("categories").doc(mainCat).update({
-                    subs: firebase.firestore.FieldValue.arrayUnion(newSub)
-                });
-                // 2. تحديث جميع المنتجات المرتبطة
-                const prods = await db.collection("products").where("mainCategory", "==", mainCat).where("subCategory", "==", oldSub).get();
-                const batch = db.batch();
-                prods.forEach(doc => batch.update(doc.ref, { subCategory: newSub }));
-                await batch.commit();
-                alert("تم التعديل بنجاح!"); location.reload();
-            }
+        window.openEdit = (id, n, m, s, img) => {
+            document.getElementById('editModal').classList.add('active');
+            document.getElementById('editId').value = id; document.getElementById('editName').value = n;
+            document.getElementById('editMainCat').value = m; currentImg = img;
+            document.getElementById('editPrev').src = img; document.getElementById('editDZ').classList.add('has-img');
+            loadSubCats('editMainCat', 'editSubCat', s);
         };
-
-        async function saveProduct() {
-            const n = document.getElementById('productName').value, m = document.getElementById('productMainCat').value, s = document.getElementById('productSubCat').value, f = document.getElementById('productImageFile').files[0];
-            if(!n || !m || !f) return alert("اكمل البيانات");
-            const url = await upImg(f);
-            await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            location.reload();
-        }
-
-        window.openEditModal = (id, n, m, s, img) => {
-            document.getElementById('editProductModal').classList.add('active');
-            document.getElementById('editDocId').value = id; document.getElementById('editProductName').value = n;
-            document.getElementById('editProductMainCat').value = m; currentImgUrl = img;
-            loadSubCats('editProductMainCat', 'editProductSubCat', s);
-        };
-        window.closeModal = () => document.getElementById('editProductModal').classList.remove('active');
+        window.closeModal = () => document.getElementById('editModal').classList.remove('active');
 
         async function updateProduct() {
-            const id = document.getElementById('editDocId').value, n = document.getElementById('editProductName').value, m = document.getElementById('editProductMainCat').value, s = document.getElementById('editProductSubCat').value, f = document.getElementById('editImageFile').files[0];
-            let url = currentImgUrl; if(f) url = await upImg(f);
+            const id = document.getElementById('editId').value, n = document.getElementById('editName').value, m = document.getElementById('editMainCat').value, s = document.getElementById('editSubCat').value, f = document.getElementById('editFile').files[0];
+            let url = currentImg; if(f) url = await up(f);
             await db.collection("products").doc(id).update({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url });
-            location.reload();
+            alert("تم التعديل! ✅"); location.reload();
         }
 
-        window.deleteP = async (id) => { if(confirm("حذف المنتج؟")) { await db.collection("products").doc(id).delete(); location.reload(); } };
-        window.deleteC = async (id) => { if(confirm("حذف القسم الرئيسي؟")) { await db.collection("categories").doc(id).delete(); location.reload(); } };
-        window.deleteSub = async (m, s) => { if(confirm("حذف القسم الفرعي؟")) { await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); location.reload(); } };
+        window.delP = async (id) => { if(confirm("حذف؟")) { await db.collection("products").doc(id).delete(); location.reload(); } };
+        window.delC = async (id) => { if(confirm("حذف القسم؟")) { await db.collection("categories").doc(id).delete(); location.reload(); } };
+        window.delS = async (m, s) => { if(confirm("حذف الفرعي؟")) { await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); location.reload(); } };
 
         window.switchTab = (e, id) => {
-            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             e.target.classList.add('active'); document.getElementById(id).classList.add('active');
         };
 
         async function init() {
             const cSnap = await db.collection("categories").get();
-            const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editProductMainCat'), cL = document.getElementById('categoriesAdminList');
-            pM.innerHTML = sM.innerHTML = eM.innerHTML = '<option value="">-- اختر القسم --</option>';
+            const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editMainCat'), cL = document.getElementById('categoriesAdminList');
+            pM.innerHTML = sM.innerHTML = eM.innerHTML = '<option value="">اختر القسم</option>';
             cSnap.forEach(doc => {
                 siteCategories[doc.id] = doc.data(); const opt = `<option value="${doc.id}">${doc.id}</option>`;
                 pM.innerHTML += opt; sM.innerHTML += opt; eM.innerHTML += opt;
-                let subsH = doc.data().subs.map(s => `
-                    <div class="sub-badge">
-                        ${s} 
-                        <span onclick="editSubCat('${doc.id}', '${s}')" style="cursor:pointer; color:var(--primary)">✎</span>
-                        <span onclick="deleteSub('${doc.id}', '${s}')" style="cursor:pointer; color:red">×</span>
-                    </div>`).join('');
-                cL.innerHTML += `<div class="list-item"><div style="display:flex;align-items:center;"><img src="${doc.data().imageUrl}"><div style="margin-right:15px;"><strong>${doc.id}</strong><br>${subsH}</div></div><button class="danger-btn" onclick="deleteC('${doc.id}')">حذف القسم</button></div>`;
+                let subs = doc.data().subs.map(s => `<div class="sub-tag">${s} <span onclick="delS('${doc.id}','${s}')" style="color:red; cursor:pointer">×</span></div>`).join('');
+                cL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${doc.data().imageUrl}"><strong>${doc.id}</strong></div><div style="display:flex; flex-wrap:wrap;">${subs}</div><button class="danger-btn" style="width:100%; padding:12px; margin-top:10px; border-radius:10px; cursor:pointer;" onclick="delC('${doc.id}')">حذف القسم بالكامل</button></div>`;
             });
             const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
             const pL = document.getElementById('productsList');
             pSnap.forEach(doc => {
                 const p = doc.data();
-                pL.innerHTML += `<div class="list-item"><div style="display:flex;align-items:center;"><img src="${p.imageUrl}"><div style="margin-right:15px;"><strong>${p.name}</strong><br><small>${p.mainCategory} > ${p.subCategory}</small></div></div><div class="btn-group"><button class="edit-btn" onclick="openEditModal('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button><button class="danger-btn" onclick="deleteP('${doc.id}')">حذف</button></div></div>`;
+                pL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${p.imageUrl}"><div><strong>${p.name}</strong><br><small>${p.mainCategory} > ${p.subCategory}</small></div></div><div class="btn-group-large"><button class="edit-btn" onclick="openEdit('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button><button class="danger-btn" onclick="delP('${doc.id}')">حذف</button></div></div>`;
             });
         }
     </script>
