@@ -8,42 +8,50 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         :root {
-            /* باليت الألوان المستوحاة من الصورة */
-            --bg-navy: #00122e; /* الكحلي الغامق جداً */
-            --color-beige: #dcc5a9; /* البيج الرملي الفخم */
-            --text-white: #ffffff;
-            --text-gray: #aaaaaa;
+            /* باليت الألوان المعتمدة بتدرجات عميقة */
+            --bg-deep-navy: #000814; /* كحلي مسود للعمق */
+            --bg-main-navy: #001d3d; /* كحلي غني */
+            --color-beige-glow: #e9d8c4; /* بيج متوهج ناعم */
+            --color-beige-main: #dcc5a9; /* بيج رملي */
             
-            /* الحفاظ على تأثيرات الزجاج والوهج بالألوان الجديدة */
-            --glass-bg: rgba(255, 255, 255, 0.03); /* زجاجي خفيف جداً */
-            --glass-border: rgba(255, 255, 255, 0.08); /* حدود زجاجية */
-            --accent-glow: rgba(220, 197, 169, 0.2); /* وهج بيج خفيف */
+            /* تأثيرات الزجاج والوهج بالألوان الجديدة */
+            --glass-bg: rgba(255, 255, 255, 0.02); /* زجاجي خفيف جداً */
+            --glass-border: rgba(255, 255, 255, 0.06); /* حدود زجاجية */
+            --accent-glow: rgba(233, 216, 196, 0.25); /* وهج بيج متطور */
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-navy);
-            /* إضافة تدرج راديال خفيف لإعطاء عمق للخلفية الكحلية */
-            background-image: radial-gradient(circle at 50% -20%, #001a42, #00122e);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            color: var(--text-white);
+            color: #ffffff;
             overflow-x: hidden;
             min-height: 100vh;
+            
+            /* تدرج خلفية متحرك ومذهل */
+            background: linear-gradient(-45deg, var(--bg-deep-navy), #00122e, #001d3d, #000000);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* تنسيق الهيدر الفخم */
         header {
             text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+            padding: 50px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
             position: relative;
         }
 
         .logo {
-            height: 90px;
+            height: 100px;
             cursor: pointer;
-            /* توهج بيج خلف الشعار */
-            filter: drop-shadow(0 0 10px var(--accent-glow));
+            /* توهج بيج متطور خلف الشعار */
+            filter: drop-shadow(0 0 15px var(--accent-glow));
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
@@ -51,16 +59,17 @@
             transform: scale(1.1) rotate(2deg);
         }
 
-        /* رسالة ترحيبية */
+        /* رسالة ترحيبية متأنقة */
         .welcome-msg {
             text-align: center;
-            margin: 20px 0 40px;
+            margin: 0 0 50px;
             animation: fadeIn 1.5s ease;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .welcome-msg h1 { font-weight: 300; letter-spacing: 3px; color: var(--color-beige); margin-bottom: 5px; }
-        .welcome-msg p { color: var(--text-gray); font-size: 0.9rem; }
+        .welcome-msg h1 { font-weight: 300; letter-spacing: 4px; color: var(--color-beige-glow); margin-bottom: 5px; }
+        .welcome-msg h1::after { content:''; display:block; width:50px; height:2px; background:var(--color-beige-main); margin: 10px auto; border-radius: 2px; }
+        .welcome-msg p { color: #aaaaaa; font-size: 0.95rem; font-weight: 300; }
 
         /* شبكة التصنيفات الحيوية والتأثيرات الزجاجية */
         .home-categories {
@@ -89,15 +98,16 @@
             aspect-ratio: 0.8 / 1;
             border: 1px solid var(--glass-border);
             background: var(--glass-bg);
-            backdrop-filter: blur(8px); /* تأثير الزجاج */
+            backdrop-filter: blur(10px); /* تأثير الزجاج */
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         /* تأثيرات التمرير القوية المعتمدة */
         .cat-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--color-beige);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 15px var(--accent-glow);
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--color-beige-glow);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px var(--accent-glow);
         }
 
         .cat-card img {
@@ -115,20 +125,21 @@
             position: absolute;
             inset: 0;
             /* تدرج غامق من الأسفل لإبراز النص */
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 5%, transparent 60%);
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 5%, transparent 60%);
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            padding: 20px;
+            padding: 25px;
             text-align: center;
         }
 
         .cat-overlay h2 {
             margin: 0;
-            color: var(--color-beige);
-            font-size: 1.1rem;
+            color: var(--color-beige-glow);
+            font-size: 1.2rem;
             font-weight: 600;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         /* شاشة عرض المنتجات المذهلة والحفاظ على الحركة */
@@ -159,9 +170,9 @@
 
         .back-btn {
             background: rgba(220, 197, 169, 0.1);
-            border: 1px solid var(--color-beige);
-            color: var(--color-beige);
-            padding: 10px 20px;
+            border: 1px solid var(--color-beige-main);
+            color: var(--color-beige-main);
+            padding: 12px 25px;
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
@@ -169,7 +180,7 @@
         }
 
         .back-btn:hover {
-            background: var(--color-beige);
+            background: var(--color-beige-main);
             color: #000;
         }
 
@@ -186,15 +197,15 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             color: #fff;
-            padding: 10px 25px;
+            padding: 12px 28px;
             border-radius: 30px;
             cursor: pointer;
             transition: 0.3s;
         }
 
         .sub-cats button.active {
-            background: var(--color-beige);
-            border-color: var(--color-beige);
+            background: var(--color-beige-glow);
+            border-color: var(--color-beige-glow);
             color: #000;
             font-weight: bold;
             box-shadow: 0 0 15px var(--accent-glow);
@@ -223,7 +234,7 @@
         }
 
         .item:hover {
-            border-color: var(--color-beige);
+            border-color: var(--color-beige-main);
             transform: scale(1.03);
         }
 
@@ -252,14 +263,14 @@
     <div id="home-section">
         <div class="welcome-msg">
             <h1>ATHNTA</h1>
-            <p>حيث تلتقي الأصالة بالفخامة</p>
+            <p>العراقة في كل تفصيل، الفخامة في كل اختيار</p>
         </div>
         <div class="home-categories" id="home"></div>
     </div>
 
     <div class="products-view" id="view">
         <div class="view-header">
-            <h2 id="title" style="color:var(--color-beige); margin:0;"></h2>
+            <h2 id="title" style="color:var(--color-beige-glow); margin:0;"></h2>
             <button onclick="location.reload()" class="back-btn">← العودة للرئيسية</button>
         </div>
         <div class="sub-cats" id="subs"></div>
