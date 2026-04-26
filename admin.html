@@ -32,11 +32,18 @@
         #uploadProgress { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: #000; z-index: 1000; display: none; }
         #pBar { height: 100%; width: 0%; background: var(--primary); transition: 0.3s; box-shadow: 0 0 10px var(--primary); }
 
-        .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; background: #0d0d0d; min-height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; margin-bottom: 15px; }
+        .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; background: #0d0d0d; min-height: 120px; display: flex; align-items: center; justify-content: center; flex-direction: column; margin-bottom: 15px; }
         .drop-zone span { color: #888; }
         .drop-zone.has-img span { display: none; }
+        
         .img-preview-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
         .img-preview-container img { height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+
+        /* ستايل الصور الحالية في نافذة التعديل مع زر الحذف */
+        .edit-img-wrap { position: relative; display: inline-block; }
+        .edit-img-wrap img { height: 90px; width: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #444; }
+        .delete-img-btn { position: absolute; top: -8px; right: -8px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; font-weight: bold; line-height: 1; padding: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .delete-img-btn:hover { background: #cc0000; }
 
         button.action-btn { background: var(--primary); color: #000; border: none; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.3s; }
         button.action-btn:disabled { background: #444; color: #888; }
@@ -54,7 +61,7 @@
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--primary); width: 100%; max-width: 450px; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid var(--primary); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         
         .toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #000; padding: 15px 25px; border-radius: 10px; font-weight: bold; display: none; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     </style>
@@ -84,7 +91,7 @@
             </div>
             <div class="drop-zone" id="prodDZ" onclick="document.getElementById('productFile').click()">
                 <div id="prodPrevContainer" class="img-preview-container"></div>
-                <span>اضغط لاختيار صور المنتج 📸 (يمكنك تحديد أكثر من صورة)</span>
+                <span>اضغط لاختيار صور المنتج 📸 (يمكن تحديد أكثر من صورة)</span>
                 <input type="file" id="productFile" style="display:none;" multiple onchange="previewMultiple(this, 'prodPrevContainer', 'prodDZ')">
             </div>
             <button class="action-btn" id="prodBtn" onclick="saveProduct()">رفع وحفظ المنتج</button>
@@ -114,18 +121,25 @@
 
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <h2 style="color:var(--primary)">تعديل المنتج</h2>
+            <h2 style="color:var(--primary)">تعديل المنتج والتحكم بالصور</h2>
             <input type="hidden" id="editId">
-            <input type="text" id="editName">
+            <input type="text" id="editName" placeholder="اسم المنتج">
             <select id="editMainCat" onchange="loadSubCats('editMainCat', 'editSubCat')"></select>
             <select id="editSubCat"></select>
-            <div class="drop-zone" id="editDZ" onclick="document.getElementById('editFile').click()">
-                <div id="editPrevContainer" class="img-preview-container"></div>
-                <span>تغيير الصور (سيتم استبدال الصور الحالية)</span>
-                <input type="file" id="editFile" style="display:none;" multiple onchange="previewMultiple(this, 'editPrevContainer', 'editDZ')">
+            
+            <div style="margin-bottom: 15px; background: #111; padding: 15px; border-radius: 10px; border: 1px solid #333;">
+                <label style="color:var(--primary); font-size:14px; display:block; margin-bottom:10px; font-weight:bold;">الصور الحالية للمنتج (اضغط ❌ للحذف):</label>
+                <div id="editPrevContainer" class="img-preview-container" style="justify-content: flex-start; gap: 15px;"></div>
             </div>
+
+            <div class="drop-zone" id="editDZ" onclick="document.getElementById('editFile').click()">
+                <div id="newEditPrevContainer" class="img-preview-container"></div>
+                <span>اضغط لإضافة صور جديدة 📸 (ستنضم للصور الحالية)</span>
+                <input type="file" id="editFile" style="display:none;" multiple onchange="previewMultiple(this, 'newEditPrevContainer', 'editDZ')">
+            </div>
+
             <div class="btn-group-large">
-                <button class="edit-btn" id="updateBtn" onclick="updateProduct()">حفظ التعديل</button>
+                <button class="edit-btn" id="updateBtn" onclick="updateProduct()">حفظ التعديلات</button>
                 <button class="danger-btn" onclick="closeModal()">إلغاء</button>
             </div>
         </div>
@@ -175,7 +189,6 @@
             }, 500);
         }
 
-        // معاينة الصور المتعددة
         function previewMultiple(input, containerId, zoneId) {
             const container = document.getElementById(containerId);
             container.innerHTML = ''; 
@@ -204,7 +217,6 @@
             if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
-        // رفع منتج مع صور متعددة
         async function saveProduct() {
             const n = document.getElementById('productName').value;
             const m = document.getElementById('productMainCat').value;
@@ -222,11 +234,7 @@
             }
 
             await db.collection("products").add({ 
-                name: n, 
-                mainCategory: m, 
-                subCategory: s || "عام", 
-                imageURLs: uploadedUrls, // حفظ المصفوفة
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                name: n, mainCategory: m, subCategory: s || "عام", imageURLs: uploadedUrls, timestamp: firebase.firestore.FieldValue.serverTimestamp() 
             });
             
             endProgress();
@@ -278,21 +286,49 @@
             }
         };
 
+        // إدارة الصور الحالية أثناء التعديل
         let currentImgUrls = [];
+
+        window.renderEditImages = () => {
+            const container = document.getElementById('editPrevContainer');
+            if(currentImgUrls.length === 0) {
+                container.innerHTML = '<span style="color:#888;">لا توجد صور حالية.</span>';
+                return;
+            }
+            container.innerHTML = currentImgUrls.map((url, index) => `
+                <div class="edit-img-wrap">
+                    <img src="${url}">
+                    <button class="delete-img-btn" onclick="removeExistingImg(event, ${index})">×</button>
+                </div>
+            `).join('');
+        };
+
+        window.removeExistingImg = (event, index) => {
+            event.stopPropagation(); // منع انتقال الضغطة للخلفية
+            if(confirm("هل أنت متأكد من إزالة هذه الصورة؟")) {
+                currentImgUrls.splice(index, 1);
+                renderEditImages();
+            }
+        };
+
         window.openEdit = (id, n, m, s, imgUrlsStr) => {
             document.getElementById('editModal').classList.add('active');
             document.getElementById('editId').value = id; 
             document.getElementById('editName').value = n;
             document.getElementById('editMainCat').value = m; 
             
+            // فك تشفير مصفوفة الصور
             currentImgUrls = JSON.parse(decodeURIComponent(imgUrlsStr));
+            renderEditImages(); // رسم الصور الحالية مع أزرار الحذف
             
-            const container = document.getElementById('editPrevContainer');
-            container.innerHTML = currentImgUrls.map(url => `<img src="${url}">`).join('');
-            document.getElementById('editDZ').classList.add('has-img');
+            // تصفير منطقة الصور الجديدة
+            document.getElementById('newEditPrevContainer').innerHTML = '';
+            document.getElementById('editFile').value = '';
+            document.getElementById('editDZ').classList.remove('has-img');
             
             loadSubCats('editMainCat', 'editSubCat', s);
         };
+        
         window.closeModal = () => document.getElementById('editModal').classList.remove('active');
 
         async function updateProduct() {
@@ -303,29 +339,38 @@
             const files = document.getElementById('editFile').files;
             
             await startProgress();
-            let urlsToSave = currentImgUrls; 
             
+            // نبدأ بالصور المتبقية بعد الحذف
+            let finalUrlsToSave = [...currentImgUrls]; 
+            
+            // إذا تم رفع صور إضافية جديدة، نقوم برفعها ودمجها مع القديمة
             if(files.length > 0) {
-                urlsToSave = [];
                 for (let i = 0; i < files.length; i++) {
                     let url = await up(files[i]);
-                    urlsToSave.push(url);
+                    finalUrlsToSave.push(url);
                 }
+            }
+            
+            if(finalUrlsToSave.length === 0) {
+                endProgress();
+                alert("يجب أن يحتوي المنتج على صورة واحدة على الأقل!");
+                return;
             }
             
             await db.collection("products").doc(id).update({ 
                 name: n, 
                 mainCategory: m, 
                 subCategory: s || "عام", 
-                imageURLs: urlsToSave // حفظ المصفوفة المحدثة
+                imageURLs: finalUrlsToSave 
             });
+            
             endProgress();
             closeModal();
-            showToast("تم تعديل المنتج! ✅");
+            showToast("تم حفظ التعديلات بنجاح! ✅");
             init();
         }
 
-        window.delP = async (id) => { if(confirm("حذف؟")) { await db.collection("products").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
+        window.delP = async (id) => { if(confirm("حذف المنتج بالكامل؟")) { await db.collection("products").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
         window.delC = async (id) => { if(confirm("حذف القسم؟")) { await db.collection("categories").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
         window.delS = async (m, s) => { if(confirm("حذف الفرعي؟")) { await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); showToast("تم الحذف 🗑️"); init(); } };
 
@@ -354,7 +399,6 @@
             pL.innerHTML = '';
             pSnap.forEach(doc => {
                 const p = doc.data();
-                // دعم المنتجات القديمة التي لها صورة واحدة
                 const urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
                 const firstImg = urls.length > 0 ? urls[0] : 'https://via.placeholder.com/70';
                 const urlsStr = encodeURIComponent(JSON.stringify(urls));
