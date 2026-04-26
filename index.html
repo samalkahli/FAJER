@@ -11,13 +11,15 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <style>
-        /* المتغيرات الأساسية */
+        /* المتغيرات الأساسية الفخمة */
         :root {
-            --bg-color: #0a0a0a;
-            --card-bg: #141414;
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --border-color: #222222;
+            --bg-dark: #050505;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --accent-color: #d4af37; /* لون ذهبي خفيف للفخامة */
+            --text-main: #f4f4f4;
+            --text-muted: #a0a0a0;
         }
 
         /* إعادة ضبط عامة */
@@ -29,45 +31,77 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* خلفية حية مضيئة خلف الزجاج */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 40vw;
+            height: 40vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%);
+            z-index: -1;
+            animation: float 15s infinite ease-in-out alternate;
+        }
+        body::before { top: -10%; right: -10%; }
+        body::after { bottom: -10%; left: -10%; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
         }
 
         /* =========================================
-           الهيدر (شريط التنقل)
+           الهيدر (شريط التنقل الزجاجي)
            ========================================= */
         header {
-            background-color: #000000;
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: var(--glass-shadow);
         }
 
         .logo {
-            height: 40px; /* حجم معقول جداً */
+            height: 45px;
             object-fit: contain;
+            transition: transform 0.3s ease;
         }
+        .logo:hover { transform: scale(1.05); }
 
         .header-whatsapp {
-            background-color: transparent;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0));
+            backdrop-filter: blur(10px);
             color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 8px 15px;
-            border-radius: 5px;
+            border: 1px solid var(--glass-border);
+            padding: 8px 24px;
+            border-radius: 30px;
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: 0.2s;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .header-whatsapp:hover {
-            background-color: var(--text-main);
-            color: #000000;
+            background: var(--text-main);
+            color: #000;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
 
         /* =========================================
@@ -76,15 +110,18 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 50px 20px;
         }
 
         .section-title {
             text-align: center;
-            margin-bottom: 40px;
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--text-muted);
+            margin-bottom: 50px;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to left, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
         }
 
         /* =========================================
@@ -92,145 +129,172 @@
            ========================================= */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
         }
 
-        /* بطاقة التصنيف */
-        .cat-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+        /* البطاقات الزجاجية المشتركة */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
             overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
 
-        .cat-card:hover {
-            transform: translateY(-5px);
-            border-color: #555;
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
         }
 
-        .cat-card img {
+        .glass-card img {
             width: 100%;
             aspect-ratio: 1;
             object-fit: cover;
-            border-bottom: 1px solid var(--border-color);
+            transition: transform 0.6s ease;
         }
 
+        .glass-card:hover img {
+            transform: scale(1.08);
+        }
+
+        .image-container {
+            overflow: hidden;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .cat-card { cursor: pointer; }
+
         .cat-card h3 {
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         /* =========================================
            قسم المنتجات
            ========================================= */
-        #products-section {
-            display: none;
+        #products-section { display: none; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .products-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
             padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        #category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
         }
 
         .btn-back {
-            background-color: transparent;
+            background: transparent;
             color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 8px 20px;
-            border-radius: 5px;
+            border: 1px solid var(--glass-border);
+            padding: 10px 25px;
+            border-radius: 30px;
             cursor: pointer;
             font-size: 1rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
         }
 
         .btn-back:hover {
-            background-color: var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .filters {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 40px;
+            justify-content: center;
         }
 
         .filter-btn {
-            background-color: var(--card-bg);
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
             color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            padding: 8px 20px;
-            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 10px 24px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
         }
 
         .filter-btn.active, .filter-btn:hover {
-            background-color: var(--text-main);
+            background: var(--text-main);
             color: #000;
+            border-color: var(--text-main);
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
         }
 
-        /* بطاقة المنتج */
+        /* تفاصيل بطاقة المنتج */
         .product-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .product-card img {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.6s ease backwards;
         }
 
         .product-card h4 {
-            font-size: 1rem;
-            margin-bottom: 15px;
-            font-weight: 400;
+            font-size: 1.1rem;
+            margin: 20px 15px;
+            font-weight: 500;
+            text-align: center;
         }
 
         .product-whatsapp {
-            display: block;
-            background-color: transparent;
+            background: transparent;
             color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 10px;
+            border: 1px solid var(--glass-border);
+            padding: 12px 30px;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            transition: 0.2s;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            width: 80%;
+            text-align: center;
+            margin-top: auto;
         }
 
         .product-whatsapp:hover {
-            background-color: var(--text-main);
+            background: var(--text-main);
             color: #000;
+            transform: scale(1.05);
         }
 
         /* استجابة الجوال */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
             }
             .products-header {
                 flex-direction: column;
-                gap: 15px;
-                text-align: center;
+                gap: 20px;
             }
-            .cat-card h3, .product-card h4 {
-                font-size: 0.9rem;
-            }
+            .section-title { font-size: 1.5rem; }
+            .cat-card h3, .product-card h4 { font-size: 1rem; }
+            .product-whatsapp { padding: 8px 15px; width: 90%; font-size: 0.85rem;}
         }
     </style>
 </head>
@@ -238,7 +302,7 @@
 
     <header>
         <img src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="logo" onclick="location.reload()" style="cursor:pointer;">
-        <a href="https://wa.me/966552125258" class="header-whatsapp" target="_blank">واتساب</a>
+        <a href="https://wa.me/966552125258" class="header-whatsapp" target="_blank">تواصل معنا</a>
     </header>
 
     <main class="container">
@@ -281,17 +345,14 @@
         let allProducts = []; 
         let categoriesData = {};  
 
-        // التحقق من الروابط
         function formatURL(url) {
             return url && url.startsWith('http') ? url : 'https://via.placeholder.com/400x400/222/fff?text=Image';
         }
 
-        // 1. جلب وعرض البيانات عند تحميل الصفحة
         async function loadData() {
             const catGrid = document.getElementById('categories-grid');
             
             try {
-                // جلب الأقسام
                 const cSnap = await db.collection("categories").get();
                 catGrid.innerHTML = ''; 
 
@@ -300,30 +361,29 @@
                     categoriesData[doc.id] = data; 
                     
                     catGrid.innerHTML += `
-                        <div class="cat-card" onclick="showProducts('${doc.id}')">
-                            <img src="${formatURL(data.imageUrl)}" alt="${doc.id}">
+                        <div class="glass-card cat-card" onclick="showProducts('${doc.id}')">
+                            <div class="image-container">
+                                <img src="${formatURL(data.imageUrl)}" alt="${doc.id}">
+                            </div>
                             <h3>${doc.id}</h3>
                         </div>
                     `;
                 });
 
-                // جلب المنتجات دفعة واحدة
                 const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
                 pSnap.forEach(doc => allProducts.push(doc.data()));
                 
             } catch (error) {
-                catGrid.innerHTML = '<p>حدث خطأ في جلب البيانات.</p>';
+                catGrid.innerHTML = '<p style="text-align:center;">حدث خطأ في جلب البيانات.</p>';
                 console.error(error);
             }
         }
 
-        // 2. إخفاء الأقسام وإظهار منتجات القسم المختار
         window.showProducts = (categoryId) => {
             document.getElementById('categories-section').style.display = 'none';
             document.getElementById('products-section').style.display = 'block';
             document.getElementById('category-title').innerText = categoryId;
             
-            // إنشاء أزرار الفلترة الفرعية
             const filtersBox = document.getElementById('filters-container');
             filtersBox.innerHTML = `<button class="filter-btn active" onclick="filterData('${categoryId}', 'all', event)">الكل</button>`;
             
@@ -334,34 +394,33 @@
             }
 
             filterData(categoryId, 'all');
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 3. فلترة المنتجات بناءً على القسم الرئيسي والفرعي
         window.filterData = (mainCat, subCat, event) => {
-            // تفعيل لون الزر المضغوط
             if(event) {
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                 event.target.classList.add('active');
             }
 
-            // تصفية المصفوفة
             let filtered = allProducts.filter(p => p.mainCategory === mainCat);
             if(subCat !== 'all') {
                 filtered = filtered.filter(p => p.subCategory === subCat);
             }
 
-            // رسم المنتجات
             const prodGrid = document.getElementById('products-grid');
             
             if(filtered.length === 0) {
-                prodGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">لا توجد منتجات هنا.</p>';
+                prodGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 1.2rem;">لا توجد منتجات هنا حالياً.</p>';
                 return;
             }
 
-            prodGrid.innerHTML = filtered.map(p => `
-                <div class="product-card">
-                    <img src="${formatURL(p.imageUrl)}" loading="lazy" alt="${p.name}">
+            // إضافة delay بسيط للانيميشن لكل كرت
+            prodGrid.innerHTML = filtered.map((p, index) => `
+                <div class="glass-card product-card" style="animation-delay: ${index * 0.05}s">
+                    <div class="image-container" style="width: 100%;">
+                        <img src="${formatURL(p.imageUrl)}" loading="lazy" alt="${p.name}">
+                    </div>
                     <h4>${p.name}</h4>
                     <a href="https://wa.me/966552125258?text=استفسار عن: ${encodeURIComponent(p.name)}" class="product-whatsapp" target="_blank">
                         طلب استفسار
@@ -370,7 +429,6 @@
             `).join('');
         }
 
-        // تشغيل الدالة الأولى عند فتح الموقع
         loadData();
     </script>
 </body>
