@@ -3,278 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATHNTA | عراقة وفخامة</title>
+    <title>ATHNTA | فخامة تنفيذية</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@200;400;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            /* باليت الألوان المعتمدة بتدرجات عميقة */
-            --bg-deep-navy: #000814; /* كحلي مسود للعمق */
-            --bg-main-navy: #001d3d; /* كحلي غني */
-            --color-beige-glow: #e9d8c4; /* بيج متوهج ناعم */
-            --color-beige-main: #dcc5a9; /* بيج رملي */
-            
-            /* تأثيرات الزجاج والوهج بالألوان الجديدة */
-            --glass-bg: rgba(255, 255, 255, 0.02); /* زجاجي خفيف جداً */
-            --glass-border: rgba(255, 255, 255, 0.06); /* حدود زجاجية */
-            --accent-glow: rgba(233, 216, 196, 0.25); /* وهج بيج متطور */
+            --primary-silver: #e5e5e5; /* فضي فاتح */
+            --dark-black: #050505; /* أسود عميق */
+            --glass-white: rgba(255, 255, 255, 0.08); /* أبيض شفاف للزجاج */
+            --border-silver: rgba(192, 192, 192, 0.3); /* حدود فضية */
+            --text-main: #ffffff;
+            --accent-silver: #a8a8a8; /* فضي معدني */
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Noto Sans Arabic', sans-serif;
             margin: 0;
-            color: #ffffff;
-            overflow-x: hidden;
+            background-color: var(--dark-black);
+            color: var(--text-main);
             min-height: 100vh;
-            
-            /* تدرج خلفية متحرك ومذهل */
-            background: linear-gradient(-45deg, var(--bg-deep-navy), #00122e, #001d3d, #000000);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background-image: 
+                radial-gradient(circle at 50% 50%, #1a1a1a 0%, #050505 100%);
+            overflow-x: hidden;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* تنسيق الهيدر الفخم */
+        /* الهيدر المطور */
         header {
-            text-align: center;
-            padding: 50px 20px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
-            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-silver);
         }
 
         .logo {
-            height: 100px;
+            height: 60px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
             cursor: pointer;
-            /* توهج بيج متطور خلف الشعار */
-            filter: drop-shadow(0 0 15px var(--accent-glow));
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .logo:hover {
-            transform: scale(1.1) rotate(2deg);
+        .whatsapp-header {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            color: #000;
+            padding: 8px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: 0.3s;
         }
 
-        /* رسالة ترحيبية متأنقة */
+        .whatsapp-header:hover {
+            background: var(--primary-silver);
+            transform: scale(1.05);
+        }
+
+        /* رسالة الترحيب */
         .welcome-msg {
             text-align: center;
-            margin: 0 0 50px;
-            animation: fadeIn 1.5s ease;
+            padding: 60px 20px;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .welcome-msg h1 { font-weight: 300; letter-spacing: 4px; color: var(--color-beige-glow); margin-bottom: 5px; }
-        .welcome-msg h1::after { content:''; display:block; width:50px; height:2px; background:var(--color-beige-main); margin: 10px auto; border-radius: 2px; }
-        .welcome-msg p { color: #aaaaaa; font-size: 0.95rem; font-weight: 300; }
+        .welcome-msg h1 {
+            font-weight: 200;
+            letter-spacing: 8px;
+            font-size: 3rem;
+            margin: 0;
+        }
 
-        /* شبكة التصنيفات الحيوية والتأثيرات الزجاجية */
+        .welcome-msg p {
+            color: var(--accent-silver);
+            font-size: 1.1rem;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+
+        /* شبكة التصنيفات الفخمة */
         .home-categories {
             display: grid;
-            /* الدعم الافتراضي 2 في الصف للجوال */
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* للشاشات الأكبر (الكمبيوتر) */
-        @media (min-width: 768px) {
-            .home-categories {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 30px;
-            }
+            padding: 40px 20px;
         }
 
         .cat-card {
             position: relative;
-            border-radius: 20px;
+            height: 450px;
+            border-radius: 0; /* شكل هندسي فخم */
             overflow: hidden;
             cursor: pointer;
-            aspect-ratio: 0.8 / 1;
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px); /* تأثير الزجاج */
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        /* تأثيرات التمرير القوية المعتمدة */
-        .cat-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--color-beige-glow);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px var(--accent-glow);
+            border: 1px solid var(--border-silver);
+            background: var(--glass-white);
+            transition: all 0.5s ease;
         }
 
         .cat-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .cat-card:hover img {
-            transform: scale(1.1);
+            opacity: 0.7;
+            filter: grayscale(40%);
+            transition: 0.8s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
         .cat-overlay {
             position: absolute;
             inset: 0;
-            /* تدرج غامق من الأسفل لإبراز النص */
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 5%, transparent 60%);
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
             display: flex;
-            align-items: flex-end;
+            flex-direction: column;
             justify-content: center;
-            padding: 25px;
-            text-align: center;
+            align-items: center;
+            transition: 0.5s;
         }
 
         .cat-overlay h2 {
-            margin: 0;
-            color: var(--color-beige-glow);
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            font-weight: 400;
+            letter-spacing: 3px;
+            transition: transform 0.5s ease;
         }
 
-        /* شاشة عرض المنتجات المذهلة والحفاظ على الحركة */
+        /* تأثير الحركة المطلوب عند التمرير */
+        .cat-card:hover img {
+            transform: scale(1.1);
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .cat-card:hover .cat-overlay h2 {
+            transform: translateY(20px); /* ينسحب لأسفل قليلاً عند التحديد */
+            color: var(--primary-silver);
+        }
+
+        /* قسم المنتجات */
         .products-view {
             display: none;
-            padding: 20px;
-            max-width: 1300px;
-            margin: 0 auto;
-            /* حركة الانزلاق للأعلى المعتمدة */
-            animation: slideUp 0.6s ease-out;
+            padding: 40px 5%;
+            animation: fadeIn 0.8s ease;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .products-view.active { display: block; }
-
-        .view-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 15px;
-        }
-
-        .back-btn {
-            background: rgba(220, 197, 169, 0.1);
-            border: 1px solid var(--color-beige-main);
-            color: var(--color-beige-main);
-            padding: 12px 25px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .back-btn:hover {
-            background: var(--color-beige-main);
-            color: #000;
-        }
-
-        /* أزرار الأقسام الفرعية بالألوان الجديدة */
-        .sub-cats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 35px;
-            justify-content: center;
-        }
-
-        .sub-cats button {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            padding: 12px 28px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .sub-cats button.active {
-            background: var(--color-beige-glow);
-            border-color: var(--color-beige-glow);
-            color: #000;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        /* المعرض الحيوية */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-
-        @media (min-width: 768px) {
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-                gap: 30px;
-            }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .item {
-            background: var(--glass-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-silver);
+            padding: 10px;
+            text-align: center;
             transition: 0.3s;
         }
 
         .item:hover {
-            border-color: var(--color-beige-main);
-            transform: scale(1.03);
+            border-color: #fff;
         }
 
         .item img {
             width: 100%;
-            aspect-ratio: 1/1;
+            aspect-ratio: 1;
             object-fit: cover;
+            margin-bottom: 15px;
         }
 
-        .item h3 {
-            padding: 15px;
-            text-align: center;
-            margin: 0;
-            font-size: 1rem;
-            color: #ddd;
+        .whatsapp-item-btn {
+            display: inline-block;
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--accent-silver);
+            color: #fff;
+            padding: 10px 0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: 0.3s;
         }
 
+        .whatsapp-item-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .sub-cats button {
+            background: transparent;
+            border: 1px solid var(--border-silver);
+            color: #fff;
+            padding: 8px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .sub-cats button.active {
+            background: #fff;
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .home-categories { grid-template-columns: 1fr; }
+            .welcome-msg h1 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo" onclick="location.reload()">
+        <a href="https://wa.me/966552125258" class="whatsapp-header">
+            <span>تواصل معنا</span>
+        </a>
     </header>
 
     <div id="home-section">
         <div class="welcome-msg">
             <h1>ATHNTA</h1>
-            <p>العراقة في كل تفصيل، الفخامة في كل اختيار</p>
+            <p>أعمالنا المنفذة خصيصاً لكم</p>
         </div>
         <div class="home-categories" id="home"></div>
     </div>
 
     <div class="products-view" id="view">
-        <div class="view-header">
-            <h2 id="title" style="color:var(--color-beige-glow); margin:0;"></h2>
-            <button onclick="location.reload()" class="back-btn">← العودة للرئيسية</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <h2 id="title" style="margin:0; font-weight: 200; letter-spacing: 2px;"></h2>
+            <button onclick="location.reload()" class="back-btn">العودة</button>
         </div>
-        <div class="sub-cats" id="subs"></div>
-        <div class="gallery" id="gallery"></div>
+        <div class="sub-cats" id="subs" style="margin-bottom: 30px; text-align: center;"></div>
+        <div class="home-categories" id="gallery" style="padding-top:0;"></div>
     </div>
 
     <script>
@@ -290,15 +259,28 @@
         const db = firebase.firestore();
         let prods = [], cats = {};
 
+        // دالة تظفير/تنظيف الروابط
+        function formatURL(url) {
+            try {
+                const cleanURL = new URL(url);
+                return cleanURL.href;
+            } catch (e) {
+                return '#';
+            }
+        }
+
         async function start() {
             const cSnap = await db.collection("categories").get();
             const homeBox = document.getElementById('home');
             cSnap.forEach(doc => {
-                cats[doc.id] = doc.data();
+                const data = doc.data();
+                cats[doc.id] = data;
                 homeBox.innerHTML += `
                     <div class="cat-card" onclick="openCat('${doc.id}')">
-                        <img src="${doc.data().imageUrl}" loading="lazy">
-                        <div class="cat-overlay"><h2>${doc.id}</h2></div>
+                        <img src="${formatURL(data.imageUrl)}" loading="lazy">
+                        <div class="cat-overlay">
+                            <h2>${doc.id}</h2>
+                        </div>
                     </div>`;
             });
             const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
@@ -307,7 +289,8 @@
 
         window.openCat = (id) => {
             document.getElementById('home-section').style.display = 'none';
-            document.getElementById('view').classList.add('active');
+            const view = document.getElementById('view');
+            view.style.display = 'block';
             document.getElementById('title').innerText = id;
             const subBox = document.getElementById('subs');
             subBox.innerHTML = `<button class="active" onclick="filter('${id}', 'all', event)">الكل</button>`;
@@ -329,8 +312,11 @@
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = filtered.map(p => `
                 <div class="item">
-                    <img src="${p.imageUrl}" loading="lazy">
-                    <h3>${p.name}</h3>
+                    <img src="${formatURL(p.imageUrl)}" loading="lazy">
+                    <h3 style="font-weight:400; font-size:1rem;">${p.name}</h3>
+                    <a href="https://wa.me/966552125258?text=استفسار عن: ${p.name}" class="whatsapp-item-btn">
+                        استفسار عبر واتساب
+                    </a>
                 </div>`).join('');
         }
         start();
