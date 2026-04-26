@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATHNTA | Luxury Gallery</title>
+    <title>المعرض الفخم</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <style>
         /* ==========================================
-           1. Design System & Variables
+           1. نظام الألوان والمتغيرات
            ========================================== */
         :root {
-            --bg-dark: #030303;
-            --bg-surface: #0a0a0a;
+            --bg-dark: #050505;
+            --bg-surface: #111111;
             --text-primary: #ffffff;
-            --text-secondary: #888888;
-            --gold-accent: #D4AF37; /* ذهبي فخم */
-            --gold-dim: rgba(212, 175, 55, 0.2);
-            --border-subtle: rgba(255, 255, 255, 0.05);
-            --radius-sm: 8px; /* زوايا أنيقة */
-            --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            --text-secondary: #999999;
+            --gold-accent: #D4AF37; 
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --radius-md: 20px; /* دوران متوازن: ليس حاداً وليس دائرياً جداً */
+            --transition-slow: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
             --transition-fast: 0.3s ease;
         }
 
@@ -39,72 +40,87 @@
         }
 
         /* ==========================================
-           2. Navbar / Header
+           2. الهيدر (مدموج ويثبت بذكاء)
            ========================================== */
         header {
             position: fixed;
             top: 0; left: 0; right: 0;
-            padding: 20px 5%;
+            padding: 40px 5%; /* مساحة واسعة لدمج الهيدر في البداية */
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 1000;
-            background: rgba(3, 3, 3, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-subtle);
-            transition: var(--transition-fast);
+            background: transparent; /* مدموج مع الخلفية */
+            border-bottom: 1px solid transparent;
+            transition: all 0.5s ease;
         }
+
+        /* حالة الهيدر عند السكرول */
+        header.scrolled {
+            padding: 15px 5%;
+            background: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-subtle);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* عنصر وهمي للحفاظ على الشعار في المنتصف تماماً */
+        .header-spacer { width: 45px; }
 
         .logo {
-            height: 45px; /* حجم أنيق ومتناسق */
+            height: 75px; 
             cursor: pointer;
-            transition: transform var(--transition-fast);
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.05));
         }
-        .logo:hover { transform: scale(1.05); }
+        
+        /* تصغير الشعار عند السكرول */
+        header.scrolled .logo { height: 45px; }
 
+        /* أيقونة الواتساب (Bootstrap) */
         .nav-whatsapp {
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
             color: var(--text-primary);
+            font-size: 1.2rem;
             text-decoration: none;
-            font-weight: 300;
-            font-size: 0.9rem;
             transition: var(--transition-fast);
-            padding: 8px 16px;
-            border: 1px solid var(--border-subtle);
-            border-radius: 50px;
         }
+        
         .nav-whatsapp:hover {
-            border-color: var(--gold-accent);
-            color: var(--gold-accent);
+            background: #ffffff;
+            color: #000000;
+            transform: scale(1.1);
+            border-color: #ffffff;
         }
-        .nav-whatsapp svg { width: 20px; height: 20px; fill: currentColor; }
 
         /* ==========================================
-           3. Hero Section
+           3. القسم الترحيبي
            ========================================== */
         .hero {
-            padding: 150px 5% 50px;
+            padding: 160px 5% 60px;
             text-align: center;
             max-width: 800px;
             margin: 0 auto;
             animation: fadeUp 1s ease forwards;
         }
-        .hero h1 {
-            font-size: 2.5rem;
-            font-weight: 200;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-        }
+        
         .hero p {
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 300;
+            letter-spacing: 1px;
+            line-height: 1.6;
         }
 
         /* ==========================================
-           4. Categories Grid (Editorial Style)
+           4. شبكة التصنيفات (الشرائح)
            ========================================== */
         .container {
             max-width: 1400px;
@@ -115,35 +131,36 @@
         .grid-categories {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            gap: 25px;
         }
 
         .category-card {
             position: relative;
-            aspect-ratio: 3 / 4; /* أبعاد كلاسيكية للصور الفنية */
-            border-radius: var(--radius-sm);
+            aspect-ratio: 3 / 4; 
+            border-radius: var(--radius-md); /* دوران متوازن 20px */
             overflow: hidden;
             cursor: pointer;
             background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition-slow);
         }
 
         .category-card img {
             width: 100%; height: 100%;
             object-fit: cover;
             opacity: 0.8;
-            filter: grayscale(20%);
+            filter: grayscale(15%);
             transition: var(--transition-slow);
         }
 
         .category-info {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            padding: 40px 30px 30px;
+            padding: 50px 30px 30px;
             background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            transition: var(--transition-slow);
         }
 
         .category-info h2 {
@@ -155,57 +172,67 @@
             transition: var(--transition-fast);
         }
 
-        /* Hover Effects */
+        /* تأثير التمرير */
+        .category-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
         .category-card:hover img {
-            transform: scale(1.05);
+            transform: scale(1.08);
             opacity: 1;
             filter: grayscale(0%);
         }
         .category-card:hover .category-info h2 {
             color: var(--gold-accent);
-            transform: translateY(-5px);
+            transform: translateY(5px);
         }
 
         /* ==========================================
-           5. Products View
+           5. صفحة المنتجات (المعرض الداخلي)
            ========================================== */
         #products-view { display: none; animation: fadeUp 0.8s ease forwards; }
 
         .view-header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            flex-direction: column;
+            align-items: center;
             margin-bottom: 40px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border-subtle);
-        }
-        .view-header h2 {
-            font-size: 2rem; font-weight: 200; color: var(--gold-accent);
+            text-align: center;
         }
         
         .btn-back {
             background: transparent; color: var(--text-secondary);
             border: none; cursor: pointer; font-size: 1rem; font-family: 'Tajawal';
             transition: var(--transition-fast);
+            margin-bottom: 15px;
+            display: inline-flex; align-items: center; gap: 8px;
         }
         .btn-back:hover { color: var(--text-primary); }
 
-        /* Filters */
+        .view-header h2 {
+            font-size: 2.2rem; font-weight: 200; color: var(--text-primary);
+            letter-spacing: 2px; margin: 0;
+        }
+
+        /* فلاتر الأقسام الفرعية */
         .filters {
-            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 40px;
         }
         .filter-btn {
             background: transparent; border: 1px solid var(--border-subtle);
-            color: var(--text-secondary); padding: 8px 24px;
-            border-radius: 50px; cursor: pointer; font-family: 'Tajawal';
+            color: var(--text-secondary); padding: 10px 28px;
+            border-radius: 50px; cursor: pointer; font-family: 'Tajawal'; font-weight: 300;
             transition: var(--transition-fast);
         }
         .filter-btn:hover { border-color: var(--text-primary); color: var(--text-primary); }
         .filter-btn.active {
-            background: var(--text-primary); color: var(--bg-dark); border-color: var(--text-primary);
+            background: var(--text-primary); color: var(--bg-dark); border-color: var(--text-primary); font-weight: 500;
         }
 
-        /* Products Grid */
+        /* شبكة المنتجات */
         .grid-products {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -219,36 +246,51 @@
         .product-img-wrapper {
             position: relative;
             aspect-ratio: 1;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-md); /* دوران متوازن 20px */
             overflow: hidden;
             background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition-slow);
         }
+        
         .product-img-wrapper img {
             width: 100%; height: 100%; object-fit: cover;
             transition: var(--transition-slow);
         }
+        
+        .product-img-wrapper:hover { border-color: rgba(255,255,255,0.2); }
         .product-img-wrapper:hover img { transform: scale(1.08); }
 
+        .product-details { text-align: center; }
         .product-details h3 {
-            font-size: 1.1rem; font-weight: 300; margin-bottom: 10px;
+            font-size: 1.1rem; font-weight: 300; margin-bottom: 12px; color: #ddd;
         }
 
-        /* زر الواتساب الفخم للمنتج */
+        /* زر الواتساب الأنيق للمنتج */
         .product-whatsapp {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            color: var(--gold-accent);
+            color: var(--text-primary);
             text-decoration: none;
             font-size: 0.9rem;
-            font-weight: 500;
+            font-weight: 300;
+            padding: 10px 20px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 50px;
             transition: var(--transition-fast);
+            width: 100%;
         }
-        .product-whatsapp svg { width: 16px; height: 16px; fill: currentColor; }
-        .product-whatsapp:hover { color: var(--text-primary); gap: 12px; } /* حركة السهم/المسافة */
+        .product-whatsapp i { font-size: 1.1rem; }
+        
+        .product-whatsapp:hover { 
+            background: #ffffff; 
+            color: #000000; 
+        }
 
         /* ==========================================
-           Animations & Responsive
+           حركات وأنيميشن (Animations)
            ========================================== */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -256,32 +298,41 @@
         }
 
         @media (max-width: 768px) {
-            .hero { padding: 120px 5% 40px; }
-            .hero h1 { font-size: 2rem; }
-            /* في الجوال: نعرض شريحتين جنب بعض كحد أقصى للحفاظ على الـ UX */
-            .grid-categories { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .category-info { padding: 20px 15px 15px; }
+            header { padding: 30px 5%; }
+            header.scrolled { padding: 12px 5%; }
+            .logo { height: 55px; }
+            .hero { padding: 130px 5% 40px; }
+            .hero p { font-size: 1rem; }
+            
+            /* عرض شريحتين في الجوال */
+            .grid-categories { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .category-card { border-radius: 16px; } /* دوران أصغر قليلاً في الجوال */
+            .category-info { padding: 25px 15px 15px; }
             .category-info h2 { font-size: 1.1rem; }
             
             .grid-products { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .view-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .product-img-wrapper { border-radius: 16px; }
+            .product-details h3 { font-size: 0.9rem; }
+            .product-whatsapp { padding: 8px; font-size: 0.8rem; }
+            .product-whatsapp i { font-size: 1rem; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <img src="https://i.ibb.co/XftPtTSg/image.png" class="logo" onclick="location.reload()" alt="ATHNTA">
-        <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank">
-            <svg viewBox="0 0 32 32"><path d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.733 5.486 2.017 7.796l-2.017 7.354 7.527-1.974c2.247 1.218 4.82 1.911 7.55 1.911 8.837 0 16-7.163 16-16s-7.163-16-16-16zm8.29 22.162c-0.342 0.963-1.733 1.764-2.386 1.87-0.654 0.107-1.306 0.193-4.223-0.972-2.917-1.166-4.722-4.144-4.867-4.337-0.145-0.193-1.182-1.571-1.182-2.997 0-1.427 0.745-2.128 1.011-2.42 0.266-0.292 0.58-0.365 0.774-0.365s0.387 0.004 0.556 0.012c0.178 0.008 0.419-0.067 0.655 0.505 0.237 0.573 0.81 1.974 0.881 2.118s0.118 0.312 0.022 0.505c-0.095 0.193-0.142 0.312-0.284 0.478-0.142 0.166-0.301 0.369-0.428 0.495-0.142 0.142-0.292 0.297-0.125 0.584 0.166 0.284 0.739 1.216 1.589 1.971 1.096 0.974 2.022 1.274 2.308 1.417 0.284 0.142 0.45 0.118 0.617-0.071 0.166-0.193 0.713-0.833 0.903-1.118 0.193-0.284 0.381-0.237 0.641-0.142s1.64 0.774 1.924 0.917c0.284 0.142 0.474 0.213 0.545 0.337 0.071 0.124 0.071 0.718-0.271 1.681z"/></svg>
-            تواصل معنا
+    <header id="mainHeader">
+        <div class="header-spacer"></div>
+        
+        <img src="https://i.ibb.co/XftPtTSg/image.png" class="logo" onclick="location.reload()" alt="Logo">
+        
+        <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank" title="تواصل معنا عبر واتساب">
+            <i class="bi bi-whatsapp"></i>
         </a>
     </header>
 
     <main id="app">
         <section id="home-view">
             <div class="hero">
-                <h1>ATHNTA</h1>
                 <p>أعمالنا المنفذة خصيصاً لكم، تعكس رؤيتنا في الفخامة والإتقان.</p>
             </div>
             <div class="container grid-categories" id="categories-container">
@@ -290,10 +341,10 @@
 
         <section id="products-view" class="container">
             <div class="view-header">
-                <div>
-                    <button class="btn-back" onclick="location.reload()">← العودة للمعرض</button>
-                    <h2 id="gallery-title" style="margin-top: 10px;"></h2>
-                </div>
+                <button class="btn-back" onclick="location.reload()">
+                    <i class="bi bi-arrow-right"></i> العودة للمعرض
+                </button>
+                <h2 id="gallery-title"></h2>
             </div>
             
             <div class="filters" id="filters-container">
@@ -305,6 +356,16 @@
     </main>
 
     <script>
+        // تأثير السكرول للهيدر
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 30) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
         // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
@@ -324,12 +385,11 @@
             return url && url.startsWith('http') ? url : 'https://via.placeholder.com/600x800/111/333?text=ATHNTA';
         }
 
-        // جلب البيانات الأساسية
+        // جلب البيانات
         async function initApp() {
             const catContainer = document.getElementById('categories-container');
             
             try {
-                // 1. جلب الأقسام
                 const cSnap = await db.collection("categories").get();
                 catContainer.innerHTML = ''; 
 
@@ -346,7 +406,6 @@
                         </div>`;
                 });
 
-                // 2. جلب المنتجات
                 const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
                 pSnap.forEach(doc => allProducts.push(doc.data()));
                 
@@ -402,14 +461,12 @@
                     <div class="product-details">
                         <h3>${p.name}</h3>
                         <a href="https://wa.me/966552125258?text=استفسار بخصوص العمل: ${encodeURIComponent(p.name)}" class="product-whatsapp" target="_blank">
-                            <svg viewBox="0 0 32 32"><path d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.733 5.486 2.017 7.796l-2.017 7.354 7.527-1.974c2.247 1.218 4.82 1.911 7.55 1.911 8.837 0 16-7.163 16-16s-7.163-16-16-16zm8.29 22.162c-0.342 0.963-1.733 1.764-2.386 1.87-0.654 0.107-1.306 0.193-4.223-0.972-2.917-1.166-4.722-4.144-4.867-4.337-0.145-0.193-1.182-1.571-1.182-2.997 0-1.427 0.745-2.128 1.011-2.42 0.266-0.292 0.58-0.365 0.774-0.365s0.387 0.004 0.556 0.012c0.178 0.008 0.419-0.067 0.655 0.505 0.237 0.573 0.81 1.974 0.881 2.118s0.118 0.312 0.022 0.505c-0.095 0.193-0.142 0.312-0.284 0.478-0.142 0.166-0.301 0.369-0.428 0.495-0.142 0.142-0.292 0.297-0.125 0.584 0.166 0.284 0.739 1.216 1.589 1.971 1.096 0.974 2.022 1.274 2.308 1.417 0.284 0.142 0.45 0.118 0.617-0.071 0.166-0.193 0.713-0.833 0.903-1.118 0.193-0.284 0.381-0.237 0.641-0.142s1.64 0.774 1.924 0.917c0.284 0.142 0.474 0.213 0.545 0.337 0.071 0.124 0.071 0.718-0.271 1.681z"/></svg>
-                            استفسار عن العمل
+                            <i class="bi bi-whatsapp"></i> استفسار
                         </a>
                     </div>
                 </div>`).join('');
         }
 
-        // تشغيل التطبيق
         initApp();
     </script>
 </body>
