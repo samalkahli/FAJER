@@ -3,250 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATHNTA | فخامة تنفيذية</title>
+    <title>ATHNTA | المعرض الفخم</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@200;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100;300;500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-silver: #e5e5e5; /* فضي فاتح */
-            --dark-black: #050505; /* أسود عميق */
-            --glass-white: rgba(255, 255, 255, 0.08); /* أبيض شفاف للزجاج */
-            --border-silver: rgba(192, 192, 192, 0.3); /* حدود فضية */
-            --text-main: #ffffff;
-            --accent-silver: #a8a8a8; /* فضي معدني */
+            --primary-silver: #f8f9fa;
+            --dark-black: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --border-line: rgba(255, 255, 255, 0.12);
+            --radius-main: 35px; /* زوايا دائرية مميزة */
         }
 
         body {
             font-family: 'Noto Sans Arabic', sans-serif;
             margin: 0;
-            background-color: var(--dark-black);
-            color: var(--text-main);
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 50% 50%, #1a1a1a 0%, #050505 100%);
+            background: var(--dark-black);
+            color: #fff;
             overflow-x: hidden;
+            background-image: radial-gradient(circle at top right, #1a1a1a, #0a0a0a);
         }
 
-        /* الهيدر المطور */
+        /* الهيدر المتكيف (يصغر عند السكرول) */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 5%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(15px);
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid var(--border-silver);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+        }
+
+        header.scrolled {
+            padding: 15px 5%;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-line);
+            justify-content: space-between;
         }
 
         .logo {
-            height: 60px;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+            height: 120px; /* حجم كبير في البداية */
+            transition: all 0.5s ease;
             cursor: pointer;
         }
 
-        .whatsapp-header {
+        header.scrolled .logo {
+            height: 50px; /* حجم صغير عند السكرول */
+        }
+
+        /* زر الواتساب العائم */
+        .float-whatsapp {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #25d366;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             display: flex;
+            justify-content: center;
             align-items: center;
-            background: #ffffff;
-            color: #000;
-            padding: 8px 18px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.85rem;
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+            z-index: 9999;
             transition: 0.3s;
         }
 
-        .whatsapp-header:hover {
-            background: var(--primary-silver);
-            transform: scale(1.05);
-        }
+        .float-whatsapp:hover { transform: scale(1.1) rotate(10deg); }
+        .float-whatsapp svg { width: 32px; height: 32px; fill: white; }
 
-        /* رسالة الترحيب */
-        .welcome-msg {
-            text-align: center;
-            padding: 60px 20px;
-        }
+        /* حاوية التصنيفات */
+        .welcome-msg { text-align: center; margin-top: 20px; }
+        .welcome-msg p { font-weight: 100; letter-spacing: 2px; color: #aaa; }
 
-        .welcome-msg h1 {
-            font-weight: 200;
-            letter-spacing: 8px;
-            font-size: 3rem;
-            margin: 0;
-        }
-
-        .welcome-msg p {
-            color: var(--accent-silver);
-            font-size: 1.1rem;
-            margin-top: 10px;
-            font-weight: 300;
-        }
-
-        /* شبكة التصنيفات الفخمة */
         .home-categories {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 50px 25px;
         }
 
+        /* الشرائح الدائرية الفخمة */
         .cat-card {
             position: relative;
-            height: 450px;
-            border-radius: 0; /* شكل هندسي فخم */
+            height: 500px;
+            border-radius: var(--radius-main);
             overflow: hidden;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-line);
             cursor: pointer;
-            border: 1px solid var(--border-silver);
-            background: var(--glass-white);
-            transition: all 0.5s ease;
+            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .cat-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.7;
-            filter: grayscale(40%);
-            transition: 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+            width: 100%; height: 100%; object-fit: cover;
+            transition: 0.8s; opacity: 0.8;
         }
 
         .cat-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: 0.5s;
+            position: absolute; inset: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            display: flex; align-items: flex-end; padding: 40px;
         }
 
         .cat-overlay h2 {
-            font-weight: 400;
-            letter-spacing: 3px;
-            transition: transform 0.5s ease;
+            font-size: 1.5rem; font-weight: 300; letter-spacing: 2px;
+            transition: 0.5s;
         }
 
-        /* تأثير الحركة المطلوب عند التمرير */
-        .cat-card:hover img {
-            transform: scale(1.1);
-            opacity: 1;
-            filter: grayscale(0%);
+        .cat-card:hover {
+            transform: translateY(-15px);
+            border-color: #fff;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        .cat-card:hover .cat-overlay h2 {
-            transform: translateY(20px); /* ينسحب لأسفل قليلاً عند التحديد */
-            color: var(--primary-silver);
-        }
+        .cat-card:hover img { transform: scale(1.1); opacity: 1; }
+        .cat-card:hover h2 { transform: translateY(10px); color: var(--primary-silver); }
 
-        /* قسم المنتجات */
-        .products-view {
-            display: none;
-            padding: 40px 5%;
-            animation: fadeIn 0.8s ease;
+        /* تصميم المعرض الداخلي */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
         }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .item {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border-silver);
-            padding: 10px;
+            background: var(--glass-bg);
+            border-radius: var(--radius-main);
+            padding: 15px;
+            border: 1px solid var(--border-line);
             text-align: center;
-            transition: 0.3s;
-        }
-
-        .item:hover {
-            border-color: #fff;
+            transition: 0.4s;
         }
 
         .item img {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            margin-bottom: 15px;
+            width: 100%; border-radius: calc(var(--radius-main) - 10px);
+            aspect-ratio: 1; object-fit: cover;
         }
 
         .whatsapp-item-btn {
-            display: inline-block;
-            width: 100%;
+            display: block; width: 100%;
+            padding: 12px; margin-top: 15px;
+            border-radius: 50px;
+            border: 1px solid #fff;
             background: transparent;
-            border: 1px solid var(--accent-silver);
-            color: #fff;
-            padding: 10px 0;
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-top: 10px;
+            color: #fff; text-decoration: none; font-size: 0.8rem;
             transition: 0.3s;
         }
 
-        .whatsapp-item-btn:hover {
-            background: #fff;
-            color: #000;
-        }
+        .whatsapp-item-btn:hover { background: #fff; color: #000; }
 
         .back-btn {
-            background: none;
-            border: 1px solid #fff;
-            color: #fff;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        .sub-cats button {
-            background: transparent;
-            border: 1px solid var(--border-silver);
-            color: #fff;
-            padding: 8px 20px;
-            margin: 5px;
-            cursor: pointer;
-        }
-
-        .sub-cats button.active {
-            background: #fff;
-            color: #000;
+            border: 1px solid #fff; background: none; color: #fff;
+            padding: 10px 25px; border-radius: 50px; cursor: pointer;
         }
 
         @media (max-width: 768px) {
+            .logo { height: 80px; }
             .home-categories { grid-template-columns: 1fr; }
-            .welcome-msg h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo" onclick="location.reload()">
-        <a href="https://wa.me/966552125258" class="whatsapp-header">
-            <span>تواصل معنا</span>
-        </a>
+    <a href="https://wa.me/966552125258" class="float-whatsapp" title="واتساب">
+        <svg viewBox="0 0 32 32"><path d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.733 5.486 2.017 7.796l-2.017 7.354 7.527-1.974c2.247 1.218 4.82 1.911 7.55 1.911 8.837 0 16-7.163 16-16s-7.163-16-16-16zm8.29 22.162c-0.342 0.963-1.733 1.764-2.386 1.87-0.654 0.107-1.306 0.193-4.223-0.972-2.917-1.166-4.722-4.144-4.867-4.337-0.145-0.193-1.182-1.571-1.182-2.997 0-1.427 0.745-2.128 1.011-2.42 0.266-0.292 0.58-0.365 0.774-0.365s0.387 0.004 0.556 0.012c0.178 0.008 0.419-0.067 0.655 0.505 0.237 0.573 0.81 1.974 0.881 2.118s0.118 0.312 0.022 0.505c-0.095 0.193-0.142 0.312-0.284 0.478-0.142 0.166-0.301 0.369-0.428 0.495-0.142 0.142-0.292 0.297-0.125 0.584 0.166 0.284 0.739 1.216 1.589 1.971 1.096 0.974 2.022 1.274 2.308 1.417 0.284 0.142 0.45 0.118 0.617-0.071 0.166-0.193 0.713-0.833 0.903-1.118 0.193-0.284 0.381-0.237 0.641-0.142s1.64 0.774 1.924 0.917c0.284 0.142 0.474 0.213 0.545 0.337 0.071 0.124 0.071 0.718-0.271 1.681z"/></svg>
+    </a>
+
+    <header id="mainHeader">
+        <img src="https://i.ibb.co/k28SzDpt/image.png" class="logo" onclick="location.reload()">
     </header>
 
     <div id="home-section">
         <div class="welcome-msg">
-            <h1>ATHNTA</h1>
             <p>أعمالنا المنفذة خصيصاً لكم</p>
         </div>
         <div class="home-categories" id="home"></div>
     </div>
 
-    <div class="products-view" id="view">
+    <div class="products-view" id="view" style="display: none; padding: 20px 5%;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-            <h2 id="title" style="margin:0; font-weight: 200; letter-spacing: 2px;"></h2>
-            <button onclick="location.reload()" class="back-btn">العودة</button>
+            <h2 id="title" style="margin:0; font-weight: 300;"></h2>
+            <button onclick="location.reload()" class="back-btn">الرجوع</button>
         </div>
         <div class="sub-cats" id="subs" style="margin-bottom: 30px; text-align: center;"></div>
-        <div class="home-categories" id="gallery" style="padding-top:0;"></div>
+        <div class="gallery" id="gallery"></div>
     </div>
 
     <script>
+        // إعدادات تصغير الهيدر عند السكرول
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
@@ -259,14 +221,8 @@
         const db = firebase.firestore();
         let prods = [], cats = {};
 
-        // دالة تظفير/تنظيف الروابط
         function formatURL(url) {
-            try {
-                const cleanURL = new URL(url);
-                return cleanURL.href;
-            } catch (e) {
-                return '#';
-            }
+            return url && url.startsWith('http') ? url : 'https://via.placeholder.com/500';
         }
 
         async function start() {
@@ -289,13 +245,12 @@
 
         window.openCat = (id) => {
             document.getElementById('home-section').style.display = 'none';
-            const view = document.getElementById('view');
-            view.style.display = 'block';
+            document.getElementById('view').style.display = 'block';
             document.getElementById('title').innerText = id;
             const subBox = document.getElementById('subs');
-            subBox.innerHTML = `<button class="active" onclick="filter('${id}', 'all', event)">الكل</button>`;
+            subBox.innerHTML = `<button class="back-btn" style="margin:5px; background:#fff; color:#000;" onclick="filter('${id}', 'all', event)">الكل</button>`;
             if(cats[id].subs) {
-                cats[id].subs.forEach(s => subBox.innerHTML += `<button onclick="filter('${id}', '${s}', event)">${s}</button>`);
+                cats[id].subs.forEach(s => subBox.innerHTML += `<button class="back-btn" style="margin:5px" onclick="filter('${id}', '${s}', event)">${s}</button>`);
             }
             filter(id, 'all');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -303,8 +258,12 @@
 
         window.filter = (main, sub, e) => {
             if(e) { 
-                document.querySelectorAll('.sub-cats button').forEach(b=>b.classList.remove('active')); 
-                e.target.classList.add('active'); 
+                document.querySelectorAll('.sub-cats button').forEach(b => {
+                    b.style.background = "transparent";
+                    b.style.color = "#fff";
+                });
+                e.target.style.background = "#fff";
+                e.target.style.color = "#000";
             }
             let filtered = prods.filter(p => p.mainCategory === main);
             if(sub !== 'all') filtered = filtered.filter(p => p.subCategory === sub);
@@ -313,9 +272,9 @@
             gallery.innerHTML = filtered.map(p => `
                 <div class="item">
                     <img src="${formatURL(p.imageUrl)}" loading="lazy">
-                    <h3 style="font-weight:400; font-size:1rem;">${p.name}</h3>
+                    <h3 style="font-weight:300; margin:15px 0 5px;">${p.name}</h3>
                     <a href="https://wa.me/966552125258?text=استفسار عن: ${p.name}" class="whatsapp-item-btn">
-                        استفسار عبر واتساب
+                        استفسار واتساب
                     </a>
                 </div>`).join('');
         }
