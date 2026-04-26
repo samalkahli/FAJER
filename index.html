@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المعرض الفخم</title>
+    <title>ATHNTA | المعرض</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
@@ -14,17 +14,17 @@
     
     <style>
         /* ==========================================
-           1. نظام الألوان والمتغيرات
+           1. الإعدادات الأساسية والمقاسات الثابتة
            ========================================== */
         :root {
-            --bg-dark: #050505;
-            --bg-surface: #111111;
+            --bg-dark: #070707;
+            --bg-card: #121212;
             --text-primary: #ffffff;
-            --text-secondary: #999999;
-            --gold-accent: #D4AF37; 
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --radius-md: 20px; /* دوران متوازن: ليس حاداً وليس دائرياً جداً */
-            --transition-slow: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+            --text-secondary: #a0a0a0;
+            --accent-color: #ffffff; /* أبيض كلاسيكي للفخامة */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --header-height: 80px; /* مساحة الهيدر الثابتة لمنع التداخل */
+            --radius-md: 16px; 
             --transition-fast: 0.3s ease;
         }
 
@@ -34,309 +34,222 @@
             font-family: 'Tajawal', sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-primary);
-            -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
             min-height: 100vh;
         }
 
         /* ==========================================
-           2. الهيدر (مدموج ويثبت بذكاء)
+           2. الهيدر (شريط التنقل العلوي)
            ========================================== */
         header {
             position: fixed;
             top: 0; left: 0; right: 0;
-            padding: 40px 5%; /* مساحة واسعة لدمج الهيدر في البداية */
+            height: var(--header-height);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 5%;
             z-index: 1000;
-            background: transparent; /* مدموج مع الخلفية */
-            border-bottom: 1px solid transparent;
-            transition: all 0.5s ease;
+            background: rgba(7, 7, 7, 0.95); /* خلفية شبه معتمة تمنع التداخل */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        /* حالة الهيدر عند السكرول */
-        header.scrolled {
-            padding: 15px 5%;
-            background: rgba(5, 5, 5, 0.85);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--border-subtle);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        /* عنصر وهمي للحفاظ على الشعار في المنتصف تماماً */
-        .header-spacer { width: 45px; }
+        /* وزن وهمي لضبط الشعار في المنتصف بالضبط */
+        .header-spacer { width: 40px; }
 
         .logo {
-            height: 75px; 
+            height: 35px; /* شعار بحجم أنيق ومضبوط */
+            object-fit: contain;
             cursor: pointer;
-            transition: all 0.5s ease;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.05));
+            transition: var(--transition-fast);
         }
-        
-        /* تصغير الشعار عند السكرول */
-        header.scrolled .logo { height: 45px; }
+        .logo:hover { opacity: 0.8; }
 
-        /* أيقونة الواتساب (Bootstrap) */
         .nav-whatsapp {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 45px; height: 45px;
+            width: 40px; height: 40px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
             color: var(--text-primary);
             font-size: 1.2rem;
             text-decoration: none;
             transition: var(--transition-fast);
         }
-        
         .nav-whatsapp:hover {
             background: #ffffff;
             color: #000000;
-            transform: scale(1.1);
-            border-color: #ffffff;
         }
 
         /* ==========================================
-           3. القسم الترحيبي
+           3. الحاوية الرئيسية (لمنع التداخل مع الهيدر)
            ========================================== */
-        .hero {
-            padding: 160px 5% 60px;
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-            animation: fadeUp 1s ease forwards;
-        }
-        
-        .hero p {
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            line-height: 1.6;
+        main {
+            /* مسافة علوية تساوي ارتفاع الهيدر + مسافة تنفس */
+            padding-top: calc(var(--header-height) + 40px);
+            min-height: calc(100vh - var(--header-height));
         }
 
-        /* ==========================================
-           4. شبكة التصنيفات (الشرائح)
-           ========================================== */
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 5% 100px;
+            padding: 0 5% 60px;
+        }
+
+        /* ==========================================
+           4. الصفحة الرئيسية (الترحيب والتصنيفات)
+           ========================================== */
+        .welcome-msg {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .welcome-msg p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
         }
 
         .grid-categories {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
         .category-card {
             position: relative;
             aspect-ratio: 3 / 4; 
-            border-radius: var(--radius-md); /* دوران متوازن 20px */
+            border-radius: var(--radius-md);
             overflow: hidden;
             cursor: pointer;
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            transition: var(--transition-slow);
+            border: 1px solid var(--border-color);
         }
-
         .category-card img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            opacity: 0.8;
-            filter: grayscale(15%);
-            transition: var(--transition-slow);
+            width: 100%; height: 100%; object-fit: cover;
+            opacity: 0.7; transition: 0.5s ease;
         }
-
         .category-info {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 50px 30px 30px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        .category-info h2 {
-            font-size: 1.5rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin: 0;
-            color: var(--text-primary);
-            transition: var(--transition-fast);
-        }
-
-        /* تأثير التمرير */
-        .category-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(255,255,255,0.2);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        .category-card:hover img {
-            transform: scale(1.08);
-            opacity: 1;
-            filter: grayscale(0%);
-        }
-        .category-card:hover .category-info h2 {
-            color: var(--gold-accent);
-            transform: translateY(5px);
-        }
-
-        /* ==========================================
-           5. صفحة المنتجات (المعرض الداخلي)
-           ========================================== */
-        #products-view { display: none; animation: fadeUp 0.8s ease forwards; }
-
-        .view-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-subtle);
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 40px 20px 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
             text-align: center;
         }
-        
+        .category-info h2 {
+            font-size: 1.3rem; font-weight: 500; color: var(--text-primary);
+            transition: 0.3s ease;
+        }
+        .category-card:hover img { opacity: 1; transform: scale(1.05); }
+        .category-card:hover h2 { transform: translateY(-5px); }
+
+        /* ==========================================
+           5. صفحة عرض المنتجات (مرتبة بدون تداخل)
+           ========================================== */
+        #products-view { display: none; }
+
+        .view-header {
+            margin-bottom: 30px;
+            text-align: right;
+        }
         .btn-back {
             background: transparent; color: var(--text-secondary);
             border: none; cursor: pointer; font-size: 1rem; font-family: 'Tajawal';
-            transition: var(--transition-fast);
-            margin-bottom: 15px;
             display: inline-flex; align-items: center; gap: 8px;
+            margin-bottom: 20px; transition: var(--transition-fast);
         }
         .btn-back:hover { color: var(--text-primary); }
 
         .view-header h2 {
-            font-size: 2.2rem; font-weight: 200; color: var(--text-primary);
-            letter-spacing: 2px; margin: 0;
+            font-size: 2rem; font-weight: 400; color: var(--accent-color);
+            margin: 0;
         }
 
-        /* فلاتر الأقسام الفرعية */
         .filters {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 40px;
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px;
         }
         .filter-btn {
-            background: transparent; border: 1px solid var(--border-subtle);
-            color: var(--text-secondary); padding: 10px 28px;
-            border-radius: 50px; cursor: pointer; font-family: 'Tajawal'; font-weight: 300;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            color: var(--text-secondary); padding: 8px 20px;
+            border-radius: 50px; cursor: pointer; font-family: 'Tajawal'; font-weight: 400;
             transition: var(--transition-fast);
         }
         .filter-btn:hover { border-color: var(--text-primary); color: var(--text-primary); }
         .filter-btn.active {
-            background: var(--text-primary); color: var(--bg-dark); border-color: var(--text-primary); font-weight: 500;
+            background: var(--text-primary); color: var(--bg-dark); font-weight: 500;
         }
 
-        /* شبكة المنتجات */
         .grid-products {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
         }
 
         .product-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 15px;
             display: flex; flex-direction: column; gap: 15px;
-        }
-
-        .product-img-wrapper {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: var(--radius-md); /* دوران متوازن 20px */
-            overflow: hidden;
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            transition: var(--transition-slow);
-        }
-        
-        .product-img-wrapper img {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: var(--transition-slow);
-        }
-        
-        .product-img-wrapper:hover { border-color: rgba(255,255,255,0.2); }
-        .product-img-wrapper:hover img { transform: scale(1.08); }
-
-        .product-details { text-align: center; }
-        .product-details h3 {
-            font-size: 1.1rem; font-weight: 300; margin-bottom: 12px; color: #ddd;
-        }
-
-        /* زر الواتساب الأنيق للمنتج */
-        .product-whatsapp {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 300;
-            padding: 10px 20px;
-            border: 1px solid var(--border-subtle);
-            border-radius: 50px;
             transition: var(--transition-fast);
-            width: 100%;
         }
-        .product-whatsapp i { font-size: 1.1rem; }
-        
-        .product-whatsapp:hover { 
-            background: #ffffff; 
-            color: #000000; 
+        .product-card:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-5px); }
+
+        .product-img {
+            width: 100%; aspect-ratio: 1; object-fit: cover;
+            border-radius: 8px;
         }
+
+        .product-details h3 {
+            font-size: 1rem; font-weight: 400; margin-bottom: 15px; text-align: center; color: #eee;
+        }
+
+        .product-whatsapp {
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            color: var(--text-primary); text-decoration: none; font-size: 0.9rem;
+            padding: 10px; border: 1px solid var(--border-color);
+            border-radius: 50px; transition: var(--transition-fast); background: rgba(255,255,255,0.02);
+        }
+        .product-whatsapp:hover { background: var(--text-primary); color: var(--bg-dark); }
 
         /* ==========================================
-           حركات وأنيميشن (Animations)
+           الجوال (تعديلات شاشات صغيرة)
            ========================================== */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         @media (max-width: 768px) {
-            header { padding: 30px 5%; }
-            header.scrolled { padding: 12px 5%; }
-            .logo { height: 55px; }
-            .hero { padding: 130px 5% 40px; }
-            .hero p { font-size: 1rem; }
+            :root { --header-height: 70px; }
+            main { padding-top: calc(var(--header-height) + 20px); }
             
-            /* عرض شريحتين في الجوال */
+            .logo { height: 30px; } /* شعار أصغر في الجوال */
+            .nav-whatsapp, .header-spacer { width: 35px; height: 35px; font-size: 1rem; }
+            
             .grid-categories { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .category-card { border-radius: 16px; } /* دوران أصغر قليلاً في الجوال */
-            .category-info { padding: 25px 15px 15px; }
             .category-info h2 { font-size: 1.1rem; }
             
+            .view-header h2 { font-size: 1.5rem; }
             .grid-products { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .product-img-wrapper { border-radius: 16px; }
-            .product-details h3 { font-size: 0.9rem; }
+            .product-card { padding: 10px; gap: 10px; }
+            .product-details h3 { font-size: 0.9rem; margin-bottom: 10px; }
             .product-whatsapp { padding: 8px; font-size: 0.8rem; }
-            .product-whatsapp i { font-size: 1rem; }
+            .filters { justify-content: center; }
         }
     </style>
 </head>
 <body>
 
-    <header id="mainHeader">
+    <header>
         <div class="header-spacer"></div>
-        
-        <img src="https://i.ibb.co/XftPtTSg/image.png" class="logo" onclick="location.reload()" alt="Logo">
-        
-        <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank" title="تواصل معنا عبر واتساب">
+        <img src="https://i.ibb.co/XftPtTSg/image.png" class="logo" onclick="location.reload()" alt="ATHNTA">
+        <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank" title="تواصل عبر واتساب">
             <i class="bi bi-whatsapp"></i>
         </a>
     </header>
 
-    <main id="app">
-        <section id="home-view">
-            <div class="hero">
-                <p>أعمالنا المنفذة خصيصاً لكم، تعكس رؤيتنا في الفخامة والإتقان.</p>
+    <main>
+        <section id="home-view" class="container">
+            <div class="welcome-msg">
+                <p>أعمالنا المنفذة خصيصاً لكم</p>
             </div>
-            <div class="container grid-categories" id="categories-container">
-                </div>
+            <div class="grid-categories" id="categories-container"></div>
         </section>
 
         <section id="products-view" class="container">
@@ -347,25 +260,13 @@
                 <h2 id="gallery-title"></h2>
             </div>
             
-            <div class="filters" id="filters-container">
-                </div>
+            <div class="filters" id="filters-container"></div>
             
-            <div class="grid-products" id="products-container">
-                </div>
+            <div class="grid-products" id="products-container"></div>
         </section>
     </main>
 
     <script>
-        // تأثير السكرول للهيدر
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('mainHeader');
-            if (window.scrollY > 30) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
         // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
@@ -382,13 +283,11 @@
         let categoriesData = {};  
 
         function formatURL(url) {
-            return url && url.startsWith('http') ? url : 'https://via.placeholder.com/600x800/111/333?text=ATHNTA';
+            return url && url.startsWith('http') ? url : 'https://via.placeholder.com/600x800/222/555?text=ATHNTA';
         }
 
-        // جلب البيانات
         async function initApp() {
             const catContainer = document.getElementById('categories-container');
-            
             try {
                 const cSnap = await db.collection("categories").get();
                 catContainer.innerHTML = ''; 
@@ -396,7 +295,6 @@
                 cSnap.forEach(doc => {
                     const data = doc.data();
                     categoriesData[doc.id] = data; 
-                    
                     catContainer.innerHTML += `
                         <div class="category-card" onclick="openCategory('${doc.id}')">
                             <img src="${formatURL(data.imageUrl)}" loading="lazy" alt="${doc.id}">
@@ -410,12 +308,10 @@
                 pSnap.forEach(doc => allProducts.push(doc.data()));
                 
             } catch (error) {
-                console.error("Error loading data:", error);
-                catContainer.innerHTML = '<p style="text-align:center; color:red;">حدث خطأ في تحميل البيانات.</p>';
+                console.error("Error:", error);
             }
         }
 
-        // الانتقال لصفحة المنتجات
         window.openCategory = (categoryId) => {
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('products-view').style.display = 'block';
@@ -434,7 +330,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // فلترة وعرض المنتجات
         window.filterProducts = (mainCatId, subCatName, event) => {
             if(event) { 
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -447,17 +342,14 @@
             }
             
             const prodContainer = document.getElementById('products-container');
-            
             if(filtered.length === 0) {
-                prodContainer.innerHTML = '<p style="grid-column: 1/-1; color:var(--text-secondary); text-align:center; padding:40px;">لا توجد أعمال لعرضها حالياً.</p>';
+                prodContainer.innerHTML = '<p style="grid-column: 1/-1; color:var(--text-secondary); text-align:center;">لا توجد أعمال لعرضها حالياً.</p>';
                 return;
             }
 
             prodContainer.innerHTML = filtered.map(p => `
                 <div class="product-card">
-                    <div class="product-img-wrapper">
-                        <img src="${formatURL(p.imageUrl)}" loading="lazy" alt="${p.name}">
-                    </div>
+                    <img src="${formatURL(p.imageUrl)}" loading="lazy" class="product-img" alt="${p.name}">
                     <div class="product-details">
                         <h3>${p.name}</h3>
                         <a href="https://wa.me/966552125258?text=استفسار بخصوص العمل: ${encodeURIComponent(p.name)}" class="product-whatsapp" target="_blank">
