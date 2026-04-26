@@ -33,9 +33,10 @@
         #pBar { height: 100%; width: 0%; background: var(--primary); transition: 0.3s; box-shadow: 0 0 10px var(--primary); }
 
         .drop-zone { border: 2px dashed #444; padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; background: #0d0d0d; min-height: 150px; display: flex; align-items: center; justify-content: center; flex-direction: column; margin-bottom: 15px; }
-        .drop-zone img { max-height: 120px; border-radius: 8px; margin-bottom: 10px; display: none; }
+        .drop-zone span { color: #888; }
         .drop-zone.has-img span { display: none; }
-        .drop-zone.has-img img { display: block; }
+        .img-preview-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+        .img-preview-container img { height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
 
         button.action-btn { background: var(--primary); color: #000; border: none; padding: 18px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.3s; }
         button.action-btn:disabled { background: #444; color: #888; }
@@ -82,9 +83,9 @@
                 <select id="productSubCat"></select>
             </div>
             <div class="drop-zone" id="prodDZ" onclick="document.getElementById('productFile').click()">
-                <img id="prodPrev">
-                <span>اضغط لاختيار صورة المنتج 📸</span>
-                <input type="file" id="productFile" style="display:none;" onchange="preview(this, 'prodPrev', 'prodDZ')">
+                <div id="prodPrevContainer" class="img-preview-container"></div>
+                <span>اضغط لاختيار صور المنتج 📸 (يمكنك تحديد أكثر من صورة)</span>
+                <input type="file" id="productFile" style="display:none;" multiple onchange="previewMultiple(this, 'prodPrevContainer', 'prodDZ')">
             </div>
             <button class="action-btn" id="prodBtn" onclick="saveProduct()">رفع وحفظ المنتج</button>
         </div>
@@ -96,9 +97,9 @@
             <h2>قسم رئيسي جديد 🖼️</h2>
             <input type="text" id="newMainCat" placeholder="اسم القسم الرئيسي">
             <div class="drop-zone" id="catDZ" onclick="document.getElementById('catFile').click()">
-                <img id="catPrev">
+                <div id="catPrevContainer" class="img-preview-container"></div>
                 <span>صورة غلاف القسم 📂</span>
-                <input type="file" id="catFile" style="display:none;" onchange="preview(this, 'catPrev', 'catDZ')">
+                <input type="file" id="catFile" style="display:none;" onchange="previewMultiple(this, 'catPrevContainer', 'catDZ')">
             </div>
             <button class="action-btn" id="catBtn" onclick="saveMainCategory()">إنشاء القسم</button>
         </div>
@@ -119,9 +120,9 @@
             <select id="editMainCat" onchange="loadSubCats('editMainCat', 'editSubCat')"></select>
             <select id="editSubCat"></select>
             <div class="drop-zone" id="editDZ" onclick="document.getElementById('editFile').click()">
-                <img id="editPrev">
-                <span>تغيير الصورة (اختياري)</span>
-                <input type="file" id="editFile" style="display:none;" onchange="preview(this, 'editPrev', 'editDZ')">
+                <div id="editPrevContainer" class="img-preview-container"></div>
+                <span>تغيير الصور (سيتم استبدال الصور الحالية)</span>
+                <input type="file" id="editFile" style="display:none;" multiple onchange="previewMultiple(this, 'editPrevContainer', 'editDZ')">
             </div>
             <div class="btn-group-large">
                 <button class="edit-btn" id="updateBtn" onclick="updateProduct()">حفظ التعديل</button>
@@ -142,14 +143,12 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(), auth = firebase.auth();
 
-        // نظام الجلسة (ساعة)
         function updateS() { localStorage.setItem('at', Date.now()); }
         function checkS() { if (localStorage.getItem('at') && (Date.now() - localStorage.getItem('at') > 3600000)) logout(); }
         setInterval(checkS, 30000);
         auth.onAuthStateChanged(u => { if(u){updateS(); document.body.style.display='block'; init();} else window.location.href='login.html'; });
         function logout() { localStorage.clear(); auth.signOut().then(()=>window.location.href='login.html'); }
 
-        // إشعارات وتوكيدات
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg; t.style.display = 'block';
@@ -161,7 +160,7 @@
             let p = 0, bar = document.getElementById('pBar');
             return new Promise(res => {
                 let itv = setInterval(() => {
-                    p += Math.random() * 20;
+                    p += Math.random() * 15;
                     if(p >= 90) { clearInterval(itv); res(); }
                     bar.style.width = p + '%';
                 }, 150);
@@ -176,14 +175,19 @@
             }, 500);
         }
 
-        function preview(input, imgId, zoneId) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById(imgId).src = e.target.result;
-                    document.getElementById(zoneId).classList.add('has-img');
-                };
-                reader.readAsDataURL(input.files[0]);
+        // معاينة الصور المتعددة
+        function previewMultiple(input, containerId, zoneId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; 
+            if (input.files && input.files.length > 0) {
+                document.getElementById(zoneId).classList.add('has-img');
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        container.innerHTML += `<img src="${e.target.result}">`;
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
         }
 
@@ -200,20 +204,38 @@
             if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
-        // الرفع الذكي بدون ريلود
+        // رفع منتج مع صور متعددة
         async function saveProduct() {
-            const n = document.getElementById('productName').value, m = document.getElementById('productMainCat').value, s = document.getElementById('productSubCat').value, f = document.getElementById('productFile').files[0];
-            if(!n || !m || !f) return alert("أكمل البيانات");
+            const n = document.getElementById('productName').value;
+            const m = document.getElementById('productMainCat').value;
+            const s = document.getElementById('productSubCat').value;
+            const files = document.getElementById('productFile').files;
+            
+            if(!n || !m || files.length === 0) return alert("الرجاء إدخال اسم المنتج واختيار القسم واختيار صورة واحدة على الأقل");
             
             await startProgress();
-            const url = await up(f);
-            await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            
+            let uploadedUrls = [];
+            for (let i = 0; i < files.length; i++) {
+                let url = await up(files[i]);
+                uploadedUrls.push(url);
+            }
+
+            await db.collection("products").add({ 
+                name: n, 
+                mainCategory: m, 
+                subCategory: s || "عام", 
+                imageURLs: uploadedUrls, // حفظ المصفوفة
+                timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+            });
             
             endProgress();
             showToast("تم رفع المنتج بنجاح! ✅");
             document.getElementById('productName').value = ''; 
+            document.getElementById('productFile').value = '';
+            document.getElementById('prodPrevContainer').innerHTML = '';
             document.getElementById('prodDZ').classList.remove('has-img');
-            init(); // تحديث القائمة فقط
+            init(); 
         }
 
         async function saveMainCategory() {
@@ -225,6 +247,7 @@
             endProgress();
             showToast("تم إنشاء القسم! ✅");
             document.getElementById('newMainCat').value = '';
+            document.getElementById('catPrevContainer').innerHTML = '';
             document.getElementById('catDZ').classList.remove('has-img');
             init();
         }
@@ -255,20 +278,47 @@
             }
         };
 
-        window.openEdit = (id, n, m, s, img) => {
+        let currentImgUrls = [];
+        window.openEdit = (id, n, m, s, imgUrlsStr) => {
             document.getElementById('editModal').classList.add('active');
-            document.getElementById('editId').value = id; document.getElementById('editName').value = n;
-            document.getElementById('editMainCat').value = m; currentImg = img;
-            document.getElementById('editPrev').src = img; document.getElementById('editDZ').classList.add('has-img');
+            document.getElementById('editId').value = id; 
+            document.getElementById('editName').value = n;
+            document.getElementById('editMainCat').value = m; 
+            
+            currentImgUrls = JSON.parse(decodeURIComponent(imgUrlsStr));
+            
+            const container = document.getElementById('editPrevContainer');
+            container.innerHTML = currentImgUrls.map(url => `<img src="${url}">`).join('');
+            document.getElementById('editDZ').classList.add('has-img');
+            
             loadSubCats('editMainCat', 'editSubCat', s);
         };
         window.closeModal = () => document.getElementById('editModal').classList.remove('active');
 
         async function updateProduct() {
-            const id = document.getElementById('editId').value, n = document.getElementById('editName').value, m = document.getElementById('editMainCat').value, s = document.getElementById('editSubCat').value, f = document.getElementById('editFile').files[0];
+            const id = document.getElementById('editId').value;
+            const n = document.getElementById('editName').value;
+            const m = document.getElementById('editMainCat').value;
+            const s = document.getElementById('editSubCat').value;
+            const files = document.getElementById('editFile').files;
+            
             await startProgress();
-            let url = currentImg; if(f) url = await up(f);
-            await db.collection("products").doc(id).update({ name: n, mainCategory: m, subCategory: s || "عام", imageUrl: url });
+            let urlsToSave = currentImgUrls; 
+            
+            if(files.length > 0) {
+                urlsToSave = [];
+                for (let i = 0; i < files.length; i++) {
+                    let url = await up(files[i]);
+                    urlsToSave.push(url);
+                }
+            }
+            
+            await db.collection("products").doc(id).update({ 
+                name: n, 
+                mainCategory: m, 
+                subCategory: s || "عام", 
+                imageURLs: urlsToSave // حفظ المصفوفة المحدثة
+            });
             endProgress();
             closeModal();
             showToast("تم تعديل المنتج! ✅");
@@ -304,7 +354,12 @@
             pL.innerHTML = '';
             pSnap.forEach(doc => {
                 const p = doc.data();
-                pL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${p.imageUrl}"><div><strong>${p.name}</strong><br><small>${p.mainCategory} > ${p.subCategory}</small></div></div><div class="btn-group-large"><button class="edit-btn" onclick="openEdit('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${p.imageUrl}')">تعديل</button><button class="danger-btn" onclick="delP('${doc.id}')">حذف</button></div></div>`;
+                // دعم المنتجات القديمة التي لها صورة واحدة
+                const urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
+                const firstImg = urls.length > 0 ? urls[0] : 'https://via.placeholder.com/70';
+                const urlsStr = encodeURIComponent(JSON.stringify(urls));
+                
+                pL.innerHTML += `<div class="list-item"><div class="item-row"><img src="${firstImg}"><div><strong>${p.name}</strong><br><small>${p.mainCategory} > ${p.subCategory}</small></div></div><div class="btn-group-large"><button class="edit-btn" onclick="openEdit('${doc.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${urlsStr}')">تعديل</button><button class="danger-btn" onclick="delP('${doc.id}')">حذف</button></div></div>`;
             });
         }
     </script>
