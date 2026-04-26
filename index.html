@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATHNTA | المعرض الفخم</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100;300;500;700&display=swap" rel="stylesheet">
@@ -12,9 +13,10 @@
         :root {
             --primary-silver: #f8f9fa;
             --dark-black: #0a0a0a;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --border-line: rgba(255, 255, 255, 0.12);
-            --radius-main: 35px; 
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --border-line: rgba(255, 255, 255, 0.08);
+            --radius-main: 40px; 
+            --accent-silver: #c0c0c0;
         }
 
         body {
@@ -23,154 +25,199 @@
             background: var(--dark-black);
             color: #fff;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at top right, #1a1a1a, #0a0a0a);
+            /* خلفية متدرجة فخمة تشبه قماش المخمل */
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(20,20,20,1) 0%, rgba(10,10,10,1) 100%);
+            min-height: 100vh;
         }
 
-        /* * إعدادات الهيدر (الشريط العائم)
+        /* * ==========================================
+         * تصميم الهيدر (الشريط العائم الذكي)
+         * ==========================================
          */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            position: fixed; /* عائم دائماً */
+            top: 0; left: 0; right: 0;
             display: flex;
-            justify-content: center;
+            justify-content: center; /* توسيط المحتوى في البداية */
             align-items: center;
-            padding: 50px 20px;
+            padding: 70px 20px; /* مسافة كبيرة في البداية */
             z-index: 9999;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
             background: transparent;
         }
 
-        .header-wrapper {
+        .header-content {
             display: flex;
             align-items: center;
-            gap: 25px; /* المسافة بين الشعار وأيقونة الواتساب */
-            transition: all 0.5s ease;
-            width: 100%;
-            justify-content: center;
-            max-width: 1400px;
+            gap: 40px; /* المسافة بين الشعار والواتس */
+            transition: 0.6s;
         }
 
+        /* شعار ضخم جداً في البداية */
         .logo {
-            height: 220px; /* شعار كبير جداً في البداية */
+            height: 250px; 
             cursor: pointer;
-            transition: all 0.5s ease;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+            transition: 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.1));
         }
 
-        .whatsapp-icon svg {
-            width: 50px;
-            height: 50px;
+        /* * تصميم الواتساب "الفخم" (Glassmorphism Luxury)
+         */
+        .whatsapp-luxury-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* شكل زجاجي بيضاوي فخم */
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 100px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.5s;
+            /* لمعان هادئ فضي */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2), inset 0 0 10px rgba(255,255,255,0.01);
+        }
+
+        /* أيقونة الواتس البيضاء الأنيقة */
+        .whatsapp-luxury-container svg {
+            width: 45px;
+            height: 45px;
             fill: #ffffff;
-            transition: all 0.5s ease;
+            transition: 0.5s;
         }
 
-        .whatsapp-icon:hover svg {
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        /* تأثير التمرير على القطعة الزجاجية */
+        .whatsapp-luxury-container:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 15px rgba(255,255,255,0.1);
         }
 
-        /* حالة الهيدر عند النزول للأسفل (الشريط العائم) */
+        .whatsapp-luxury-container:hover svg {
+            transform: rotate(10deg);
+        }
+
+        /* ==========================================
+         * وضعية الهيدر بعد التمرير (الشريط النحيف العائم)
+         * ==========================================
+         */
         header.scrolled {
-            padding: 15px 5%;
-            background: rgba(10, 10, 10, 0.85);
+            padding: 15px 5%; /* تضييق الهيدر */
+            background: rgba(10, 10, 10, 0.8);
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid var(--border-line);
         }
 
-        header.scrolled .header-wrapper {
-            justify-content: space-between; /* يفصل الشعار والواتس على الأطراف */
+        header.scrolled .header-content {
+            gap: 20px; /* تضييق المسافة بين العناصر */
         }
 
+        /* انكماش الشعار بسلاسة */
         header.scrolled .logo {
-            height: 60px; /* يصغر الشعار */
+            height: 60px; 
         }
 
-        header.scrolled .whatsapp-icon svg {
-            width: 35px; /* تصغر أيقونة الواتس */
-            height: 35px;
+        /* انكماش حاوية الواتساب الفخمة */
+        header.scrolled .whatsapp-luxury-container {
+            padding: 10px;
         }
 
-        /* مساحة فارغة لتجنب تغطية الهيدر للمحتوى في البداية */
+        /* انكماش أيقونة الواتس */
+        header.scrolled .whatsapp-luxury-container svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* مسافة فارغة لتجنب تغطية الهيدر الضخم للمحتوى */
         .content-spacer {
-            height: 320px; 
+            height: 400px; 
+            transition: 0.6s;
+        }
+        header.scrolled + .content-spacer {
+            height: 100px; /* تصغير المسافة عند السكرول */
         }
 
-        /* نصوص الترحيب */
-        .welcome-msg { 
-            text-align: center; 
-            margin-top: 20px; 
-        }
-        .welcome-msg p { 
-            font-weight: 100; 
-            letter-spacing: 2px; 
-            color: #aaa; 
-            font-size: 1.2rem;
-        }
+        /* رسالة الترحيب */
+        .welcome-msg { text-align: center; margin-bottom: 30px; animation: fadeIn 2s ease; }
+        .welcome-msg p { font-weight: 100; letter-spacing: 3px; color: #aaa; font-size: 1.3rem; margin:0;}
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
 
-        /* شبكة التصنيفات الفخمة والزوايا الدائرية */
+        /* ==========================================
+         * تصميم الأقسام (الشرائح) - Rounded & Dynamic
+         * ==========================================
+         */
         .home-categories {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 30px;
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 30px 25px 80px;
+            padding: 20px 25px 100px;
         }
 
         .cat-card {
             position: relative;
-            height: 480px;
+            height: 550px;
             border-radius: var(--radius-main);
             overflow: hidden;
-            background: var(--glass-bg);
             border: 1px solid var(--border-line);
             cursor: pointer;
-            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            background: var(--glass-bg);
+            transition: 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         .cat-card img {
             width: 100%; height: 100%; object-fit: cover;
-            transition: 0.8s; opacity: 0.7;
+            transition: 1s; opacity: 0.7;
         }
 
+        /* تدرج أسود لإبراز النص */
         .cat-overlay {
             position: absolute; inset: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            display: flex; align-items: flex-end; justify-content: center; padding: 40px;
+            background: linear-gradient(transparent 50%, rgba(0,0,0,0.9) 100%);
+            display: flex; align-items: flex-end; justify-content: center; padding: 50px;
         }
 
         .cat-overlay h2 {
-            font-size: 1.6rem; font-weight: 300; letter-spacing: 2px;
-            transition: 0.5s; text-align: center; margin: 0;
+            font-size: 1.8rem; font-weight: 200; letter-spacing: 4px; transition: 0.5s ease;
+            margin: 0; text-align: center; color: var(--primary-silver);
         }
 
+        /* تأثيرات التمرير المعتمدة (Rounded, Dynamic, Text moves down) */
         .cat-card:hover {
-            transform: translateY(-12px);
-            border-color: #fff;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transform: translateY(-15px) scale(1.01);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
         }
 
         .cat-card:hover img { transform: scale(1.1); opacity: 1; }
         
-        /* حركة النص للأسفل عند التحديد */
-        .cat-card:hover h2 { transform: translateY(15px); color: var(--primary-silver); }
+        /* حركة سحب النص للأسفل */
+        .cat-card:hover h2 { transform: translateY(15px); }
 
-        /* تصميم قسم المنتجات (المعرض الداخلي) */
+        /* ==========================================
+         * صفحة المنتجات (المعرض الفخم الداخل)
+         * ==========================================
+         */
         .products-view {
             display: none;
-            padding: 20px 5% 80px;
-            max-width: 1400px;
+            padding: 20px 5% 100px;
+            max-width: 1500px;
             margin: 0 auto;
-            animation: fadeIn 0.6s ease;
+            animation: viewFadeIn 0.8s ease;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes viewFadeIn { from {opacity: 0; transform: translateY(30px);} to {opacity: 1; transform: translateY(0);} }
 
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
         }
 
@@ -183,58 +230,65 @@
             transition: 0.4s;
         }
 
-        .item:hover { border-color: #fff; }
+        .item:hover { border-color: #fff; transform: translateY(-5px); }
 
         .item img {
             width: 100%; border-radius: calc(var(--radius-main) - 10px);
             aspect-ratio: 1; object-fit: cover;
         }
 
+        /* زر استفسار المنتج */
         .whatsapp-item-btn {
             display: block; width: 100%;
-            padding: 12px; margin-top: 15px;
+            padding: 15px; margin-top: 15px;
             border-radius: 50px;
             border: 1px solid var(--border-line);
-            background: transparent;
-            color: #fff; text-decoration: none; font-size: 0.9rem;
+            background: rgba(255,255,255,0.01);
+            color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 300;
             transition: 0.3s;
         }
 
-        .whatsapp-item-btn:hover { background: #fff; color: #000; }
+        .whatsapp-item-btn:hover { background: #fff; color: #000; font-weight: 500; }
 
         .view-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px;
+            border-bottom: 1px solid var(--border-line); padding-bottom: 20px;
         }
 
         .back-btn {
-            border: 1px solid #fff; background: none; color: #fff;
-            padding: 10px 25px; border-radius: 50px; cursor: pointer;
-            transition: 0.3s;
+            border: 1px solid var(--border-line); background: none; color: #fff;
+            padding: 10px 30px; border-radius: 50px; cursor: pointer;
+            transition: 0.3s; font-size: 0.9rem;
         }
 
         .back-btn:hover { background: #fff; color: #000; }
 
         .sub-cats button {
             background: transparent; border: 1px solid var(--border-line);
-            color: #fff; padding: 8px 20px; margin: 5px; border-radius: 50px; cursor: pointer;
-            transition: 0.3s;
+            color: #fff; padding: 10px 25px; margin: 5px; border-radius: 50px; cursor: pointer;
+            transition: 0.3s; font-weight: 100;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
-            .logo { height: 140px; }
-            .header-wrapper { gap: 15px; }
+            .logo { height: 150px; }
             .content-spacer { height: 250px; }
-            .home-categories { grid-template-columns: 1fr; }
-            .view-header { flex-direction: column; gap: 20px; }
+            .whatsapp-luxury-container { padding: 15px; }
+            .whatsapp-luxury-container svg { width: 35px; height: 35px; }
+            
+            .home-categories { grid-template-columns: 1fr; gap: 20px; }
+            .cat-card { height: 450px; }
+            .view-header { flex-direction: column; gap: 20px; text-align: center;}
         }
     </style>
 </head>
 <body>
 
     <header id="mainHeader">
-        <div class="header-wrapper">
-            <img src="https://i.ibb.co/k28SzDpt/image.png" class="logo" onclick="location.reload()" alt="ATHNTA Logo">
-            <a href="https://wa.me/966552125258" class="whatsapp-icon" title="تواصل عبر واتساب">
+        <div class="header-content">
+            <img src="https://i.ibb.co/XftPtTSg/image.png" class="logo" onclick="location.reload()" alt="ATHNTA Luxury Logo">
+            
+            <a href="https://wa.me/966552125258" class="whatsapp-luxury-container" title="تواصل عبر واتساب - ATHNTA">
                 <svg viewBox="0 0 32 32">
                     <path d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.733 5.486 2.017 7.796l-2.017 7.354 7.527-1.974c2.247 1.218 4.82 1.911 7.55 1.911 8.837 0 16-7.163 16-16s-7.163-16-16-16zm8.29 22.162c-0.342 0.963-1.733 1.764-2.386 1.87-0.654 0.107-1.306 0.193-4.223-0.972-2.917-1.166-4.722-4.144-4.867-4.337-0.145-0.193-1.182-1.571-1.182-2.997 0-1.427 0.745-2.128 1.011-2.42 0.266-0.292 0.58-0.365 0.774-0.365s0.387 0.004 0.556 0.012c0.178 0.008 0.419-0.067 0.655 0.505 0.237 0.573 0.81 1.974 0.881 2.118s0.118 0.312 0.022 0.505c-0.095 0.193-0.142 0.312-0.284 0.478-0.142 0.166-0.301 0.369-0.428 0.495-0.142 0.142-0.292 0.297-0.125 0.584 0.166 0.284 0.739 1.216 1.589 1.971 1.096 0.974 2.022 1.274 2.308 1.417 0.284 0.142 0.45 0.118 0.617-0.071 0.166-0.193 0.713-0.833 0.903-1.118 0.193-0.284 0.381-0.237 0.641-0.142s1.64 0.774 1.924 0.917c0.284 0.142 0.474 0.213 0.545 0.337 0.071 0.124 0.071 0.718-0.271 1.681z"/>
                 </svg>
@@ -246,22 +300,27 @@
         <div class="welcome-msg">
             <p>أعمالنا المنفذة خصيصاً لكم</p>
         </div>
-        <div class="home-categories" id="home"></div>
+        <div class="home-categories" id="home">
+            </div>
     </div>
 
     <div class="products-view" id="view">
         <div class="view-header">
-            <h2 id="title" style="margin:0; font-weight: 300; letter-spacing: 2px;"></h2>
+            <h2 id="title" style="margin:0; font-weight: 100; letter-spacing: 3px; color: var(--accent-silver);"></h2>
             <button onclick="location.reload()" class="back-btn">← العودة للرئيسية</button>
         </div>
         <div class="sub-cats" id="subs" style="margin-bottom: 30px; text-align: center;"></div>
-        <div class="gallery" id="gallery"></div>
+        <div class="gallery" id="gallery">
+            </div>
     </div>
 
     <script>
-        // تفعيل وظيفة السكرول (لتغيير شكل الهيدر)
+        // ==========================================
+        // وظائف السكرول المتكيف
+        // ==========================================
         window.addEventListener('scroll', () => {
             const header = document.getElementById('mainHeader');
+            // تحويل شكل الهيدر بعد 50px من السكرول
             if (window.scrollY > 50) {
                 header.classList.add('scrolled');
             } else {
@@ -269,7 +328,9 @@
             }
         });
 
-        // إعدادات فايربيس
+        // ==========================================
+        // إعدادات Firebase
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
@@ -280,65 +341,111 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        let prods = [], cats = {};
+        
+        let prods = []; // لتخزين كافة المنتجات
+        let cats = {};  // لتخزين الأقسام والفرعية
 
+        // دالة التأكد من الروابط
         function formatURL(url) {
-            return url && url.startsWith('http') ? url : 'https://via.placeholder.com/500';
+            return url && url.startsWith('http') ? url : 'https://via.placeholder.com/600x800/101010/ffffff?text=ATHNTA';
         }
 
+        // ==========================================
+        // التشغيل الأساسي: جلب الأقسام والمنتجات
+        // ==========================================
         async function start() {
+            // 1. جلب الأقسام
             const cSnap = await db.collection("categories").get();
             const homeBox = document.getElementById('home');
+            homeBox.innerHTML = ''; // تنظيف
+
             cSnap.forEach(doc => {
                 const data = doc.data();
-                cats[doc.id] = data;
+                cats[doc.id] = data; // تخزين ديناميكي
+                
+                // إضافة شريحة القسم (Dynamic & Rounded)
                 homeBox.innerHTML += `
                     <div class="cat-card" onclick="openCat('${doc.id}')">
-                        <img src="${formatURL(data.imageUrl)}" loading="lazy">
+                        <img src="${formatURL(data.imageUrl)}" loading="lazy" alt="${doc.id}">
                         <div class="cat-overlay">
                             <h2>${doc.id}</h2>
                         </div>
                     </div>`;
             });
+
+            // 2. جلب كافة المنتجات (مرتبة حسب التاريخ)
             const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
             pSnap.forEach(doc => prods.push(doc.data()));
         }
 
+        // ==========================================
+        // فتح قسم معين وعرض منتجاته
+        // ==========================================
         window.openCat = (id) => {
             document.getElementById('home-section').style.display = 'none';
-            document.getElementById('view').style.display = 'block';
+            const productsView = document.getElementById('view');
+            productsView.style.display = 'block';
+            
+            // تحديث العنوان
             document.getElementById('title').innerText = id;
+            
+            // 1. بناء أزرار الأقسام الفرعية (إذا وجدت)
             const subBox = document.getElementById('subs');
-            subBox.innerHTML = `<button style="background:#fff; color:#000;" onclick="filter('${id}', 'all', event)">الكل</button>`;
-            if(cats[id].subs) {
-                cats[id].subs.forEach(s => subBox.innerHTML += `<button onclick="filter('${id}', '${s}', event)">${s}</button>`);
+            subBox.innerHTML = `<button style="background:#fff; color:#000; font-weight:500;" onclick="filter('${id}', 'all', event)">الكل</button>`;
+            
+            if(cats[id].subs && cats[id].subs.length > 0) {
+                cats[id].subs.forEach(s => {
+                    subBox.innerHTML += `<button onclick="filter('${id}', '${s}', event)">${s}</button>`;
+                });
             }
+
+            // 2. تصفية وعرض المنتجات (افتراضياً: الكل)
             filter(id, 'all');
+            
+            // سكرول ناعم لأعلى الصفحة
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        window.filter = (main, sub, e) => {
+        // ==========================================
+        // تصفية المنتجات بناءً على القسم الفرعي
+        // ==========================================
+        window.filter = (mainCatId, subCatName, e) => {
+            // تحديث شكل الزر النشط
             if(e) { 
                 document.querySelectorAll('.sub-cats button').forEach(b => {
                     b.style.background = "transparent";
                     b.style.color = "#fff";
+                    b.style.fontWeight = "100";
                 });
                 e.target.style.background = "#fff";
                 e.target.style.color = "#000";
+                e.target.style.fontWeight = "500";
             }
-            let filtered = prods.filter(p => p.mainCategory === main);
-            if(sub !== 'all') filtered = filtered.filter(p => p.subCategory === sub);
+
+            // عملية التصفية
+            let filtered = prods.filter(p => p.mainCategory === mainCatId);
+            if(subCatName !== 'all') {
+                filtered = filtered.filter(p => p.subCategory === subCatName);
+            }
             
+            // بناء معرض المنتجات
             const gallery = document.getElementById('gallery');
+            if(filtered.length === 0) {
+                gallery.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color:#555; padding:50px;">قريباً.. سيتم إضافة أعمال جديدة لهذا القسم.</p>';
+                return;
+            }
+
             gallery.innerHTML = filtered.map(p => `
                 <div class="item">
-                    <img src="${formatURL(p.imageUrl)}" loading="lazy">
-                    <h3 style="font-weight:300; margin:15px 0 5px;">${p.name}</h3>
-                    <a href="https://wa.me/966552125258?text=مرحباً، لدي استفسار بخصوص العمل: ${p.name}" class="whatsapp-item-btn" target="_blank">
-                        استفسار عن طريق الواتساب
+                    <img src="${formatURL(p.imageUrl)}" loading="lazy" alt="${p.name}">
+                    <h3 style="font-weight:300; margin:20px 0 5px; font-size:1.1rem; letter-spacing:1px;">${p.name}</h3>
+                    <a href="https://wa.me/966552125258?text=مرحباً ATHNTA، لدي استفسار بخصوص العمل: ${encodeURIComponent(p.name)}" class="whatsapp-item-btn" target="_blank">
+                        استفسار عبر الواتساب
                     </a>
                 </div>`).join('');
         }
+
+        // بدء التشغيل
         start();
     </script>
 </body>
