@@ -7,11 +7,14 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <style>
-        /* المتغيرات الأساسية الفخمة */
+        /* نفس ستايلات الفخامة السابقة */
         :root {
             --bg-dark: #050505;
             --glass-bg: rgba(255, 255, 255, 0.03);
@@ -20,391 +23,76 @@
             --text-main: #f4f4f4;
             --text-muted: #a0a0a0;
         }
-
-        /* إعادة ضبط عامة */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Tajawal', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            line-height: 1.6;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* خلفية حية مضيئة خلف الزجاج */
-        body::before, body::after {
-            content: '';
-            position: fixed;
-            width: 40vw;
-            height: 40vw;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%);
-            z-index: -1;
-            animation: float 15s infinite ease-in-out alternate;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; min-height: 100vh; position: relative; overflow-x: hidden; }
+        body::before, body::after { content: ''; position: fixed; width: 40vw; height: 40vw; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%); z-index: -1; animation: float 15s infinite ease-in-out alternate; }
         body::before { top: -10%; right: -10%; }
         body::after { bottom: -10%; left: -10%; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }
 
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, 50px) scale(1.1); }
-        }
+        header { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); padding: 10px 5%; display: flex; justify-content: center; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--glass-shadow); height: 70px; }
+        .logo { height: 45px; object-fit: contain; transition: transform 0.3s ease; }
+        .logo:hover { transform: scale(1.05); }
 
-        /* =========================================
-           الهيدر (توسيط الشعار وأيقونة الواتساب)
-           ========================================= */
-        header {
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 10px 5%;
-            display: flex;
-            justify-content: center; /* توسيط الشعار */
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--glass-shadow);
-            height: 70px;
-        }
+        .header-whatsapp { position: absolute; left: 5%; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0)); backdrop-filter: blur(10px); color: var(--text-main); border: 1px solid var(--glass-border); border-radius: 50%; width: 42px; height: 42px; display: flex; justify-content: center; align-items: center; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-whatsapp:hover { background: var(--text-main); color: #000; transform: translateY(-2px); }
+        .header-whatsapp svg { width: 22px; height: 22px; fill: currentColor; }
 
-        .logo {
-            height: 45px;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .section-title { text-align: center; margin-bottom: 5px; font-size: 2rem; font-weight: 700; background: linear-gradient(to left, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+        .section-subtitle { text-align: center; color: var(--text-muted); font-size: 1.1rem; margin-bottom: 40px; font-weight: 400; }
+
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr) !important; gap: 20px; }
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; box-shadow: var(--glass-shadow); position: relative; }
         
-        .logo:hover { 
-            transform: scale(1.05); 
-        }
+        .cat-card { cursor: pointer; aspect-ratio: 1; }
+        .cat-card .image-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .cat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.55); z-index: 1; transition: background 0.4s ease; }
+        .cat-card:hover { transform: translateY(-8px); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+        .cat-card:hover::before { background: rgba(0, 0, 0, 0.7); }
+        .cat-card:hover img { transform: scale(1.08); }
+        .cat-card h3 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; color: #fff; text-align: center; font-size: 1.4rem; font-weight: 700; width: 90%; text-shadow: 0 4px 15px rgba(0,0,0,0.8); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .cat-card:hover h3 { transform: translate(-50%, calc(-50% + 15px)); }
 
-        /* أيقونة الواتساب في اليسار */
-        .header-whatsapp {
-            position: absolute;
-            left: 5%; 
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0));
-            backdrop-filter: blur(10px);
-            color: var(--text-main);
-            border: 1px solid var(--glass-border);
-            border-radius: 50%;
-            width: 42px;
-            height: 42px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .header-whatsapp:hover {
-            background: var(--text-main);
-            color: #000;
-            box-shadow: 0 0 15px rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
-        .header-whatsapp svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-        }
-
-        /* =========================================
-           الحاوية الرئيسية والعناوين
-           ========================================= */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 5px;
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(to left, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-            font-weight: 400;
-        }
-
-        /* =========================================
-           شبكة العرض (3 عناصر بجانب بعض دائماً)
-           ========================================= */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr) !important; /* إجبار 3 أعمدة */
-            gap: 20px;
-        }
-
-        /* البطاقات الزجاجية المشتركة */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--glass-shadow);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-        }
-
-        /* =========================================
-           تصميم التصنيفات (النص فوق الصورة مع التظليل)
-           ========================================= */
-        .cat-card {
-            cursor: pointer;
-            aspect-ratio: 1; /* جعلها مربعة */
-        }
-
-        .cat-card .image-container {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-        }
-
-        .cat-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        /* طبقة التظليل السوداء الشفافة */
-        .cat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.55); /* أسود شفاف خفيف */
-            z-index: 1;
-            transition: background 0.4s ease;
-        }
-
-        .cat-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-        }
-
-        .cat-card:hover::before {
-            background: rgba(0, 0, 0, 0.7); /* تغميق بسيط عند التمرير */
-        }
-
-        .cat-card:hover img {
-            transform: scale(1.08);
-        }
-
-        /* النص الفخم الذي ينزل للأسفل */
-        .cat-card h3 {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            color: #fff;
-            text-align: center;
-            font-size: 1.4rem;
-            font-weight: 700;
-            width: 90%;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .cat-card:hover h3 {
-            transform: translate(-50%, calc(-50% + 15px)); /* نزول أنيق للأسفل */
-        }
-
-        /* =========================================
-           قسم المنتجات
-           ========================================= */
         #products-section { display: none; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .products-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--glass-border); }
+        #category-title { font-size: 1.8rem; font-weight: 700; }
+        .btn-back { background: transparent; color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 0.95rem; backdrop-filter: blur(5px); }
+        .btn-back:hover { background: rgba(255, 255, 255, 0.1); }
+        .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; justify-content: center; }
+        .filter-btn { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); color: var(--text-muted); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 0.9rem; }
+        .filter-btn.active, .filter-btn:hover { background: var(--text-main); color: #000; border-color: var(--text-main); }
 
-        .products-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--glass-border);
-        }
+        .product-card { display: flex; flex-direction: column; align-items: center; padding-bottom: 15px; }
+        .product-card .image-container { width: 100%; aspect-ratio: 1; overflow: hidden; border-bottom: 1px solid var(--glass-border); position: relative; }
+        .product-card img { width: 100%; height: 100%; object-fit: cover; }
+        .product-card h4 { font-size: 1rem; margin: 15px 10px; font-weight: 500; text-align: center; width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-whatsapp { background: transparent; color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 20px; text-decoration: none; border-radius: 30px; font-size: 0.85rem; width: 85%; text-align: center; margin-top: auto; }
+        .product-whatsapp:hover { background: var(--text-main); color: #000; transform: scale(1.05); }
 
-        #category-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
+        /* ستايلات سلايدر Swiper */
+        .swiper { width: 100%; height: 100%; }
+        .swiper-slide { display: flex; justify-content: center; align-items: center; }
+        .swiper-button-next, .swiper-button-prev { color: rgba(255,255,255,0.8) !important; background: rgba(0,0,0,0.3); width: 30px !important; height: 30px !important; border-radius: 50%; backdrop-filter: blur(4px); }
+        .swiper-button-next::after, .swiper-button-prev::after { font-size: 14px !important; font-weight: bold; }
+        .swiper-pagination-bullet { background: #fff !important; opacity: 0.5; }
+        .swiper-pagination-bullet-active { opacity: 1; }
 
-        .btn-back {
-            background: transparent;
-            color: var(--text-main);
-            border: 1px solid var(--glass-border);
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-            backdrop-filter: blur(5px);
-        }
-
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 30px;
-            justify-content: center;
-        }
-
-        .filter-btn {
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(10px);
-            color: var(--text-muted);
-            border: 1px solid var(--glass-border);
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--text-main);
-            color: #000;
-            border-color: var(--text-main);
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
-        }
-
-        /* تفاصيل بطاقة المنتج */
-        .product-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            animation: fadeIn 0.6s ease backwards;
-            padding-bottom: 15px;
-        }
-        
-        .product-card .image-container {
-            width: 100%;
-            aspect-ratio: 1;
-            overflow: hidden;
-            border-bottom: 1px solid var(--glass-border);
-        }
-        
-        .product-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .product-card:hover img {
-            transform: scale(1.08);
-        }
-
-        .product-card h4 {
-            font-size: 1rem;
-            margin: 15px 10px;
-            font-weight: 500;
-            text-align: center;
-            width: 90%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .product-whatsapp {
-            background: transparent;
-            color: var(--text-main);
-            border: 1px solid var(--glass-border);
-            padding: 8px 20px;
-            text-decoration: none;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-            width: 85%;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .product-whatsapp:hover {
-            background: var(--text-main);
-            color: #000;
-            transform: scale(1.05);
-        }
-
-        /* =========================================
-           تعديلات الجوال (الحفاظ على 3 عناصر مع تصغير الخطوط)
-           ========================================= */
         @media (max-width: 768px) {
-            .grid {
-                gap: 8px; /* تقليل المسافة بين الكروت في الجوال */
-            }
-            .container {
-                padding: 30px 10px;
-            }
-            .section-title { 
-                font-size: 1.5rem; 
-            }
-            .section-subtitle {
-                font-size: 0.95rem;
-                margin-bottom: 30px;
-            }
-            .cat-card h3 { 
-                font-size: 0.85rem; /* تصغير خط التصنيفات ليناسب الـ 3 أعمدة */
-            }
-            .cat-card:hover h3 {
-                transform: translate(-50%, calc(-50% + 8px));
-            }
-            .product-card h4 { 
-                font-size: 0.75rem; 
-                margin: 10px 5px;
-            }
-            .product-whatsapp { 
-                padding: 6px 10px; 
-                width: 90%; 
-                font-size: 0.75rem;
-            }
-            .products-header {
-                flex-direction: column;
-                gap: 15px;
-            }
-            #category-title {
-                font-size: 1.4rem;
-            }
-            .header-whatsapp {
-                width: 35px;
-                height: 35px;
-            }
-            .header-whatsapp svg {
-                width: 18px;
-                height: 18px;
-            }
+            .grid { gap: 8px; }
+            .container { padding: 30px 10px; }
+            .section-title { font-size: 1.5rem; }
+            .section-subtitle { font-size: 0.95rem; margin-bottom: 30px; }
+            .cat-card h3 { font-size: 0.85rem; }
+            .cat-card:hover h3 { transform: translate(-50%, calc(-50% + 8px)); }
+            .product-card h4 { font-size: 0.75rem; margin: 10px 5px; }
+            .product-whatsapp { padding: 6px 10px; width: 90%; font-size: 0.75rem; }
+            .products-header { flex-direction: column; gap: 15px; }
+            #category-title { font-size: 1.4rem; }
+            .swiper-button-next, .swiper-button-prev { display: none; /* إخفاء الأسهم بالجوال والاعتماد على السحب */ }
         }
     </style>
 </head>
@@ -420,12 +108,10 @@
     </header>
 
     <main class="container">
-        
         <section id="categories-section">
             <h1 class="section-title">أعمالنا المنفذة</h1>
             <p class="section-subtitle">هنا كل اعمالنا المنفذة خصيصا لكم 🤍</p>
-            <div class="grid" id="categories-grid">
-                </div>
+            <div class="grid" id="categories-grid"></div>
         </section>
 
         <section id="products-section">
@@ -433,18 +119,12 @@
                 <h2 id="category-title">اسم القسم</h2>
                 <button class="btn-back" onclick="location.reload()">العودة للأقسام</button>
             </div>
-            
-            <div class="filters" id="filters-container">
-                </div>
-            
-            <div class="grid" id="products-grid">
-                </div>
+            <div class="filters" id="filters-container"></div>
+            <div class="grid" id="products-grid"></div>
         </section>
-
     </main>
 
     <script>
-        // إعدادات قاعدة البيانات
         const firebaseConfig = {
             apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
             authDomain: "athnta-gallary.firebaseapp.com",
@@ -466,15 +146,12 @@
 
         async function loadData() {
             const catGrid = document.getElementById('categories-grid');
-            
             try {
                 const cSnap = await db.collection("categories").get();
                 catGrid.innerHTML = ''; 
-
                 cSnap.forEach(doc => {
                     const data = doc.data();
                     categoriesData[doc.id] = data; 
-                    
                     catGrid.innerHTML += `
                         <div class="glass-card cat-card" onclick="showProducts('${doc.id}')">
                             <div class="image-container">
@@ -530,17 +207,57 @@
                 return;
             }
 
-            prodGrid.innerHTML = filtered.map((p, index) => `
-                <div class="glass-card product-card" style="animation-delay: ${index * 0.05}s">
-                    <div class="image-container">
-                        <img src="${formatURL(p.imageUrl)}" loading="lazy" alt="${p.name}">
+            // رسم المنتجات مع سلايدر في حال وجود أكثر من صورة
+            prodGrid.innerHTML = filtered.map((p, index) => {
+                let imagesHtml = '';
+                // دعم قواعد البيانات القديمة والجديدة
+                let urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
+
+                if(urls.length > 1) {
+                    // السلايدر
+                    imagesHtml = `
+                        <div class="swiper productSwiper">
+                            <div class="swiper-wrapper">
+                                ${urls.map(u => `<div class="swiper-slide"><img src="${formatURL(u)}" loading="lazy" alt="${p.name}"></div>`).join('')}
+                            </div>
+                            <div class="swiper-pagination"></div>
+                            <div class="swiper-button-next"></div>
+                            <div class="swiper-button-prev"></div>
+                        </div>
+                    `;
+                } else {
+                    // صورة واحدة عادية
+                    imagesHtml = `<img src="${formatURL(urls[0])}" loading="lazy" alt="${p.name}">`;
+                }
+
+                return `
+                    <div class="glass-card product-card">
+                        <div class="image-container">
+                            ${imagesHtml}
+                        </div>
+                        <h4>${p.name}</h4>
+                        <a href="https://wa.me/966552125258?text=استفسار عن: ${encodeURIComponent(p.name)}" class="product-whatsapp" target="_blank">
+                            استفسار
+                        </a>
                     </div>
-                    <h4>${p.name}</h4>
-                    <a href="https://wa.me/966552125258?text=استفسار عن: ${encodeURIComponent(p.name)}" class="product-whatsapp" target="_blank">
-                        استفسار
-                    </a>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+
+            // تفعيل السلايدر (Swiper) بعد رسم العناصر في الشاشة
+            setTimeout(() => {
+                new Swiper(".productSwiper", {
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true,
+                    },
+                    grabCursor: true, // شكل الماوس كاليد للسحب
+                    loop: true // العودة للصورة الأولى بعد الأخيرة
+                });
+            }, 100);
         }
 
         loadData();
