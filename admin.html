@@ -338,6 +338,61 @@
                 init();
             }
         };
+        // دالة تعديل اسم القسم الرئيسي
+        window.editCatName = async (oldName) => {
+            const newName = prompt("تعديل اسم القسم الرئيسي:", oldName);
+            if (!newName || newName.trim() === "" || newName === oldName) return;
+            
+            if(confirm(`هل أنت متأكد من تغيير الاسم إلى "${newName}"؟ سيتم نقل جميع المنتجات تلقائياً.`)) {
+                await startProgress();
+                try {
+                    const catRef = db.collection("categories").doc(oldName);
+                    const catDoc = await catRef.get();
+                    const catData = catDoc.data();
+
+                    // 1. إنشاء القسم بالاسم الجديد
+                    await db.collection("categories").doc(newName).set(catData);
+
+                    // 2. تحديث اسم القسم في جميع المنتجات المرتبطة
+                    const ps = await db.collection("products").where("mainCategory", "==", oldName).get();
+                    const batch = db.batch();
+                    ps.forEach(d => batch.update(d.ref, { mainCategory: newName }));
+                    await batch.commit();
+
+                    // 3. حذف القسم القديم
+                    await catRef.delete();
+
+                    endProgress();
+                    showToast("تم تغيير اسم القسم بنجاح! ✅");
+                    init();
+                } catch(e) {
+                    endProgress();
+                    console.error(e);
+                    alert("حدث خطأ أثناء التعديل.");
+                }
+            }
+        };
+
+        // دالة تعديل صورة القسم الرئيسي
+        window.editCatImage = async (catId) => {
+            // إنشاء زر اختيار ملف مخفي برمجياً
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if(confirm('هل أنت متأكد من رفع هذه الصورة كغلاف للقسم؟')) {
+                    await startProgress();
+                    const newUrl = await up(file);
+                    await db.collection("categories").doc(catId).update({ imageUrl: newUrl });
+                    endProgress();
+                    showToast("تم تحديث صورة القسم! ✅");
+                    init();
+                }
+            };
+            input.click(); // فتح نافذة اختيار الصورة
+        };
 
         let currentImgUrls = [];
         window.renderEditImages = () => {
@@ -467,8 +522,18 @@
                             <span class="arrow">▼</span>
                         </div>
                         <div class="accordion-content cat-acc">
-                            ${subsHTML || '<p style="color:#666; font-size:14px;">لا توجد فرعيات</p>'}
-                            <button class="danger-btn" style="width:100%; padding:10px; margin-top:15px; border-radius:8px;" onclick="delC('${cat.id}')">حذف القسم</button>
+                            
+                            <div class="btn-group-large" style="margin-bottom: 15px;">
+                                <button class="edit-btn" onclick="editCatName('${cat.id.replace(/'/g, "\\'")}')">تغيير الاسم ✎</button>
+                                <button class="edit-btn" onclick="editCatImage('${cat.id.replace(/'/g, "\\'")}')">تغيير الصورة 🖼️</button>
+                            </div>
+
+                            <div style="border-top: 1px solid #333; margin: 15px 0; padding-top: 15px;">
+                                <strong style="color:var(--primary); font-size:14px; margin-bottom:10px; display:block;">الأقسام الفرعية:</strong>
+                                ${subsHTML || '<p style="color:#666; font-size:14px;">لا توجد فرعيات</p>'}
+                            </div>
+
+                            <button class="danger-btn" style="width:100%; padding:10px; margin-top:15px; border-radius:8px;" onclick="delC('${cat.id}')">حذف القسم بالكامل</button>
                         </div>
                     </div>`;
                 });
