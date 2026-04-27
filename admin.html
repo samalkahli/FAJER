@@ -32,7 +32,6 @@
         
         input, select { width: 100%; padding: 15px; border: 1px solid #333; border-radius: 10px; background: #000; color: #fff; margin-bottom: 15px; font-size: 16px; }
 
-        /* شريط التحميل */
         #uploadProgress { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: #000; z-index: 1000; display: none; }
         #pBar { height: 100%; width: 0%; background: var(--primary); transition: 0.3s; box-shadow: 0 0 10px var(--primary); }
 
@@ -66,23 +65,16 @@
         
         .toast { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: #000; padding: 15px 25px; border-radius: 10px; font-weight: bold; display: none; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
-        /* =========================================
-           تصميم الأوكارديون (Accordion) والسحب والإفلات
-           ========================================= */
         .accordion-header { background: #222; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; border: 1px solid var(--border); transition: 0.3s; }
         .accordion-header:hover { background: #333; }
         .accordion-content { display: none; padding: 15px; border-right: 2px solid var(--primary); margin-bottom: 15px; background: #111; border-radius: 0 0 8px 8px; }
         .accordion-content.open { display: block; animation: slideDown 0.3s ease; }
         
-        /* تدرج الألوان للأقسام الفرعية لتمييزها */
         .sub-header { background: #1a1a1a; border-right: 3px solid #555; }
         .sub-content { border-right: 2px solid #555; background: #0a0a0a; }
 
-        /* أيقونة السحب والإفلات */
         .drag-handle { cursor: grab; font-size: 24px; color: #888; padding: 0 15px; user-select: none; }
         .drag-handle:active { cursor: grabbing; color: var(--primary); }
-        
-        /* شكل العنصر أثناء سحبه */
         .sortable-ghost { opacity: 0.4; background: #333; border: 1px dashed var(--primary); }
 
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -118,7 +110,6 @@
             </div>
             <button class="action-btn" id="prodBtn" onclick="saveProduct()">رفع وحفظ المنتج</button>
         </div>
-        
         <div id="productsList"></div>
     </div>
 
@@ -139,7 +130,6 @@
             <input type="text" id="newSubCat" placeholder="اسم القسم الفرعي">
             <button class="action-btn" id="subBtn" onclick="saveSubCategory()" style="background:#444; color:#fff;">إضافة فرعي</button>
         </div>
-        
         <div id="categoriesAdminList"></div>
     </div>
 
@@ -158,7 +148,7 @@
 
             <div class="drop-zone" id="editDZ" onclick="document.getElementById('editFile').click()">
                 <div id="newEditPrevContainer" class="img-preview-container"></div>
-                <span>اضغط لإضافة صور جديدة 📸 (ستنضم للصور الحالية)</span>
+                <span>اضغط لإضافة صور جديدة 📸</span>
                 <input type="file" id="editFile" style="display:none;" multiple onchange="previewMultiple(this, 'newEditPrevContainer', 'editDZ')">
             </div>
 
@@ -239,19 +229,150 @@
             if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
-    // 1. دالة الأوكارديون المحسنة (تحل مشكلة المسافات في الأسماء العربية)
+        async function saveProduct() {
+            const n = document.getElementById('productName').value;
+            const m = document.getElementById('productMainCat').value;
+            const s = document.getElementById('productSubCat').value;
+            const files = document.getElementById('productFile').files;
+            
+            if(!n || !m || files.length === 0) return alert("الرجاء إدخال البيانات المطلوبة");
+            
+            await startProgress();
+            let uploadedUrls = [];
+            for (let i = 0; i < files.length; i++) {
+                let url = await up(files[i]);
+                uploadedUrls.push(url);
+            }
+
+            await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageURLs: uploadedUrls, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            
+            endProgress();
+            showToast("تم رفع المنتج! ✅");
+            document.getElementById('productName').value = ''; 
+            document.getElementById('productFile').value = '';
+            document.getElementById('prodPrevContainer').innerHTML = '';
+            document.getElementById('prodDZ').classList.remove('has-img');
+            init(); 
+        }
+
+        async function saveMainCategory() {
+            const n = document.getElementById('newMainCat').value, f = document.getElementById('catFile').files[0];
+            if(!n || !f) return alert("أكمل البيانات");
+            await startProgress();
+            const url = await up(f);
+            const orderIndex = Object.keys(siteCategories).length;
+            await db.collection("categories").doc(n).set({ imageUrl: url, subs: [], order: orderIndex });
+            endProgress();
+            showToast("تم إنشاء القسم! ✅");
+            document.getElementById('newMainCat').value = '';
+            document.getElementById('catPrevContainer').innerHTML = '';
+            document.getElementById('catDZ').classList.remove('has-img');
+            init();
+        }
+
+        async function saveSubCategory() {
+            const m = document.getElementById('mainCatForSub').value, s = document.getElementById('newSubCat').value;
+            if(!m || !s) return alert("أكمل البيانات");
+            await startProgress();
+            await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(s) });
+            endProgress();
+            showToast("تمت إضافة القسم الفرعي! ✅");
+            document.getElementById('newSubCat').value = '';
+            init();
+        }
+
+        window.editSub = async (m, oldS) => {
+            const newS = prompt("تعديل القسم الفرعي:", oldS);
+            if(newS && newS !== oldS) {
+                await startProgress();
+                await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(oldS) });
+                await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(newS) });
+                const ps = await db.collection("products").where("mainCategory","==",m).where("subCategory","==",oldS).get();
+                const b = db.batch(); ps.forEach(d => b.update(d.ref, {subCategory: newS}));
+                await b.commit();
+                endProgress();
+                showToast("تم التعديل! ✅");
+                init();
+            }
+        };
+
+        let currentImgUrls = [];
+        window.renderEditImages = () => {
+            const container = document.getElementById('editPrevContainer');
+            if(currentImgUrls.length === 0) {
+                container.innerHTML = '<span style="color:#888;">لا توجد صور حالية.</span>'; return;
+            }
+            container.innerHTML = currentImgUrls.map((url, index) => `
+                <div class="edit-img-wrap">
+                    <img src="${url}">
+                    <button class="delete-img-btn" onclick="removeExistingImg(event, ${index})">×</button>
+                </div>
+            `).join('');
+        };
+
+        window.removeExistingImg = (event, index) => {
+            event.stopPropagation();
+            if(confirm("حذف هذه الصورة؟")) { currentImgUrls.splice(index, 1); renderEditImages(); }
+        };
+
+        window.openEdit = (id, n, m, s, imgUrlsStr) => {
+            document.getElementById('editModal').classList.add('active');
+            document.getElementById('editId').value = id; 
+            document.getElementById('editName').value = n;
+            document.getElementById('editMainCat').value = m; 
+            currentImgUrls = JSON.parse(decodeURIComponent(imgUrlsStr));
+            renderEditImages(); 
+            document.getElementById('newEditPrevContainer').innerHTML = '';
+            document.getElementById('editFile').value = '';
+            document.getElementById('editDZ').classList.remove('has-img');
+            loadSubCats('editMainCat', 'editSubCat', s);
+        };
+        
+        window.closeModal = () => document.getElementById('editModal').classList.remove('active');
+
+        async function updateProduct() {
+            const id = document.getElementById('editId').value;
+            const n = document.getElementById('editName').value;
+            const m = document.getElementById('editMainCat').value;
+            const s = document.getElementById('editSubCat').value;
+            const files = document.getElementById('editFile').files;
+            
+            await startProgress();
+            let finalUrlsToSave = [...currentImgUrls]; 
+            if(files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    let url = await up(files[i]);
+                    finalUrlsToSave.push(url);
+                }
+            }
+            if(finalUrlsToSave.length === 0) {
+                endProgress(); alert("يجب وجود صورة واحدة على الأقل!"); return;
+            }
+            await db.collection("products").doc(id).update({ name: n, mainCategory: m, subCategory: s || "عام", imageURLs: finalUrlsToSave });
+            endProgress(); closeModal(); showToast("تم الحفظ! ✅"); init();
+        }
+
+        window.delP = async (id) => { if(confirm("حذف المنتج؟")) { await db.collection("products").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
+        window.delC = async (id) => { if(confirm("حذف القسم؟")) { await db.collection("categories").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
+        window.delS = async (m, s) => { if(confirm("حذف الفرعي؟")) { await db.collection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); showToast("تم الحذف 🗑️"); init(); } };
+
+        window.switchTab = (e, id) => {
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            if(e) e.target.classList.add('active'); else document.getElementById('btnProductsTab').classList.add('active');
+            document.getElementById(id).classList.add('active');
+        };
+
         window.toggleAccordion = (headerEl, groupClass) => {
             const content = headerEl.nextElementSibling;
             const isOpening = !content.classList.contains('open'); 
 
-            // إغلاق كل الأقسام الأخرى المشابهة
             document.querySelectorAll(`.${groupClass}`).forEach(el => {
                 el.classList.remove('open');
                 const arrow = el.previousElementSibling.querySelector('.arrow');
                 if(arrow) arrow.innerText = '▼';
             });
 
-            // فتح العنصر المضغوط إذا كان مغلق
             if (isOpening) {
                 content.classList.add('open');
                 const myArrow = headerEl.querySelector('.arrow');
@@ -259,139 +380,115 @@
             }
         };
 
-        // 2. دالة البناء الأساسية (init) كاملة ومحدثة
         let siteCategories = {};
         
         async function init() {
-            // جلب الأقسام
-            const cSnap = await db.collection("categories").get();
-            let catsArray = [];
-            cSnap.forEach(doc => {
-                let data = doc.data();
-                data.id = doc.id;
-                catsArray.push(data);
-                siteCategories[doc.id] = data;
-            });
-            // ترتيب الأقسام حسب حقل order
-            catsArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+            try {
+                const cSnap = await db.collection("categories").get();
+                let catsArray = [];
+                cSnap.forEach(doc => {
+                    let data = doc.data(); data.id = doc.id;
+                    catsArray.push(data); siteCategories[doc.id] = data;
+                });
+                catsArray.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-            // تعبئة قوائم الاختيار (Select)
-            const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editMainCat');
-            pM.innerHTML = sM.innerHTML = eM.innerHTML = '<option value="">اختر القسم</option>';
-            catsArray.forEach(cat => {
-                const opt = `<option value="${cat.id}">${cat.id}</option>`;
-                pM.innerHTML += opt; sM.innerHTML += opt; eM.innerHTML += opt;
-            });
+                const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editMainCat');
+                pM.innerHTML = sM.innerHTML = eM.innerHTML = '<option value="">اختر القسم</option>';
+                catsArray.forEach(cat => {
+                    const opt = `<option value="${cat.id}">${cat.id}</option>`;
+                    pM.innerHTML += opt; sM.innerHTML += opt; eM.innerHTML += opt;
+                });
 
-            // بناء صفحة التصنيفات (الأوكارديون + السحب)
-            const cL = document.getElementById('categoriesAdminList');
-            let cHTML = '';
-            catsArray.forEach(cat => {
-                let subsHTML = cat.subs.map(s => `
-                    <div class="sub-tag">
-                        <span>${s}</span>
-                        <div>
-                            <button onclick="editSub('${cat.id}','${s}')" style="background:none; border:none; color:var(--primary); font-size:18px; margin-left:10px;">✎</button>
-                            <button onclick="delS('${cat.id}','${s}')" style="background:none; border:none; color:red; font-size:18px;">×</button>
+                const cL = document.getElementById('categoriesAdminList');
+                let cHTML = '';
+                catsArray.forEach(cat => {
+                    let subsHTML = (cat.subs || []).map(s => `
+                        <div class="sub-tag">
+                            <span>${s}</span>
+                            <div>
+                                <button onclick="editSub('${cat.id}','${s}')" style="background:none; border:none; color:var(--primary); font-size:18px; margin-left:10px;">✎</button>
+                                <button onclick="delS('${cat.id}','${s}')" style="background:none; border:none; color:red; font-size:18px;">×</button>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
-                
-                if(subsHTML === '') subsHTML = '<p style="color:#666; font-size:14px;">لا توجد تصنيفات فرعية</p>';
-
-                cHTML += `
-                <div class="cat-sort-item" data-id="${cat.id}">
-                    <div class="accordion-header" onclick="toggleAccordion(this, 'cat-acc')">
-                        <div style="display:flex; align-items:center;">
-                            <span class="drag-handle" title="اسحب لترتيب القسم">☰</span>
-                            <img src="${cat.imageUrl}" style="width:40px; height:40px; border-radius:5px; object-fit:cover; margin-left:10px;">
-                            <strong>${cat.id}</strong>
+                    `).join('');
+                    
+                    cHTML += `
+                    <div class="cat-sort-item" data-id="${cat.id}">
+                        <div class="accordion-header" onclick="toggleAccordion(this, 'cat-acc')">
+                            <div style="display:flex; align-items:center;">
+                                <span class="drag-handle">☰</span>
+                                <img src="${cat.imageUrl}" style="width:40px; height:40px; border-radius:5px; object-fit:cover; margin-left:10px;">
+                                <strong>${cat.id}</strong>
+                            </div>
+                            <span class="arrow">▼</span>
                         </div>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="accordion-content cat-acc">
-                        ${subsHTML}
-                        <button class="danger-btn" style="width:100%; padding:10px; margin-top:15px; border-radius:8px;" onclick="delC('${cat.id}')">حذف القسم بالكامل</button>
-                    </div>
-                </div>`;
-            });
-            cL.innerHTML = cHTML;
+                        <div class="accordion-content cat-acc">
+                            ${subsHTML || '<p style="color:#666; font-size:14px;">لا توجد فرعيات</p>'}
+                            <button class="danger-btn" style="width:100%; padding:10px; margin-top:15px; border-radius:8px;" onclick="delC('${cat.id}')">حذف القسم</button>
+                        </div>
+                    </div>`;
+                });
+                cL.innerHTML = cHTML;
 
-            // تفعيل السحب والإفلات للأقسام
-            Sortable.create(cL, {
-                handle: '.drag-handle',
-                animation: 150,
-                onEnd: async function () {
-                    const items = document.querySelectorAll('.cat-sort-item');
-                    const batch = db.batch();
-                    items.forEach((item, index) => {
-                        const id = item.getAttribute('data-id');
-                        const ref = db.collection('categories').doc(id);
-                        batch.update(ref, { order: index });
+                if (typeof Sortable !== 'undefined') {
+                    Sortable.create(cL, {
+                        handle: '.drag-handle', animation: 150,
+                        onEnd: async function () {
+                            const items = document.querySelectorAll('.cat-sort-item');
+                            const batch = db.batch();
+                            items.forEach((item, index) => {
+                                batch.update(db.collection('categories').doc(item.getAttribute('data-id')), { order: index });
+                            });
+                            await batch.commit();
+                            showToast("تم تحديث الترتيب! ✅");
+                        }
                     });
-                    await batch.commit();
-                    showToast("تم تحديث ترتيب الأقسام! ✅");
                 }
-            });
 
-            // بناء صفحة المنتجات (الأوكارديون المتداخل)
-            const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
-            let allProducts = [];
-            pSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; allProducts.push(d); });
+                const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
+                let allProds = [];
+                pSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; allProds.push(d); });
 
-            const pL = document.getElementById('productsList');
-            let pHTML = '';
+                const pL = document.getElementById('productsList');
+                let pHTML = '';
+                catsArray.forEach(cat => {
+                    let catProds = allProds.filter(p => p.mainCategory === cat.id);
+                    if(catProds.length === 0) return;
 
-            catsArray.forEach(cat => {
-                let catProds = allProducts.filter(p => p.mainCategory === cat.id);
-                if(catProds.length === 0) return; 
-
-                let subsHTML = '';
-                let subsList = [...cat.subs, "عام"];
-                
-                subsList.forEach(sub => {
-                    let subProds = catProds.filter(p => p.subCategory === sub || (!p.subCategory && sub === "عام"));
-                    if(subProds.length === 0) return;
-
-                    let prodsItemsHTML = subProds.map(p => {
-                        const urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
-                        const firstImg = urls.length > 0 ? urls[0] : 'https://via.placeholder.com/70';
-                        const urlsStr = encodeURIComponent(JSON.stringify(urls));
+                    let subsList = [...(cat.subs || []), "عام"];
+                    let subsHTML = subsList.map(sub => {
+                        let subProds = catProds.filter(p => p.subCategory === sub || (!p.subCategory && sub === "عام"));
+                        if(subProds.length === 0) return '';
+                        
                         return `
-                        <div class="list-item">
-                            <div class="item-row">
-                                <img src="${firstImg}">
-                                <div><strong>${p.name}</strong></div>
-                            </div>
-                            <div class="btn-group-large">
-                                <button class="edit-btn" onclick="openEdit('${p.id}','${p.name}','${p.mainCategory}','${p.subCategory}','${urlsStr}')">تعديل</button>
-                                <button class="danger-btn" onclick="delP('${p.id}')">حذف</button>
-                            </div>
+                        <div class="accordion-header sub-header" onclick="toggleAccordion(this, 'sub-content')">
+                            <strong>↳ ${sub}</strong> <span class="arrow">▼</span>
+                        </div>
+                        <div class="accordion-content sub-content">
+                            ${subProds.map(p => `
+                                <div class="list-item">
+                                    <div class="item-row">
+                                        <img src="${(p.imageURLs && p.imageURLs[0]) || p.imageUrl || ''}">
+                                        <div><strong>${p.name}</strong></div>
+                                    </div>
+                                    <div class="btn-group-large">
+                                        <button class="edit-btn" onclick="openEdit('${p.id}','${p.name.replace(/'/g, "\\'")}','${p.mainCategory}','${p.subCategory}','${encodeURIComponent(JSON.stringify(p.imageURLs || []))}')">تعديل</button>
+                                        <button class="danger-btn" onclick="delP('${p.id}')">حذف</button>
+                                    </div>
+                                </div>`).join('')}
                         </div>`;
                     }).join('');
 
-                    // التعديل اللي يحل مشكلة الأوكارديون هنا
-                    subsHTML += `
-                    <div class="accordion-header sub-header" onclick="toggleAccordion(this, 'sub-content')">
-                        <strong>↳ ${sub}</strong> <span class="arrow">▼</span>
-                    </div>
-                    <div class="accordion-content sub-content">
-                        ${prodsItemsHTML}
+                    pHTML += `
+                    <div style="margin-bottom:10px;">
+                        <div class="accordion-header" onclick="toggleAccordion(this, 'prod-acc')">
+                            <strong>📁 ${cat.id}</strong> <span class="arrow">▼</span>
+                        </div>
+                        <div class="accordion-content prod-acc" style="padding: 10px;">${subsHTML}</div>
                     </div>`;
                 });
-
-                pHTML += `
-                <div style="margin-bottom:10px;">
-                    <div class="accordion-header" onclick="toggleAccordion(this, 'prod-acc')">
-                        <strong>📁 ${cat.id}</strong> <span class="arrow">▼</span>
-                    </div>
-                    <div class="accordion-content prod-acc" style="padding: 10px;">
-                        ${subsHTML}
-                    </div>
-                </div>`;
-            });
-            
-            pL.innerHTML = pHTML || '<p style="text-align:center; color:#888;">لا توجد منتجات حالياً.</p>';
+                pL.innerHTML = pHTML || '<p style="text-align:center;">لا توجد منتجات.</p>';
+            } catch (e) { console.error("Error in init:", e); }
         }
     </script>
 </body>
