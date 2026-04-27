@@ -20,8 +20,8 @@
         .logo { height: 60px; filter: drop-shadow(0 0 5px var(--primary)); }
         .logout-btn { position: absolute; left: 15px; top: 25px; background: #dc3545; color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
 
-        .tabs { display: flex; justify-content: center; gap: 8px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
-        .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 12px 20px; border-radius: 8px; cursor: pointer; flex: 1; font-size: 16px; }
+        .tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; padding: 15px; background: var(--card-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+        .tabs button { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 12px 20px; border-radius: 8px; cursor: pointer; flex: 1; font-size: 14px; min-width: 100px; text-align: center;}
         .tabs button.active { background: var(--primary); color: #000; font-weight: bold; }
 
         .tab-content { display: none; max-width: 800px; margin: 15px auto; padding: 0 10px; }
@@ -93,6 +93,7 @@
     <div class="tabs">
         <button class="active" id="btnProductsTab" onclick="switchTab(event, 'productsTab')">المنتجات</button>
         <button id="btnCatsTab" onclick="switchTab(event, 'catsTab')">التصنيفات</button>
+        <button id="btnReviewsTab" onclick="switchTab(event, 'reviewsTab')">التقييمات والآراء</button>
     </div>
 
     <div id="productsTab" class="tab-content active">
@@ -105,7 +106,7 @@
             </div>
             <div class="drop-zone" id="prodDZ" onclick="document.getElementById('productFile').click()">
                 <div id="prodPrevContainer" class="img-preview-container"></div>
-                <span>اضغط لاختيار صور المنتج 📸 (يمكن تحديد أكثر من صورة)</span>
+                <span>اضغط لاختيار صور المنتج 📸</span>
                 <input type="file" id="productFile" style="display:none;" multiple onchange="previewMultiple(this, 'prodPrevContainer', 'prodDZ')">
             </div>
             <button class="action-btn" id="prodBtn" onclick="saveProduct()">رفع وحفظ المنتج</button>
@@ -133,6 +134,22 @@
         <div id="categoriesAdminList"></div>
     </div>
 
+    <div id="reviewsTab" class="tab-content">
+        <div class="admin-box">
+            <h2>رفع صور الآراء والمحادثات ⭐</h2>
+            <div class="drop-zone" id="revDZ" onclick="document.getElementById('reviewFile').click()">
+                <div id="revPrevContainer" class="img-preview-container"></div>
+                <span>اضغط لاختيار صور التقييمات 📸 (يمكن اختيار أكثر من صورة)</span>
+                <input type="file" id="reviewFile" style="display:none;" multiple onchange="previewMultiple(this, 'revPrevContainer', 'revDZ')">
+            </div>
+            <button class="action-btn" onclick="saveReviews()">رفع الصور للمعرض</button>
+        </div>
+        <div class="admin-box">
+            <h2>الآراء الحالية</h2>
+            <div class="img-preview-container" id="reviewsAdminList" style="justify-content: flex-start; gap: 15px;"></div>
+        </div>
+    </div>
+
     <div class="modal" id="editModal">
         <div class="modal-content">
             <h2 style="color:var(--primary)">تعديل المنتج والتحكم بالصور</h2>
@@ -142,7 +159,7 @@
             <select id="editSubCat"></select>
             
             <div style="margin-bottom: 15px; background: #111; padding: 15px; border-radius: 10px; border: 1px solid #333;">
-                <label style="color:var(--primary); font-size:14px; display:block; margin-bottom:10px; font-weight:bold;">الصور الحالية للمنتج (اضغط ❌ للحذف):</label>
+                <label style="color:var(--primary); font-size:14px; display:block; margin-bottom:10px; font-weight:bold;">الصور الحالية (اضغط ❌ للحذف):</label>
                 <div id="editPrevContainer" class="img-preview-container" style="justify-content: flex-start; gap: 15px;"></div>
             </div>
 
@@ -281,6 +298,32 @@
             init();
         }
 
+        // حفظ التقييمات
+        window.saveReviews = async () => {
+            const files = document.getElementById('reviewFile').files;
+            if(files.length === 0) return alert("اختر صورة واحدة على الأقل");
+            
+            await startProgress();
+            for(let i=0; i<files.length; i++) {
+                let url = await up(files[i]);
+                await db.collection("reviews").add({ imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            }
+            endProgress();
+            showToast("تم رفع الآراء بنجاح! ✅");
+            document.getElementById('reviewFile').value = '';
+            document.getElementById('revPrevContainer').innerHTML = '';
+            document.getElementById('revDZ').classList.remove('has-img');
+            init(); 
+        }
+
+        window.delRev = async (id) => {
+            if(confirm("حذف هذا التقييم؟")) {
+                await db.collection("reviews").doc(id).delete();
+                showToast("تم الحذف 🗑️");
+                init();
+            }
+        };
+
         window.editSub = async (m, oldS) => {
             const newS = prompt("تعديل القسم الفرعي:", oldS);
             if(newS && newS !== oldS) {
@@ -300,7 +343,7 @@
         window.renderEditImages = () => {
             const container = document.getElementById('editPrevContainer');
             if(currentImgUrls.length === 0) {
-                container.innerHTML = '<span style="color:#888;">لا توجد صور حالية.</span>'; return;
+                container.innerHTML = '<span style="color:#888;">لا توجد صور.</span>'; return;
             }
             container.innerHTML = currentImgUrls.map((url, index) => `
                 <div class="edit-img-wrap">
@@ -384,6 +427,7 @@
         
         async function init() {
             try {
+                // تحميل التصنيفات
                 const cSnap = await db.collection("categories").get();
                 let catsArray = [];
                 cSnap.forEach(doc => {
@@ -445,6 +489,7 @@
                     });
                 }
 
+                // تحميل المنتجات
                 const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
                 let allProds = [];
                 pSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; allProds.push(d); });
@@ -488,6 +533,21 @@
                     </div>`;
                 });
                 pL.innerHTML = pHTML || '<p style="text-align:center;">لا توجد منتجات.</p>';
+
+                // تحميل التقييمات في صفحة الإدارة
+                const rSnap = await db.collection("reviews").orderBy("timestamp", "desc").get();
+                let rHTML = '';
+                rSnap.forEach(doc => {
+                    let r = doc.data();
+                    rHTML += `
+                        <div class="edit-img-wrap" style="margin-bottom:10px;">
+                            <img src="${r.imageUrl}" style="width:100px; height:100px;">
+                            <button class="delete-img-btn" onclick="delRev('${doc.id}')">×</button>
+                        </div>
+                    `;
+                });
+                document.getElementById('reviewsAdminList').innerHTML = rHTML || '<span style="color:#888;">لا توجد آراء مسجلة حتى الآن.</span>';
+
             } catch (e) { console.error("Error in init:", e); }
         }
     </script>
