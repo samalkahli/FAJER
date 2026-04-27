@@ -31,17 +31,92 @@
         body::after { bottom: -10%; left: -10%; animation-delay: -5s; }
         @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }
 
-        header { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border); padding: 10px 5%; display: flex; justify-content: center; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--glass-shadow); height: 70px; }
-        .logo { height: 45px; object-fit: contain; transition: transform 0.3s ease; }
-        .logo:hover { transform: scale(1.05); }
-
-        .header-whatsapp { position: absolute; left: 5%; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.0)); backdrop-filter: blur(10px); color: var(--text-main); border: 1px solid var(--glass-border); border-radius: 50%; width: 42px; height: 42px; display: flex; justify-content: center; align-items: center; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .header-whatsapp:hover { background: var(--text-main); color: #000; transform: translateY(-2px); }
-        .header-whatsapp svg { width: 22px; height: 22px; fill: currentColor; }
-
         .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .section-title { text-align: center; margin-bottom: 5px; font-size: 2rem; font-weight: 700; background: linear-gradient(to left, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
-        .section-subtitle { text-align: center; color: var(--text-muted); font-size: 1.1rem; margin-bottom: 40px; font-weight: 400; }
+
+        /* =========================================
+           تصميم الهيدر الجديد (Profile Style)
+           ========================================= */
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .profile-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 15px;
+            background: #fff; /* خلفية بيضاء للشعار إذا لزم الأمر */
+            padding: 5px;
+        }
+
+        .profile-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            background: linear-gradient(to left, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-divider {
+            width: 60px;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+
+        .profile-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            font-weight: 400;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .social-btn:hover {
+            background: var(--text-main);
+            color: #000;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255,255,255,0.2);
+        }
+
+        .social-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+        /* =========================================
+           الشبكات والتصنيفات
+           ========================================= */
+        .section-title { text-align: center; margin-bottom: 30px; font-size: 1.8rem; font-weight: 700; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; display: inline-block; width: 100%; }
 
         .grid { display: grid; grid-template-columns: repeat(3, 1fr) !important; gap: 20px; }
         .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; box-shadow: var(--glass-shadow); position: relative; }
@@ -63,9 +138,17 @@
         #category-title { font-size: 1.8rem; font-weight: 700; }
         .btn-back { background: transparent; color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 0.95rem; backdrop-filter: blur(5px); transition: 0.3s; }
         .btn-back:hover { background: rgba(255, 255, 255, 0.1); }
-        .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; justify-content: center; }
+        
+        /* الفلاتر والقائمة المنسدلة */
+        .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; justify-content: center; align-items: center; }
         .filter-btn { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); color: var(--text-muted); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 0.9rem; transition: 0.3s; }
         .filter-btn.active, .filter-btn:hover { background: var(--text-main); color: #000; border-color: var(--text-main); }
+        
+        .more-filters-container { position: relative; display: inline-block; }
+        .more-filters-dropdown { display: none; position: absolute; top: 100%; right: 0; margin-top: 10px; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 15px; padding: 10px; flex-direction: column; gap: 8px; z-index: 50; min-width: 150px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .more-filters-dropdown.show { display: flex; animation: fadeIn 0.2s; }
+        .dropdown-item { width: 100%; text-align: center; border: none; background: transparent; padding: 8px; }
+        .dropdown-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
         /* كروت المنتجات */
         .product-card { display: flex; flex-direction: column; align-items: center; padding-bottom: 15px; transition: 0.3s; }
@@ -74,12 +157,10 @@
         .product-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .product-card:hover img { transform: scale(1.05); }
         
-        /* أيقونة الألبوم للمنتجات متعددة الصور */
-        .multi-img-icon { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); padding: 5px 8px; border-radius: 8px; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(4px); font-size: 0.75rem; color: #fff; }
+        .multi-img-icon { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); padding: 5px 8px; border-radius: 8px; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(4px); font-size: 0.75rem; color: #fff; z-index: 2;}
         .multi-img-icon svg { width: 14px; height: 14px; fill: #fff; }
 
-        /* تظليل عند المرور (Hover) */
-        .hover-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
+        .hover-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; z-index: 1;}
         .hover-overlay span { border: 1px solid #fff; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; backdrop-filter: blur(2px); }
         .product-card .image-container:hover .hover-overlay { opacity: 1; }
 
@@ -98,7 +179,7 @@
         
         .modal-body { display: flex; flex-direction: column; gap: 15px; }
         .modalSwiper { width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: #000; overflow: hidden; }
-        .modalSwiper img { width: 100%; height: 100%; object-fit: contain; /* لا يقتص الصورة في النافذة */ }
+        .modalSwiper img { width: 100%; height: 100%; object-fit: contain; }
         
         .modal-title { text-align: center; font-size: 1.4rem; font-weight: 700; margin-top: 5px; color: #fff; }
         
@@ -106,7 +187,6 @@
         .modal-whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
         .modal-whatsapp-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
-        /* ستايلات سلايدر Swiper */
         .swiper-button-next, .swiper-button-prev { color: rgba(255,255,255,0.9) !important; background: rgba(0,0,0,0.4); width: 35px !important; height: 35px !important; border-radius: 50%; backdrop-filter: blur(4px); }
         .swiper-button-next::after, .swiper-button-prev::after { font-size: 16px !important; font-weight: bold; }
         .swiper-pagination-bullet { background: #fff !important; opacity: 0.5; }
@@ -115,31 +195,43 @@
         @media (max-width: 768px) {
             .grid { gap: 8px; }
             .container { padding: 30px 10px; }
-            .section-title { font-size: 1.5rem; }
-            .section-subtitle { font-size: 0.95rem; margin-bottom: 30px; }
+            .profile-logo { width: 100px; height: 100px; }
+            .profile-title { font-size: 1.5rem; }
+            .section-title { font-size: 1.4rem; }
             .cat-card h3 { font-size: 0.85rem; }
             .cat-card:hover h3 { transform: translate(-50%, calc(-50% + 8px)); }
             .product-card h4 { font-size: 0.75rem; margin: 10px 5px; }
             .product-whatsapp { padding: 6px 10px; width: 90%; font-size: 0.75rem; }
             .products-header { flex-direction: column; gap: 15px; }
             #category-title { font-size: 1.4rem; }
-            .swiper-button-next, .swiper-button-prev { display: none; /* إخفاء الأسهم بالجوال في النافذة */ }
+            .swiper-button-next, .swiper-button-prev { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <img src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="logo" onclick="location.reload()" style="cursor:pointer;">
-        <a href="https://wa.me/966552125258" class="header-whatsapp" target="_blank" title="تواصل معنا">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-        </a>
-    </header>
-
     <main class="container">
+        <div class="profile-header">
+            <img src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="profile-logo">
+            <h1 class="profile-title">ATHNTA</h1>
+            <div class="profile-divider"></div>
+            <p class="profile-subtitle">نصنع قطع فنية 🧵</p>
+            
+            <div class="social-links">
+                <a href="https://wa.me/966552125258" class="social-btn" target="_blank" title="تواصل معنا عبر واتساب">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                </a>
+                <a href="#" class="social-btn" target="_blank" title="تابعنا على إنستقرام">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                </a>
+                <a href="#" class="social-btn" target="_blank" title="تابعنا على تيك توك">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                </a>
+            </div>
+        </div>
+
         <section id="categories-section">
-            <h1 class="section-title">أعمالنا المنفذة</h1>
-            <p class="section-subtitle">هنا كل اعمالنا المنفذة خصيصا لكم 🤍</p>
+            <h2 class="section-title">أعمالنا المنفذة</h2>
             <div class="grid" id="categories-grid"></div>
         </section>
 
@@ -148,7 +240,9 @@
                 <h2 id="category-title">اسم القسم</h2>
                 <button class="btn-back" onclick="location.reload()">العودة للأقسام</button>
             </div>
+            
             <div class="filters" id="filters-container"></div>
+            
             <div class="grid" id="products-grid"></div>
         </section>
     </main>
@@ -191,7 +285,7 @@
         
         let allProducts = []; 
         let categoriesData = {};  
-        let modalSwiperInstance = null; // متغير لحفظ السلايدر الخاص بالنافذة المنبثقة
+        let modalSwiperInstance = null; 
 
         function formatURL(url) {
             return url && url.startsWith('http') ? url : 'https://via.placeholder.com/400x400/222/fff?text=Image';
@@ -224,19 +318,61 @@
             }
         }
 
+        // ==========================================
+        // وظائف الفلاتر والقائمة المنسدلة
+        // ==========================================
+        window.toggleMoreFilters = (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('moreFiltersDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        window.closeMoreFilters = () => {
+            const dropdown = document.getElementById('moreFiltersDropdown');
+            if(dropdown) dropdown.classList.remove('show');
+        }
+
+        // إغلاق القائمة عند النقر خارجها
+        document.addEventListener('click', closeMoreFilters);
+
         window.showProducts = (categoryId) => {
+            // إخفاء الهيدر التعريفي والتصنيفات
+            document.querySelector('.profile-header').style.display = 'none';
             document.getElementById('categories-section').style.display = 'none';
+            
             document.getElementById('products-section').style.display = 'block';
             document.getElementById('category-title').innerText = categoryId;
             
             const filtersBox = document.getElementById('filters-container');
-            filtersBox.innerHTML = `<button class="filter-btn active" onclick="filterData('${categoryId}', 'all', event)">الكل</button>`;
+            
+            // بناء أزرار الفلترة: أول 3 أزرار تظهر مباشرة، والباقي في القائمة المنسدلة
+            let filtersHTML = `<button class="filter-btn active" onclick="filterData('${categoryId}', 'all', event)">الكل</button>`;
+            let subs = [];
             
             if(categoriesData[categoryId].subs && categoriesData[categoryId].subs.length > 0) {
-                categoriesData[categoryId].subs.forEach(sub => {
-                    filtersBox.innerHTML += `<button class="filter-btn" onclick="filterData('${categoryId}', '${sub}', event)">${sub}</button>`;
-                });
+                subs = categoriesData[categoryId].subs;
             }
+
+            subs.forEach((sub, index) => {
+                if(index < 3) {
+                    filtersHTML += `<button class="filter-btn" onclick="filterData('${categoryId}', '${sub}', event)">${sub}</button>`;
+                }
+            });
+
+            // إذا كان هناك أكثر من 3 تصنيفات، نضع الباقي في قائمة منسدلة
+            if(subs.length > 3) {
+                filtersHTML += `
+                <div class="more-filters-container">
+                    <button class="filter-btn" onclick="toggleMoreFilters(event)">المزيد ▾</button>
+                    <div id="moreFiltersDropdown" class="more-filters-dropdown">
+                `;
+                for(let i = 3; i < subs.length; i++) {
+                    filtersHTML += `<button class="filter-btn dropdown-item" onclick="filterData('${categoryId}', '${subs[i]}', event)">${subs[i]}</button>`;
+                }
+                filtersHTML += `</div></div>`;
+            }
+
+            filtersBox.innerHTML = filtersHTML;
 
             filterData(categoryId, 'all');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -244,8 +380,15 @@
 
         window.filterData = (mainCat, subCat, event) => {
             if(event) {
-                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
+                // تلوين الزر النشط فقط للزر المضغوط (وإزالة اللون من الباقي)
+                document.querySelectorAll('.filter-btn:not(.dropdown-item)').forEach(btn => btn.classList.remove('active'));
+                
+                // إذا تم الضغط على عنصر داخل القائمة المنسدلة، نغلقها ونفعل الزر الرئيسي "المزيد" مؤقتاً
+                if(event.target.classList.contains('dropdown-item')) {
+                    document.querySelector('.more-filters-container > button').classList.add('active');
+                } else {
+                    event.target.classList.add('active');
+                }
             }
 
             let filtered = allProducts.filter(p => p.mainCategory === mainCat);
@@ -264,14 +407,12 @@
                 let urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
                 const firstImg = urls.length > 0 ? urls[0] : 'https://via.placeholder.com/400';
                 
-                // أيقونة الألبوم إذا كان هناك أكثر من صورة
                 const iconMultiple = urls.length > 1 ? `
                     <div class="multi-img-icon">
                         <svg viewBox="0 0 24 24"><path d="M22 4h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2.586 11l-2.707-2.707c-.391-.391-1.023-.391-1.414 0l-1.293 1.293-3.293-3.293c-.391-.391-1.023-.391-1.414 0l-3.293 3.293v-8.586h14v10zm-13.414-13h14v2h-14v-2zm-4 4h2v14h-14v-14z"/></svg>
                         ${urls.length}
                     </div>` : '';
 
-                // تشفير بيانات المنتج لتمريرها دالة الفتح
                 const pStr = encodeURIComponent(JSON.stringify(p));
 
                 return `
@@ -297,7 +438,6 @@
             const p = JSON.parse(decodeURIComponent(pStr));
             let urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
 
-            // حقن الصور في السلايدر الخاص بالنافذة
             const wrapper = document.getElementById('modalSwiperWrapper');
             wrapper.innerHTML = urls.map(u => `
                 <div class="swiper-slide">
@@ -305,17 +445,13 @@
                 </div>
             `).join('');
 
-            // وضع اسم المنتج
             document.getElementById('modalProductTitle').innerText = p.name;
             
-            // وضع رابط الواتساب مخصص لهذا المنتج
             const msg = `السلام عليكم، أود الطلب/الاستفسار عن المنتج: ${p.name} الموجود بقسم ${p.mainCategory}`;
             document.getElementById('modalWhatsappBtn').href = `https://wa.me/966552125258?text=${encodeURIComponent(msg)}`;
 
-            // إظهار النافذة
             document.getElementById('productModal').classList.add('active');
 
-            // إعادة تهيئة مكتبة Swiper
             if(modalSwiperInstance) {
                 modalSwiperInstance.destroy(true, true);
             }
@@ -330,7 +466,7 @@
                     clickable: true,
                 },
                 grabCursor: true,
-                loop: urls.length > 1 // تفعيل التدوير المستمر فقط إذا كان هناك أكثر من صورة
+                loop: urls.length > 1 
             });
         };
 
@@ -338,7 +474,6 @@
             document.getElementById('productModal').classList.remove('active');
         };
 
-        // إغلاق النافذة عند الضغط خارج المربع
         document.getElementById('productModal').addEventListener('click', function(e) {
             if(e.target === this) closeProductModal();
         });
