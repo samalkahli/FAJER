@@ -373,18 +373,39 @@
             try {
                 const cSnap = await db.collection("categories").get();
                 catGrid.innerHTML = ''; 
+                
+                // نجمع التصنيفات في مصفوفة عشان نقدر نرتبها
+                let catsArray = [];
                 cSnap.forEach(doc => {
-                    const data = doc.data();
+                    let data = doc.data();
+                    data.id = doc.id;
+                    catsArray.push(data);
                     categoriesData[doc.id] = data; 
+                });
+
+                // هنا السر: ترتيب التصنيفات بناءً على حقل الترتيب اللي يتعدل من الإدارة
+                catsArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+                // رسم التصنيفات بعد الترتيب
+                catsArray.forEach(data => {
                     catGrid.innerHTML += `
-                        <div class="glass-card cat-card" onclick="showProducts('${doc.id}')">
+                        <div class="glass-card cat-card" onclick="showProducts('${data.id}')">
                             <div class="image-container">
-                                <img src="${formatURL(data.imageUrl)}" loading="lazy" alt="${doc.id}">
+                                <img src="${formatURL(data.imageUrl)}" loading="lazy" alt="${data.id}">
                             </div>
-                            <h3>${doc.id}</h3>
+                            <h3>${data.id}</h3>
                         </div>
                     `;
                 });
+
+                const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
+                pSnap.forEach(doc => allProducts.push(doc.data()));
+                
+            } catch (error) {
+                catGrid.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">حدث خطأ في جلب البيانات.</p>';
+                console.error(error);
+            }
+        }
 
                 const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
                 pSnap.forEach(doc => allProducts.push(doc.data()));
