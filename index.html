@@ -46,24 +46,12 @@
         }
         
         .profile-logo {
-            /* جعل العرض متناسباً مع عرض الشاشة */
-            width: 25vw; 
-            height: 25vw;
-            
-            /* وضع حدود لضمان عدم المبالغة في التكبير أو التصغير */
-            max-width: 150px; 
-            max-height: 150px;
-            min-width: 90px;
-            min-height: 90px;
-
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 25vw; /* العرض يتغير نسبياً مع حجم الشاشة */
+            max-width: 150px; /* أقصى حجم للشاشات الكبيرة */
+            min-width: 90px; /* أصغر حجم للجوالات */
+            height: auto; /* يحافظ على أبعاد الشعار الأصلية بدون تمطيط */
             margin-bottom: 15px;
-            background: #fff;
             padding: 5px;
-            transition: all 0.3s ease; /* لإعطاء حركة ناعمة عند تغيير حجم الشاشة */
         }
 
         .profile-title {
