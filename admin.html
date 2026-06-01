@@ -235,10 +235,21 @@
 
         const imgbbKey = "28f606ee4a697fac01f86c4f0a3cb51b";
         async function up(f) {
-            let fd = new FormData(); fd.append('image', f);
-            let r = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: 'POST', body: fd });
-            let d = await r.json(); return d.data.display_url;
-        }
+    try {
+        let fd = new FormData(); fd.append('image', f);
+        let r = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: 'POST', body: fd });
+        let d = await r.json();
+        
+        // التحقق إذا كان ImgBB أرجع خطأ (مثل انتهاء الباقة)
+        if (d.error) throw new Error(d.error.message); 
+        
+        return d.data.display_url;
+    } catch (error) {
+        console.error("مشكلة في سيرفر ImgBB:", error);
+        throw new Error("فشل رفع الصورة لـ ImgBB. " + error.message);
+    }
+}
+
 
         window.loadSubCats = (mId, sId, sel = '') => {
             const m = document.getElementById(mId).value, s = document.getElementById(sId);
@@ -246,20 +257,46 @@
             if(m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub===sel?'selected':''}>${sub}</option>`);
         };
 
-        async function saveProduct() {
-            const n = document.getElementById('productName').value;
-            const m = document.getElementById('productMainCat').value;
-            const s = document.getElementById('productSubCat').value;
-            const files = document.getElementById('productFile').files;
-            
-            if(!n || !m || files.length === 0) return alert("الرجاء إدخال البيانات المطلوبة");
-            
-            await startProgress();
-            let uploadedUrls = [];
-            for (let i = 0; i < files.length; i++) {
-                let url = await up(files[i]);
-                uploadedUrls.push(url);
-            }
+       async function saveProduct() {
+    const n = document.getElementById('productName').value;
+    const m = document.getElementById('productMainCat').value;
+    const s = document.getElementById('productSubCat').value;
+    const files = document.getElementById('productFile').files;
+    
+    if(!n || !m || files.length === 0) return alert("الرجاء إدخال البيانات المطلوبة");
+    
+    await startProgress();
+    
+    try {
+        let uploadedUrls = [];
+        for (let i = 0; i < files.length; i++) {
+            let url = await up(files[i]);
+            uploadedUrls.push(url);
+        }
+
+        await db.collection("products").add({ 
+            name: n, 
+            mainCategory: m, 
+            subCategory: s || "عام", 
+            imageURLs: uploadedUrls, 
+            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+        
+        endProgress();
+        showToast("تم رفع المنتج! ✅");
+        document.getElementById('productName').value = ''; 
+        document.getElementById('productFile').value = '';
+        document.getElementById('prodPrevContainer').innerHTML = '';
+        document.getElementById('prodDZ').classList.remove('has-img');
+        init(); 
+        
+    } catch (error) {
+        endProgress(); // إيقاف شريط التحميل عشان ما يعلق
+        alert("حدث خطأ أثناء الرفع: " + error.message); // إظهار المشكلة لك مباشرة
+        console.error("Error details:", error);
+    }
+}
+
 
             await db.collection("products").add({ name: n, mainCategory: m, subCategory: s || "عام", imageURLs: uploadedUrls, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             
