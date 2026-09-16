@@ -1,180 +1,68 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#050505" id="themeColor">
     <title>ATHNTA | المعرض</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
-    <style>
-        :root {
-            --bg-dark: #050505;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            --text-main: #f4f4f4;
-            --text-muted: #a0a0a0;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; min-height: 100vh; position: relative; overflow-x: hidden; }
-        body::before, body::after { content: ''; position: fixed; width: 40vw; height: 40vw; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 60%); z-index: -1; animation: float 15s infinite ease-in-out alternate; }
-        body::before { top: -10%; right: -10%; }
-        body::after { bottom: -10%; left: -10%; animation-delay: -5s; }
-        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-
-        .profile-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 50px; animation: fadeIn 0.8s ease; }
-        .nav-box { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; z-index: 1000; transition: all 0.4s ease; }
-        .profile-logo { width: 25vw; max-width: 150px; min-width: 90px; height: auto; margin-bottom: 15px; padding: 5px; transition: all 0.4s ease; object-fit: contain; margin-top: 50px; }
-
-        .nav-whatsapp { position: absolute; right: 5%; top: 50%; transform: translateY(-50%); color: #fff; opacity: 0; visibility: hidden; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .nav-whatsapp svg { width: 24px; height: 24px; fill: currentColor; }
-        .nav-whatsapp:hover { background: #fff; color: #000; }
-
-        .nav-box.sticky { position: fixed; top: 0; left: 0; width: 100%; height: 75px; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .nav-box.sticky .profile-logo { position: absolute; left: 0; right: 0; margin: auto; top: 50%; transform: translateY(-50%); width: 55px; height: auto; max-height: 55px; padding: 0; }
-        .nav-box.sticky .nav-whatsapp { opacity: 1; visibility: visible; }
-
-        .profile-subtitle { color: var(--text-muted); font-size: 1.2rem; font-weight: 400; }
-
-        .section-title { text-align: center; margin-bottom: 30px; font-size: 1.8rem; font-weight: 400; color: #fcf9f2; text-shadow: 0 0 4px rgba(252, 249, 242, 0.7), 0 0 10px rgba(252, 249, 242, 0.4); border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; display: inline-block; width: 100%; letter-spacing: 1.5px; }
-
-        /* شبكة التصنيفات (شريحتين) */
-        .categories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 800px; margin: 0 auto; }
-        .cat-card { cursor: pointer; aspect-ratio: 9/16; border-radius: 20px; }
-        .categories-grid .cat-card:last-child:nth-child(odd) { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
-
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; box-shadow: var(--glass-shadow); position: relative; }
-        .cat-card .image-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .cat-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-        .cat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.55); z-index: 1; transition: background 0.4s ease; }
-        .cat-card:hover { transform: translateY(-8px); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-        .cat-card:hover::before { background: rgba(0, 0, 0, 0.7); }
-        .cat-card:hover img { transform: scale(1.08); }
-        .cat-card h3 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; color: #fff; text-align: center; font-size: 1.4rem; font-weight: 700; width: 90%; text-shadow: 0 4px 15px rgba(0,0,0,0.8); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .cat-card:hover h3 { transform: translate(-50%, calc(-50% + 15px)); }
-
-        /* الأقسام المخفية */
-        #products-section, #reviews-section { display: none; animation: fadeIn 0.5s ease; padding-top: 20px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-        
-        .products-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--glass-border); }
-        #category-title { font-size: 1.8rem; font-weight: 700; }
-        .btn-back { background: transparent; color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 0.95rem; backdrop-filter: blur(5px); transition: 0.3s; }
-        .btn-back:hover { background: rgba(255, 255, 255, 0.1); }
-        
-        .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; justify-content: center; align-items: center; }
-        .filter-btn { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); color: var(--text-muted); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 30px; cursor: pointer; font-size: 0.9rem; transition: 0.3s; }
-        .filter-btn.active, .filter-btn:hover { background: var(--text-main); color: #000; border-color: var(--text-main); }
-        
-        .more-filters-container { position: relative; display: inline-block; }
-        .more-filters-dropdown { display: none; position: absolute; top: 100%; right: 0; margin-top: 10px; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 15px; padding: 10px; flex-direction: column; gap: 8px; z-index: 50; min-width: 150px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .more-filters-dropdown.show { display: flex; animation: fadeIn 0.2s; }
-        .dropdown-item { width: 100%; text-align: center; border: none; background: transparent; padding: 8px; }
-        .dropdown-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
-
-        .product-card { display: flex; flex-direction: column; align-items: center; padding-bottom: 15px; transition: 0.3s; }
-        .product-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
-        .product-card .image-container { width: 100%; aspect-ratio: 3/4; overflow: hidden; border-bottom: 1px solid var(--glass-border); position: relative; cursor: pointer; }
-        .product-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .product-card:hover img { transform: scale(1.05); }
-        
-        .multi-img-icon { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); padding: 5px 8px; border-radius: 8px; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(4px); font-size: 0.75rem; color: #fff; z-index: 2;}
-        .multi-img-icon svg { width: 14px; height: 14px; fill: #fff; }
-        .hover-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; z-index: 1;}
-        .hover-overlay span { border: 1px solid #fff; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; backdrop-filter: blur(2px); }
-        .product-card .image-container:hover .hover-overlay { opacity: 1; }
-        .product-card h4 { font-size: 1rem; margin: 15px 10px; font-weight: 500; text-align: center; width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* النافذة المنبثقة للمنتجات */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
-        .modal.active { display: flex; }
-        .modal-content { background: rgba(15, 15, 15, 0.95); width: 100%; max-width: 450px; border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; position: relative; box-shadow: 0 15px 50px rgba(0,0,0,0.7); }
-        .close-modal { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 22px; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; justify-content: center; align-items: center; transition: 0.3s; backdrop-filter: blur(5px); }
-        .close-modal:hover { background: #ff4d4d; }
-        
-        .modal-body { display: flex; flex-direction: column; gap: 15px; }
-        .modalSwiper { width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: #000; overflow: hidden; }
-        .modalSwiper img { width: 100%; height: 100%; object-fit: contain; }
-        .modal-title { text-align: center; font-size: 1.4rem; font-weight: 700; margin-top: 5px; color: #fff; }
-        
-        .modal-whatsapp-btn { display: flex; justify-content: center; align-items: center; gap: 10px; background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; padding: 12px 20px; border-radius: 30px; text-decoration: none; font-size: 1.1rem; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); margin-top: 5px; }
-        .modal-whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
-        .modal-whatsapp-btn svg { width: 24px; height: 24px; fill: currentColor; }
-
-        .swiper-button-next, .swiper-button-prev { color: rgba(255,255,255,0.9) !important; background: rgba(0,0,0,0.4); width: 35px !important; height: 35px !important; border-radius: 50%; backdrop-filter: blur(4px); }
-        .swiper-button-next::after, .swiper-button-prev::after { font-size: 16px !important; font-weight: bold; }
-        .swiper-pagination-bullet { background: #fff !important; opacity: 0.5; }
-        .swiper-pagination-bullet-active { opacity: 1; }
-
-        /* =========================================
-           زر آراء العملاء (الجديد)
-           ========================================= */
-        .reviews-btn-wrapper { text-align: center; margin-top: 50px; margin-bottom: 20px; }
-        .reviews-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; padding: 15px 40px; border-radius: 30px; font-size: 1.2rem; font-weight: 500; cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: inline-flex; align-items: center; gap: 10px; }
-        .reviews-btn:hover { background: #fff; color: #000; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255,255,255,0.2); }
-
-        /* تصميم الميسونري (العفوي) لصور الآراء */
-        .reviews-masonry { column-count: 2; column-gap: 15px; }
-        .review-img-wrap { break-inside: avoid; margin-bottom: 15px; border-radius: 12px; overflow: hidden; border: 1px solid var(--glass-border); position: relative; cursor: zoom-in; }
-        .review-img-wrap img { width: 100%; display: block; border-radius: 12px; transition: 0.3s; }
-        .review-img-wrap:hover img { transform: scale(1.03); }
-        @media (min-width: 768px) { .reviews-masonry { column-count: 3; } }
-        @media (min-width: 1024px) { .reviews-masonry { column-count: 4; } }
-
-        /* تذييل روابط التواصل */
-        .social-footer { margin-top: 20px; padding-top: 30px; border-top: 1px solid var(--glass-border); display: flex; justify-content: center; gap: 15px; }
-        .social-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: var(--text-main); text-decoration: none; transition: all 0.3s ease; backdrop-filter: blur(10px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .social-btn:hover { background: var(--text-main); color: #000; transform: translateY(-5px); }
-        .social-btn svg { width: 22px; height: 22px; fill: currentColor; }
-
-        @media (max-width: 768px) {
-            .container { padding: 20px 5px; } 
-            .categories-grid { gap: 12px; } 
-            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } 
-            .profile-title { font-size: 1.5rem; }
-            .section-title { font-size: 1.4rem; }
-            .cat-card h3 { font-size: 1.1rem; font-weight: 700; } 
-            .cat-card:hover h3 { transform: translate(-50%, calc(-50% + 8px)); }
-            .product-card h4 { font-size: 0.85rem; margin: 10px 5px; }
-            .products-header { flex-direction: column; gap: 15px; }
-            #category-title { font-size: 1.4rem; }
-            .swiper-button-next, .swiper-button-prev { display: none; }
-        }
-    </style>
+    <link rel="stylesheet" href="css/public.css">
 </head>
-<body>
 
+<body data-mode="embroidery">
     <main class="container">
         <div class="profile-header">
             <div class="nav-box" id="mainNav">
-                <img src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="profile-logo" onclick="location.reload()" style="cursor:pointer;" fetchpriority="high">
+<img
+    id="brandLogo"
+    src="https://i.ibb.co/XftPtTSg/image.png"
+    alt="ATHNTA Logo"
+    class="profile-logo"
+    onclick="backToCategories()"
+    style="cursor:pointer;"
+    fetchpriority="high">
                 <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank" title="تواصل معنا">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                    </svg>
                 </a>
             </div>
             <p class="profile-subtitle" id="subHeaderText">نصنع قطع فنية 🧵</p>
         </div>
 
         <section id="categories-section">
-            <h2 class="section-title">هنا أعمالنا المنفذة خصيصاً لكم </h2>
+
+            <div class="mode-tabs">
+                <button class="mode-tab active" id="embroideryTab" onclick="switchMode('embroidery')">
+                    تطريز
+                </button>
+
+                <button class="mode-tab" id="printingTab" onclick="switchMode('printing')">
+                    طباعة
+                </button>
+            </div>
+
+            <h2 class="section-title" id="mainSectionTitle">
+                هنا أعمالنا المنفذة خصيصاً لكم
+            </h2>
+
             <div class="categories-grid" id="categories-grid"></div>
+
         </section>
 
         <section id="products-section">
             <div class="products-header">
                 <h2 id="category-title">اسم القسم</h2>
-                <button class="btn-back" onclick="location.reload()">العودة للأقسام</button>
+                <button class="btn-back" onclick="backToCategories()">العودة للأقسام</button>
             </div>
             <div class="filters" id="filters-container"></div>
             <div class="products-grid" id="products-grid"></div>
@@ -183,7 +71,7 @@
         <section id="reviews-section">
             <div class="products-header">
                 <h2>آراء العملاء ⭐</h2>
-                <button class="btn-back" onclick="location.reload()">العودة للأقسام</button>
+                <button class="btn-back" onclick="backToCategories()">العودة للأقسام</button>
             </div>
             <div class="reviews-masonry" id="reviews-grid"></div>
         </section>
@@ -196,13 +84,22 @@
 
         <div class="social-footer">
             <a href="https://wa.me/966552125258" class="social-btn" target="_blank" title="واتساب">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                </svg>
             </a>
             <a href="#" class="social-btn" target="_blank" title="إنستقرام">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
             </a>
             <a href="#" class="social-btn" target="_blank" title="تيك توك">
-                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3V0Z"/></svg>
+                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                    <path
+                        d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3V0Z" />
+                </svg>
             </a>
         </div>
     </main>
@@ -219,7 +116,10 @@
                 </div>
                 <h3 id="modalProductTitle" class="modal-title">اسم المنتج</h3>
                 <a id="modalWhatsappBtn" href="#" class="modal-whatsapp-btn" target="_blank">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                    </svg>
                     للطلب عبر الواتس
                 </a>
             </div>
@@ -233,200 +133,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCN7d0p7Wv6ACXiz_Xp3mRkzEF4g0iiXKE",
-            authDomain: "athnta-gallary.firebaseapp.com",
-            projectId: "athnta-gallary",
-            storageBucket: "athnta-gallary.firebasestorage.app",
-            messagingSenderId: "814746418768",
-            appId: "1:814746418768:web:e4e08b4cee435498269b55"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        let allProducts = []; 
-        let categoriesData = {};  
-        let allReviews = [];
-        let modalSwiperInstance = null; 
-
-        window.onscroll = function() {
-            const nav = document.getElementById('mainNav');
-            const pSec = document.getElementById('products-section');
-            const rSec = document.getElementById('reviews-section');
-            if (pSec.style.display === 'block' || rSec.style.display === 'block') {
-                if (window.pageYOffset > 50) nav.classList.add('sticky');
-                else nav.classList.remove('sticky');
-            } else {
-                nav.classList.remove('sticky');
-            }
-        };
-
-        function formatURL(url) { return url && url.startsWith('http') ? url : 'https://via.placeholder.com/400x400/222/fff?text=Image'; }
-
-        async function loadData() {
-            const catGrid = document.getElementById('categories-grid');
-            if (!catGrid) return;
-            try {
-                // جلب التصنيفات
-                const cSnap = await db.collection("categories").get();
-                catGrid.innerHTML = ''; 
-                let catsArray = [];
-                cSnap.forEach(doc => {
-                    let data = doc.data(); data.id = doc.id;
-                    catsArray.push(data); categoriesData[doc.id] = data; 
-                });
-                catsArray.sort((a, b) => (a.order || 0) - (b.order || 0));
-                catsArray.forEach(data => {
-                    catGrid.innerHTML += `
-                        <div class="glass-card cat-card" onclick="showProducts('${data.id}')">
-                            <div class="image-container">
-                                <img src="${formatURL(data.imageUrl)}" loading="lazy" alt="${data.id}">
-                            </div>
-                            <h3>${data.id}</h3>
-                        </div>
-                    `;
-                });
-
-                // جلب المنتجات
-                const pSnap = await db.collection("products").orderBy("timestamp", "desc").get();
-                allProducts = [];
-                pSnap.forEach(doc => { let pData = doc.data(); pData.id = doc.id; allProducts.push(pData); });
-
-                // جلب التقييمات
-                const rSnap = await db.collection("reviews").orderBy("timestamp", "desc").get();
-                allReviews = [];
-                rSnap.forEach(doc => { allReviews.push(doc.data()); });
-                
-            } catch (error) {
-                console.error("خطأ:", error);
-                catGrid.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">حدث خطأ. يرجى تحديث الصفحة.</p>';
-            }
-        }
-
-        window.toggleMoreFilters = (e) => {
-            e.stopPropagation();
-            document.getElementById('moreFiltersDropdown').classList.toggle('show');
-        }
-
-        window.closeMoreFilters = () => {
-            const dropdown = document.getElementById('moreFiltersDropdown');
-            if(dropdown) dropdown.classList.remove('show');
-        }
-
-        document.addEventListener('click', closeMoreFilters);
-
-        window.showProducts = (categoryId) => {
-            document.getElementById('categories-section').style.display = 'none';
-            document.getElementById('subHeaderText').style.display = 'none';
-            document.getElementById('reviewsBtnWrapper').style.display = 'none';
-            document.getElementById('reviews-section').style.display = 'none';
-            document.getElementById('products-section').style.display = 'block';
-            
-            document.getElementById('category-title').innerText = categoryId;
-            const filtersBox = document.getElementById('filters-container');
-            let filtersHTML = `<button class="filter-btn active" onclick="filterData('${categoryId}', 'all', event)">الكل</button>`;
-            let subs = categoriesData[categoryId].subs || [];
-
-            subs.forEach((sub, index) => {
-                if(index < 3) filtersHTML += `<button class="filter-btn" onclick="filterData('${categoryId}', '${sub}', event)">${sub}</button>`;
-            });
-
-            if(subs.length > 3) {
-                filtersHTML += `<div class="more-filters-container"><button class="filter-btn" onclick="toggleMoreFilters(event)">المزيد ▾</button><div id="moreFiltersDropdown" class="more-filters-dropdown">`;
-                for(let i = 3; i < subs.length; i++) {
-                    filtersHTML += `<button class="filter-btn dropdown-item" onclick="filterData('${categoryId}', '${subs[i]}', event)">${subs[i]}</button>`;
-                }
-                filtersHTML += `</div></div>`;
-            }
-
-            filtersBox.innerHTML = filtersHTML;
-            filterData(categoryId, 'all');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        window.filterData = (mainCat, subCat, event) => {
-            if(event) {
-                document.querySelectorAll('.filter-btn:not(.dropdown-item)').forEach(btn => btn.classList.remove('active'));
-                if(event.target.classList.contains('dropdown-item')) {
-                    document.querySelector('.more-filters-container > button').classList.add('active');
-                } else {
-                    event.target.classList.add('active');
-                }
-            }
-
-            let filtered = allProducts.filter(p => p.mainCategory === mainCat);
-            if(subCat !== 'all') filtered = filtered.filter(p => p.subCategory === subCat);
-
-            const prodGrid = document.getElementById('products-grid');
-            if(filtered.length === 0) {
-                prodGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 1.2rem;">لا توجد منتجات هنا حالياً.</p>';
-                return;
-            }
-
-            prodGrid.innerHTML = filtered.map((p) => {
-                let urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
-                const firstImg = urls.length > 0 ? urls[0] : 'https://via.placeholder.com/400';
-                const iconMultiple = urls.length > 1 ? `<div class="multi-img-icon"><svg viewBox="0 0 24 24"><path d="M22 4h-14c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-14c0-1.103-.897-2-2-2zm-2.586 11l-2.707-2.707c-.391-.391-1.023-.391-1.414 0l-1.293 1.293-3.293-3.293c-.391-.391-1.023-.391-1.414 0l-3.293 3.293v-8.586h14v10zm-13.414-13h14v2h-14v-2zm-4 4h2v14h-14v-14z"/></svg>${urls.length}</div>` : '';
-                const pStr = encodeURIComponent(JSON.stringify(p));
-                return `
-                    <div class="glass-card product-card">
-                        <div class="image-container" onclick="openProductModal('${pStr}')">
-                            <img src="${formatURL(firstImg)}" loading="lazy" alt="${p.name}">
-                            ${iconMultiple}
-                            <div class="hover-overlay"><span>عرض التفاصيل</span></div>
-                        </div>
-                        <h4>${p.name}</h4>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // فتح قسم الآراء
-        window.showReviews = () => {
-            document.getElementById('categories-section').style.display = 'none';
-            document.getElementById('subHeaderText').style.display = 'none';
-            document.getElementById('products-section').style.display = 'none';
-            document.getElementById('reviewsBtnWrapper').style.display = 'none';
-            
-            document.getElementById('reviews-section').style.display = 'block';
-            
-            const rGrid = document.getElementById('reviews-grid');
-            if(allReviews.length === 0) {
-                rGrid.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:1.2rem;">لا توجد آراء حالياً.</p>';
-            } else {
-                rGrid.innerHTML = allReviews.map(r => `
-                    <div class="review-img-wrap">
-                        <img src="${r.imageUrl}" loading="lazy" onclick="openReviewImgModal('${r.imageUrl}')">
-                    </div>
-                `).join('');
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.openReviewImgModal = (url) => {
-            document.getElementById('expandedReviewImg').src = url;
-            document.getElementById('reviewImgModal').classList.add('active');
-        };
-
-        window.openProductModal = (pStr) => {
-            const p = JSON.parse(decodeURIComponent(pStr));
-            let urls = p.imageURLs || (p.imageUrl ? [p.imageUrl] : []); 
-            const wrapper = document.getElementById('modalSwiperWrapper');
-            wrapper.innerHTML = urls.map(u => `<div class="swiper-slide"><img src="${formatURL(u)}" alt="${p.name}"></div>`).join('');
-            document.getElementById('modalProductTitle').innerText = p.name;
-            const msg = `السلام عليكم، أود الطلب/الاستفسار عن المنتج: ${p.name} الموجود بقسم ${p.mainCategory}`;
-            document.getElementById('modalWhatsappBtn').href = `https://wa.me/966552125258?text=${encodeURIComponent(msg)}`;
-            document.getElementById('productModal').classList.add('active');
-            if(modalSwiperInstance) { modalSwiperInstance.destroy(true, true); }
-            modalSwiperInstance = new Swiper(".modalSwiper", { navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }, pagination: { el: ".swiper-pagination", clickable: true }, grabCursor: true, loop: urls.length > 1 });
-        };
-
-        window.closeProductModal = () => document.getElementById('productModal').classList.remove('active');
-        document.getElementById('productModal').addEventListener('click', function(e) { if(e.target === this) closeProductModal(); });
-
-        loadData();
-    </script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/public.js"></script>
 </body>
+
 </html>

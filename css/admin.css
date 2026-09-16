@@ -1,0 +1,428 @@
+:root {
+            --primary: #cba26a;
+            --background: #101010;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--background);
+            margin: 0;
+            color: var(--text-main);
+            padding-bottom: 50px;
+            display: none;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            background: #000;
+        }
+
+        .logo {
+            height: 60px;
+            filter: drop-shadow(0 0 5px var(--primary));
+        }
+
+        .logout-btn {
+            position: absolute;
+            left: 15px;
+            top: 25px;
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 15px;
+            background: var(--card-bg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tabs button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #aaa;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: 1;
+            font-size: 14px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .tabs button.active {
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            max-width: 800px;
+            margin: 15px auto;
+            padding: 0 10px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .admin-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: #000;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        #uploadProgress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: #000;
+            z-index: 1000;
+            display: none;
+        }
+
+        #pBar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: 0.3s;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .drop-zone {
+            border: 2px dashed #444;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            background: #0d0d0d;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .drop-zone span {
+            color: #888;
+        }
+
+        .drop-zone.has-img span {
+            display: none;
+        }
+
+        .img-preview-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .img-preview-container img {
+            height: 80px;
+            width: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .edit-img-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .edit-img-wrap img {
+            height: 90px;
+            width: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
+        .delete-img-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1;
+            padding: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        button.action-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .list-item {
+            background: #151515;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .item-row img {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .btn-group-large {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-group-large button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .danger-btn {
+            background: #441111;
+            color: #ff4d4d;
+            border: 1px solid #661111;
+        }
+
+        .edit-btn {
+            background: #1a1a00;
+            color: #ffc107;
+            border: 1px solid #444400;
+        }
+
+        .sub-tag {
+            background: #222;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #333;
+            margin: 5px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid var(--primary);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .accordion-header {
+            background: #222;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .accordion-header:hover {
+            background: #333;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 15px;
+            border-right: 2px solid var(--primary);
+            margin-bottom: 15px;
+            background: #111;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .accordion-content.open {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .sub-header {
+            background: #1a1a1a;
+            border-right: 3px solid #555;
+        }
+
+        .sub-content {
+            border-right: 2px solid #555;
+            background: #0a0a0a;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            font-size: 24px;
+            color: #888;
+            padding: 0 15px;
+            user-select: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+            color: var(--primary);
+        }
+
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #333;
+            border: 1px dashed var(--primary);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-mode-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: #111;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-mode-tab {
+            min-width: 130px;
+            padding: 12px 25px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .admin-mode-tab.active {
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .current-mode-title {
+            text-align: center;
+            color: var(--primary);
+            margin: 15px 0;
+            font-size: 20px;
+        }

@@ -1,0 +1,1039 @@
+:root {
+            --bg-dark: #050505;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --text-main: #f4f4f4;
+            --text-muted: #a0a0a0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            width: 40vw;
+            height: 40vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+            z-index: -1;
+            animation: float 15s infinite ease-in-out alternate;
+        }
+
+        body::before {
+            top: -10%;
+            right: -10%;
+        }
+
+        body::after {
+            bottom: -10%;
+            left: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(30px, 50px) scale(1.1);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .nav-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            z-index: 1000;
+            transition: all 0.4s ease;
+        }
+
+        .profile-logo {
+            width: 25vw;
+            max-width: 150px;
+            min-width: 90px;
+            height: auto;
+            margin-bottom: 15px;
+            padding: 5px;
+            transition: all 0.4s ease;
+            object-fit: contain;
+            margin-top: 50px;
+        }
+
+        .nav-whatsapp {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-whatsapp svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .nav-whatsapp:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .nav-box.sticky {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 75px;
+            background: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .nav-box.sticky .profile-logo {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 55px;
+            height: auto;
+            max-height: 55px;
+            padding: 0;
+        }
+
+        .nav-box.sticky .nav-whatsapp {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .profile-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: #fcf9f2;
+            text-shadow: 0 0 4px rgba(252, 249, 242, 0.7), 0 0 10px rgba(252, 249, 242, 0.4);
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 15px;
+            display: inline-block;
+            width: 100%;
+            letter-spacing: 1.5px;
+        }
+
+        /* شبكة التصنيفات (شريحتين) */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cat-card {
+            cursor: pointer;
+            aspect-ratio: 9/16;
+            border-radius: 20px;
+        }
+
+        .categories-grid .cat-card:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+            aspect-ratio: 16 / 9;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+        }
+
+        .cat-card .image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .cat-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .cat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1;
+            transition: background 0.4s ease;
+        }
+
+        .cat-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .cat-card:hover::before {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .cat-card:hover img {
+            transform: scale(1.08);
+        }
+
+        .cat-card h3 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            color: #fff;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            width: 90%;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cat-card:hover h3 {
+            transform: translate(-50%, calc(-50% + 15px));
+        }
+
+        /* الأقسام المخفية */
+        #products-section,
+        #reviews-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+            padding-top: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        #category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .btn-back {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            color: var(--text-muted);
+            border: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--text-main);
+            color: #000;
+            border-color: var(--text-main);
+        }
+
+        .more-filters-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .more-filters-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 10px;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 50;
+            min-width: 150px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .more-filters-dropdown.show {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
+
+        .dropdown-item {
+            width: 100%;
+            text-align: center;
+            border: none;
+            background: transparent;
+            padding: 8px;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .product-card .image-container {
+            width: 100%;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            border-bottom: 1px solid var(--glass-border);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .multi-img-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(4px);
+            font-size: 0.75rem;
+            color: #fff;
+            z-index: 2;
+        }
+
+        .multi-img-icon svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+        }
+
+        .hover-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 1;
+        }
+
+        .hover-overlay span {
+            border: 1px solid #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(2px);
+        }
+
+        .product-card .image-container:hover .hover-overlay {
+            opacity: 1;
+        }
+
+        .product-card h4 {
+            font-size: 1rem;
+            margin: 15px 10px;
+            font-weight: 500;
+            text-align: center;
+            width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* النافذة المنبثقة للمنتجات */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(15, 15, 15, 0.95);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .close-modal:hover {
+            background: #ff4d4d;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modalSwiper {
+            width: 100%;
+            aspect-ratio: 3/4;
+            border-radius: 12px;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .modalSwiper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-title {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 5px;
+            color: #fff;
+        }
+
+        .modal-whatsapp-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            margin-top: 5px;
+        }
+
+        .modal-whatsapp-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+        }
+
+        .modal-whatsapp-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: rgba(255, 255, 255, 0.9) !important;
+            background: rgba(0, 0, 0, 0.4);
+            width: 35px !important;
+            height: 35px !important;
+            border-radius: 50%;
+            backdrop-filter: blur(4px);
+        }
+
+        .swiper-button-next::after,
+        .swiper-button-prev::after {
+            font-size: 16px !important;
+            font-weight: bold;
+        }
+
+        .swiper-pagination-bullet {
+            background: #fff !important;
+            opacity: 0.5;
+        }
+
+        .swiper-pagination-bullet-active {
+            opacity: 1;
+        }
+
+        /* =========================================
+           زر آراء العملاء (الجديد)
+           ========================================= */
+        .reviews-btn-wrapper {
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 20px;
+        }
+
+        .reviews-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reviews-btn:hover {
+            background: #fff;
+            color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+        }
+
+        /* تصميم الميسونري (العفوي) لصور الآراء */
+        .reviews-masonry {
+            column-count: 2;
+            column-gap: 15px;
+        }
+
+        .review-img-wrap {
+            break-inside: avoid;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            cursor: zoom-in;
+        }
+
+        .review-img-wrap img {
+            width: 100%;
+            display: block;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .review-img-wrap:hover img {
+            transform: scale(1.03);
+        }
+
+        @media (min-width: 768px) {
+            .reviews-masonry {
+                column-count: 3;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .reviews-masonry {
+                column-count: 4;
+            }
+        }
+
+        /* تذييل روابط التواصل */
+        .social-footer {
+            margin-top: 20px;
+            padding-top: 30px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .social-btn:hover {
+            background: var(--text-main);
+            color: #000;
+            transform: translateY(-5px);
+        }
+
+        .social-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 5px;
+            }
+
+            .categories-grid {
+                gap: 12px;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .profile-title {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+
+            .cat-card h3 {
+                font-size: 1.1rem;
+                font-weight: 700;
+            }
+
+            .cat-card:hover h3 {
+                transform: translate(-50%, calc(-50% + 8px));
+            }
+
+            .product-card h4 {
+                font-size: 0.85rem;
+                margin: 10px 5px;
+            }
+
+            .products-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            #category-title {
+                font-size: 1.4rem;
+            }
+
+            .swiper-button-next,
+            .swiper-button-prev {
+                display: none;
+            }
+        }
+
+        /* تبويبات نوع الخدمة */
+        .mode-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 auto 28px;
+            direction: rtl;
+        }
+
+        .mode-tab {
+            min-width: 140px;
+            padding: 12px 28px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .mode-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .mode-tab.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.15);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 15px;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 500px) {
+            .mode-tab {
+                min-width: 125px;
+                padding: 11px 20px;
+                font-size: 0.9rem;
+            }
+        }
+/* انتقال ناعم بين هويات المتجر */
+body {
+    transition:
+        background-color 0.45s ease,
+        color 0.35s ease;
+}
+
+/* هوية LAVINTA للطباعة */
+body[data-mode="printing"] {
+    --bg-dark: #5E4A3F;
+    --glass-bg: rgba(255, 248, 240, 0.08);
+    --glass-border: rgba(255, 248, 240, 0.28);
+    --glass-shadow: 0 12px 35px rgba(35, 24, 19, 0.24);
+    --text-main: #F8F1E9;
+    --text-muted: #D8C9BA;
+
+    background-color: #5E4A3F;
+    background-image:
+        radial-gradient(circle at top right, rgba(255, 248, 240, 0.10), transparent 35%),
+        linear-gradient(135deg, #5E4A3F 0%, #4D3A31 100%);
+}
+
+body[data-mode="printing"]::before,
+body[data-mode="printing"]::after {
+    background: radial-gradient(
+        circle,
+        rgba(255, 245, 233, 0.10) 0%,
+        transparent 68%
+    );
+}
+
+/* شعار LAVINTA */
+body[data-mode="printing"] .profile-logo {
+    width: min(82vw, 260px);
+    max-width: 260px;
+    min-width: 0;
+    margin-top: 32px;
+    padding: 0;
+    border-radius: 5px;
+}
+
+body[data-mode="printing"] .nav-box.sticky .profile-logo {
+    width: 118px;
+    max-width: 118px;
+    max-height: 58px;
+}
+
+/* الشريط العلوي */
+body[data-mode="printing"] .nav-box.sticky {
+    background: rgba(94, 74, 63, 0.90);
+    border-bottom-color: rgba(255, 248, 240, 0.20);
+    box-shadow: 0 10px 30px rgba(35, 24, 19, 0.45);
+}
+
+/* زر الواتساب العلوي */
+body[data-mode="printing"] .nav-whatsapp {
+    color: #F8F1E9;
+    background: rgba(255, 248, 240, 0.08);
+    border-color: rgba(255, 248, 240, 0.25);
+}
+
+body[data-mode="printing"] .nav-whatsapp:hover {
+    background: #F8F1E9;
+    color: #5E4A3F;
+}
+
+/* العناوين */
+body[data-mode="printing"] .section-title {
+    color: #FFF8F0;
+    border-bottom-color: rgba(255, 248, 240, 0.25);
+    text-shadow:
+        0 0 4px rgba(255, 248, 240, 0.60),
+        0 0 12px rgba(255, 248, 240, 0.25);
+}
+
+/* البطاقات */
+body[data-mode="printing"] .glass-card {
+    background: rgba(43, 30, 24, 0.18);
+    border-color: rgba(255, 248, 240, 0.25);
+    box-shadow: 0 12px 35px rgba(35, 24, 19, 0.22);
+}
+
+body[data-mode="printing"] .cat-card::before {
+    background: rgba(48, 34, 27, 0.40);
+}
+
+body[data-mode="printing"] .cat-card:hover::before {
+    background: rgba(48, 34, 27, 0.58);
+}
+
+body[data-mode="printing"] .cat-card:hover {
+    border-color: rgba(255, 248, 240, 0.55);
+    box-shadow: 0 15px 40px rgba(35, 24, 19, 0.40);
+}
+
+/* تبويبات تطريز وطباعة */
+body[data-mode="printing"] .mode-tab {
+    background: rgba(255, 248, 240, 0.08);
+    color: #D8C9BA;
+    border-color: rgba(255, 248, 240, 0.25);
+}
+
+body[data-mode="printing"] .mode-tab:hover {
+    background: rgba(255, 248, 240, 0.18);
+    color: #FFF8F0;
+}
+
+body[data-mode="printing"] .mode-tab.active {
+    background: #F8F1E9;
+    color: #5E4A3F;
+    border-color: #F8F1E9;
+    box-shadow: 0 5px 20px rgba(255, 248, 240, 0.20);
+}
+
+/* زر العودة */
+body[data-mode="printing"] .btn-back {
+    color: #F8F1E9;
+    border-color: rgba(255, 248, 240, 0.28);
+}
+
+body[data-mode="printing"] .btn-back:hover {
+    background: rgba(255, 248, 240, 0.16);
+}
+
+/* الفلاتر */
+body[data-mode="printing"] .filter-btn {
+    background: rgba(255, 248, 240, 0.08);
+    color: #D8C9BA;
+    border-color: rgba(255, 248, 240, 0.25);
+}
+
+body[data-mode="printing"] .filter-btn.active,
+body[data-mode="printing"] .filter-btn:hover {
+    background: #F8F1E9;
+    color: #5E4A3F;
+    border-color: #F8F1E9;
+}
+
+body[data-mode="printing"] .more-filters-dropdown {
+    background: rgba(55, 40, 33, 0.97);
+    border-color: rgba(255, 248, 240, 0.28);
+}
+
+/* صور المنتجات */
+body[data-mode="printing"] .product-card .image-container {
+    border-bottom-color: rgba(255, 248, 240, 0.20);
+}
+
+body[data-mode="printing"] .product-card:hover {
+    border-color: rgba(255, 248, 240, 0.45);
+}
+
+body[data-mode="printing"] .hover-overlay {
+    background: rgba(55, 40, 33, 0.48);
+}
+
+body[data-mode="printing"] .hover-overlay span {
+    border-color: #F8F1E9;
+    color: #FFF8F0;
+}
+
+/* نافذة تفاصيل المنتج */
+body[data-mode="printing"] .modal {
+    background: rgba(35, 25, 21, 0.82);
+}
+
+body[data-mode="printing"] .modal-content {
+    background: rgba(72, 53, 44, 0.98);
+    border-color: rgba(255, 248, 240, 0.28);
+}
+
+body[data-mode="printing"] .modalSwiper {
+    background: #3D2D26;
+}
+
+body[data-mode="printing"] .modal-title {
+    color: #FFF8F0;
+}
+
+body[data-mode="printing"] .close-modal {
+    background: rgba(255, 248, 240, 0.12);
+    color: #FFF8F0;
+}
+
+/* زر آراء العملاء */
+body[data-mode="printing"] .reviews-btn {
+    background: rgba(255, 248, 240, 0.08);
+    color: #F8F1E9;
+    border-color: rgba(255, 248, 240, 0.25);
+}
+
+body[data-mode="printing"] .reviews-btn:hover {
+    background: #F8F1E9;
+    color: #5E4A3F;
+    box-shadow: 0 8px 25px rgba(255, 248, 240, 0.22);
+}
+
+/* روابط التواصل */
+body[data-mode="printing"] .social-footer {
+    border-top-color: rgba(255, 248, 240, 0.25);
+}
+
+body[data-mode="printing"] .social-btn {
+    background: rgba(255, 248, 240, 0.08);
+    color: #F8F1E9;
+    border-color: rgba(255, 248, 240, 0.25);
+}
+
+body[data-mode="printing"] .social-btn:hover {
+    background: #F8F1E9;
+    color: #5E4A3F;
+}
