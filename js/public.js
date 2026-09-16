@@ -58,41 +58,26 @@ function applyBrandTheme(mode) {
 
 
 window.backToCategories = function () {
-    // نحفظ الوضع الحالي بدون تغييره
     const mode = currentMode;
 
-    // إبقاء هوية المتجر الحالية
     applyBrandTheme(mode);
 
-    // تحديث التبويب النشط
-    document
-        .getElementById('embroideryTab')
-        .classList.toggle('active', mode === 'embroidery');
-
-    document
-        .getElementById('printingTab')
-        .classList.toggle('active', mode === 'printing');
-
-    // إظهار الأقسام وإخفاء المنتجات والآراء
     document.getElementById('categories-section').style.display = 'block';
     document.getElementById('products-section').style.display = 'none';
     document.getElementById('reviews-section').style.display = 'none';
     document.getElementById('reviewsBtnWrapper').style.display = 'block';
     document.getElementById('subHeaderText').style.display = 'block';
 
-    // إزالة تثبيت الشريط العلوي
-    document.getElementById('mainNav').classList.remove('sticky');
+    const nav = document.getElementById('mainNav');
 
-    // تنظيف المحتوى الداخلي فقط
-    const filters = document.getElementById('filters-container');
-    const products = document.getElementById('products-grid');
-    const reviews = document.getElementById('reviews-grid');
+    if (nav) {
+        nav.classList.remove('sticky');
+    }
 
-    if (filters) filters.innerHTML = '';
-    if (products) products.innerHTML = '';
-    if (reviews) reviews.innerHTML = '';
+    document.getElementById('filters-container').innerHTML = '';
+    document.getElementById('products-grid').innerHTML = '';
+    document.getElementById('reviews-grid').innerHTML = '';
 
-    // إعادة عرض أقسام الوضع الحالي
     loadData(mode);
 
     window.scrollTo({
@@ -114,17 +99,30 @@ const modeCollections = {
         reviews: 'printReviews'
     }
 };
-window.onscroll = function () {
+window.addEventListener('scroll', function () {
     const nav = document.getElementById('mainNav');
-    const pSec = document.getElementById('products-section');
-    const rSec = document.getElementById('reviews-section');
-    if (pSec.style.display === 'block' || rSec.style.display === 'block') {
-        if (window.pageYOffset > 50) nav.classList.add('sticky');
-        else nav.classList.remove('sticky');
-    } else {
-        nav.classList.remove('sticky');
+    const app = document.getElementById('store-app');
+    const productsSection = document.getElementById('products-section');
+    const reviewsSection = document.getElementById('reviews-section');
+
+    if (!nav || !app || !productsSection || !reviewsSection) {
+        return;
     }
-};
+
+    if (app.hidden) {
+        nav.classList.remove('sticky');
+        return;
+    }
+
+    const innerPage =
+        productsSection.style.display === 'block' ||
+        reviewsSection.style.display === 'block';
+
+    nav.classList.toggle(
+        'sticky',
+        innerPage && window.scrollY > 50
+    );
+}, { passive: true });
 
 function formatURL(url) { return url && url.startsWith('http') ? url : 'https://via.placeholder.com/400x400/222/fff?text=Image'; }
 
@@ -407,15 +405,6 @@ window.switchMode = async function (mode, options = {}) {
     if (app) app.hidden = false;
 
     applyBrandTheme(mode);
-
-    document
-        .getElementById('embroideryTab')
-        ?.classList.toggle('active', mode === 'embroidery');
-
-    document
-        .getElementById('printingTab')
-        ?.classList.toggle('active', mode === 'printing');
-
     document.getElementById('categories-section').style.display = 'block';
     document.getElementById('products-section').style.display = 'none';
     document.getElementById('reviews-section').style.display = 'none';
@@ -469,72 +458,3 @@ function initializeGateway() {
 }
 
 initializeGateway();
-function setupGatewayMotion() {
-    const cards = document.querySelectorAll('.gateway-card');
-
-    if (!cards.length) {
-        return;
-    }
-
-    const reduceMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-    ).matches;
-
-    cards.forEach((card) => {
-        function resetCard() {
-            card.style.setProperty('--pointer-x', '50%');
-            card.style.setProperty('--pointer-y', '50%');
-            card.style.setProperty('--tilt-x', '0deg');
-            card.style.setProperty('--tilt-y', '0deg');
-            card.classList.remove('is-pressed');
-        }
-
-        card.addEventListener('pointermove', function (event) {
-            const rect = card.getBoundingClientRect();
-
-            const x = Math.max(
-                0,
-                Math.min(
-                    100,
-                    ((event.clientX - rect.left) / rect.width) * 100
-                )
-            );
-
-            const y = Math.max(
-                0,
-                Math.min(
-                    100,
-                    ((event.clientY - rect.top) / rect.height) * 100
-                )
-            );
-
-            card.style.setProperty('--pointer-x', `${x}%`);
-            card.style.setProperty('--pointer-y', `${y}%`);
-
-            if (!reduceMotion && event.pointerType === 'mouse') {
-                const rotateX = (50 - y) * 0.12;
-                const rotateY = (x - 50) * 0.12;
-
-                card.style.setProperty('--tilt-x', `${rotateX}deg`);
-                card.style.setProperty('--tilt-y', `${rotateY}deg`);
-            }
-        });
-
-        card.addEventListener('pointerdown', function (event) {
-            card.classList.add('is-pressed');
-
-            if (event.pointerType === 'touch') {
-                card.setPointerCapture?.(event.pointerId);
-            }
-        });
-
-        card.addEventListener('pointerup', function () {
-            card.classList.remove('is-pressed');
-        });
-
-        card.addEventListener('pointercancel', resetCard);
-        card.addEventListener('pointerleave', resetCard);
-    });
-}
-
-setupGatewayMotion();

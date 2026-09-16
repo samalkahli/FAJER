@@ -1465,99 +1465,128 @@ body[data-mode="gateway"] {
         padding-right: 5px;
     }
 }
-/* الحركة التفاعلية للبطاقات */
-
-.gateway-card {
-    --pointer-x: 50%;
-    --pointer-y: 50%;
-    --tilt-x: 0deg;
-    --tilt-y: 0deg;
-
-    transform:
-        perspective(1100px)
-        rotateX(var(--tilt-x))
-        rotateY(var(--tilt-y))
-        translateZ(0);
-
-    transform-style: preserve-3d;
-    will-change: transform;
-    touch-action: manipulation;
-
-    transition:
-        transform 0.18s ease,
-        box-shadow 0.35s ease,
-        border-color 0.35s ease;
+html {
+    min-height: 100%;
+    background: #050505;
 }
 
-.gateway-card:hover {
-    transform:
-        perspective(1100px)
-        rotateX(var(--tilt-x))
-        rotateY(var(--tilt-y))
-        translateY(-8px);
+body {
+    min-height: 100vh;
+    background-color: #050505;
 }
 
-.gateway-card::before {
-    transition:
-        background 0.15s ease,
-        transform 0.5s ease;
+/* خلفية بوابة المتاجر */
+body[data-mode="gateway"] {
+    min-height: 100vh;
+    background-color: #171110;
+    background-image:
+        radial-gradient(circle at 12% 18%, rgba(212, 170, 109, 0.18), transparent 32%),
+        radial-gradient(circle at 88% 82%, rgba(94, 74, 63, 0.5), transparent 38%),
+        linear-gradient(115deg, #050505 0%, #15110f 44%, #5e4a3f 100%);
 }
 
-.gateway-card--embroidery::before {
-    background:
-        radial-gradient(
-            circle at var(--pointer-x) var(--pointer-y),
-            rgba(212, 170, 109, 0.28),
-            transparent 32%
-        ),
-        linear-gradient(145deg, #070707 0%, #25211e 100%);
+/* خلفية التطريز بدون لمعات */
+body[data-mode="embroidery"] {
+    background-color: #050505;
+    background-image: none;
 }
 
-.gateway-card--printing::before {
-    background:
-        radial-gradient(
-            circle at var(--pointer-x) var(--pointer-y),
-            rgba(255, 238, 224, 0.28),
-            transparent 32%
-        ),
-        linear-gradient(145deg, #72594b 0%, #45332b 100%);
+/* خلفية الطباعة */
+body[data-mode="printing"] {
+    background-color: #5e4a3f;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(255, 248, 240, 0.1), transparent 35%),
+        linear-gradient(135deg, #5e4a3f 0%, #45342d 100%);
 }
 
-.gateway-card::after {
-    top: calc(var(--pointer-y) - 110px);
-    left: calc(var(--pointer-x) - 110px);
-    bottom: auto;
-    opacity: 0.2;
-    transition:
-        top 0.22s ease,
-        left 0.22s ease,
-        opacity 0.22s ease;
+/* إلغاء اللمعة داخل المتاجر */
+body[data-mode="embroidery"]::before,
+body[data-mode="embroidery"]::after,
+body[data-mode="printing"]::before,
+body[data-mode="printing"]::after {
+    display: none;
+    animation: none;
 }
 
-.gateway-card > * {
-    position: relative;
-    z-index: 1;
-    transform: translateZ(18px);
-}
-
-.gateway-card.is-pressed {
-    transform:
-        perspective(1100px)
-        rotateX(var(--tilt-x))
-        rotateY(var(--tilt-y))
-        scale(0.97);
-}
-
-.gateway-card.is-pressed .gateway-logo-frame {
-    transform: translateZ(24px) scale(0.96);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .gateway-card,
-    .gateway-card::before,
-    .gateway-card::after,
-    .gateway-card > * {
-        transition: none !important;
-        transform: none !important;
+/* منع مشاكل الخلفية على الجوال */
+@media (max-width: 700px) {
+    html,
+    body {
+        min-height: 100vh;
     }
+
+    body[data-mode="gateway"] {
+        background-attachment: scroll;
+    }
+}
+/* الشكل النهائي لزر قائمة المتاجر */
+.profile-header .back-to-gateway-btn {
+    --menu-accent: #d4aa6d;
+
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 9px;
+
+    width: auto !important;
+    height: 44px !important;
+    min-width: 165px;
+    max-width: calc(100vw - 40px);
+
+    aspect-ratio: auto !important;
+    padding: 10px 22px !important;
+    margin: 14px auto 0 !important;
+
+    border: 1px solid rgba(212, 170, 109, 0.55) !important;
+    border-radius: 14px !important;
+
+    background: rgba(212, 170, 109, 0.1);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    line-height: 1;
+    white-space: nowrap;
+
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+body[data-mode="printing"] .profile-header .back-to-gateway-btn {
+    --menu-accent: #f1dfd2;
+    border-color: rgba(241, 223, 210, 0.55) !important;
+    background: rgba(241, 223, 210, 0.1);
+}
+
+.profile-header .back-to-gateway-btn svg {
+    display: block;
+    width: 18px !important;
+    height: 18px !important;
+    flex: 0 0 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+.profile-header .back-to-gateway-btn span {
+    display: inline-block;
+    line-height: 1;
+}
+
+.profile-header .back-to-gateway-btn:hover {
+    transform: translateY(-2px);
+    background: var(--menu-accent);
+    color: #211915;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.profile-header .back-to-gateway-btn:focus-visible {
+    outline: 3px solid var(--menu-accent);
+    outline-offset: 4px;
 }
