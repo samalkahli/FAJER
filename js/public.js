@@ -341,29 +341,101 @@ window.openProductModal = (pStr) => {
 
 window.closeProductModal = () => document.getElementById('productModal').classList.remove('active');
 document.getElementById('productModal').addEventListener('click', function (e) { if (e.target === this) closeProductModal(); });
-window.switchMode = async function (mode) {
+function showGateway() {
+    const gateway = document.getElementById('store-gateway');
+    const app = document.getElementById('store-app');
+
+    if (gateway) gateway.hidden = false;
+    if (app) app.hidden = true;
+
+    loadRequestId += 1;
+
+    document.body.dataset.mode = 'gateway';
+    document.title = 'ATHNTA × LAVINTA | اختر متجرك';
+
+    const themeColor = document.getElementById('themeColor');
+
+    if (themeColor) {
+        themeColor.setAttribute('content', '#171110');
+    }
+
+    const nav = document.getElementById('mainNav');
+
+    if (nav) {
+        nav.classList.remove('sticky');
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'auto'
+    });
+}
+
+window.backToGateway = function (options = {}) {
+    const updateHistory = options.updateHistory !== false;
+
+    if (updateHistory) {
+        const url = new URL(window.location.href);
+
+        url.searchParams.delete('store');
+
+        window.history.pushState(
+            { page: 'gateway' },
+            '',
+            url.pathname + url.search + url.hash
+        );
+    }
+
+    showGateway();
+};
+
+window.enterStore = function (mode) {
+    return window.switchMode(mode);
+};
+
+window.switchMode = async function (mode, options = {}) {
+    if (!modeCollections[mode]) {
+        return;
+    }
+
     currentMode = mode;
 
-    // تغيير هوية المتجر مباشرة
+    const gateway = document.getElementById('store-gateway');
+    const app = document.getElementById('store-app');
+
+    if (gateway) gateway.hidden = true;
+    if (app) app.hidden = false;
+
     applyBrandTheme(mode);
 
-    // تحديث شكل التبويبات
     document
         .getElementById('embroideryTab')
-        .classList.toggle('active', mode === 'embroidery');
+        ?.classList.toggle('active', mode === 'embroidery');
 
     document
         .getElementById('printingTab')
-        .classList.toggle('active', mode === 'printing');
+        ?.classList.toggle('active', mode === 'printing');
 
-    // إظهار الأقسام وإخفاء الصفحات الداخلية
     document.getElementById('categories-section').style.display = 'block';
     document.getElementById('products-section').style.display = 'none';
     document.getElementById('reviews-section').style.display = 'none';
     document.getElementById('reviewsBtnWrapper').style.display = 'block';
     document.getElementById('subHeaderText').style.display = 'block';
 
-    // تحميل بيانات النوع المختار
+    if (options.updateHistory !== false) {
+        const url = new URL(window.location.href);
+
+        if (url.searchParams.get('store') !== mode) {
+            url.searchParams.set('store', mode);
+
+            window.history.pushState(
+                { store: mode },
+                '',
+                url.pathname + url.search + url.hash
+            );
+        }
+    }
+
     await loadData(mode);
 
     window.scrollTo({
@@ -371,5 +443,29 @@ window.switchMode = async function (mode) {
         behavior: 'smooth'
     });
 };
-applyBrandTheme(currentMode);
-loadData(currentMode);
+
+window.addEventListener('popstate', function () {
+    const mode = new URLSearchParams(window.location.search).get('store');
+
+    if (modeCollections[mode]) {
+        window.switchMode(mode, {
+            updateHistory: false
+        });
+    } else {
+        showGateway();
+    }
+});
+
+function initializeGateway() {
+    const mode = new URLSearchParams(window.location.search).get('store');
+
+    if (modeCollections[mode]) {
+        window.switchMode(mode, {
+            updateHistory: false
+        });
+    } else {
+        showGateway();
+    }
+}
+
+initializeGateway();
