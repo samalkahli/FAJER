@@ -469,3 +469,72 @@ function initializeGateway() {
 }
 
 initializeGateway();
+function setupGatewayMotion() {
+    const cards = document.querySelectorAll('.gateway-card');
+
+    if (!cards.length) {
+        return;
+    }
+
+    const reduceMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    cards.forEach((card) => {
+        function resetCard() {
+            card.style.setProperty('--pointer-x', '50%');
+            card.style.setProperty('--pointer-y', '50%');
+            card.style.setProperty('--tilt-x', '0deg');
+            card.style.setProperty('--tilt-y', '0deg');
+            card.classList.remove('is-pressed');
+        }
+
+        card.addEventListener('pointermove', function (event) {
+            const rect = card.getBoundingClientRect();
+
+            const x = Math.max(
+                0,
+                Math.min(
+                    100,
+                    ((event.clientX - rect.left) / rect.width) * 100
+                )
+            );
+
+            const y = Math.max(
+                0,
+                Math.min(
+                    100,
+                    ((event.clientY - rect.top) / rect.height) * 100
+                )
+            );
+
+            card.style.setProperty('--pointer-x', `${x}%`);
+            card.style.setProperty('--pointer-y', `${y}%`);
+
+            if (!reduceMotion && event.pointerType === 'mouse') {
+                const rotateX = (50 - y) * 0.12;
+                const rotateY = (x - 50) * 0.12;
+
+                card.style.setProperty('--tilt-x', `${rotateX}deg`);
+                card.style.setProperty('--tilt-y', `${rotateY}deg`);
+            }
+        });
+
+        card.addEventListener('pointerdown', function (event) {
+            card.classList.add('is-pressed');
+
+            if (event.pointerType === 'touch') {
+                card.setPointerCapture?.(event.pointerId);
+            }
+        });
+
+        card.addEventListener('pointerup', function () {
+            card.classList.remove('is-pressed');
+        });
+
+        card.addEventListener('pointercancel', resetCard);
+        card.addEventListener('pointerleave', resetCard);
+    });
+}
+
+setupGatewayMotion();
