@@ -1,0 +1,6 @@
+tests/
+DEPLOY-AR.md
+AUDIT-AR.md
+firestore.rules.template
+.git/
+node_modules/

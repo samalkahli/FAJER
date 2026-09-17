@@ -13,5 +13,8 @@ The data collections remain:
 - embroidery: categories, products, reviews
 - printing: printCategories, printProducts, printReviews
 
-The public page loads the selected mode in parallel and caches each mode after its first load.
-The admin page keeps the existing functions but uses the active mode collections.
+The public page fetches categories on store entry, products on category entry, and reviews on demand.
+Requests are deduplicated and cached in memory for 60 seconds. Reviews use cursor pagination.
+Read DEPLOY-AR.md before deploying, especially the Firebase rules and Node.js 22 requirements.
+Read AUDIT-AR.md for findings, verification scope and remaining operational requirements.
+No live database content was changed while preparing this version.

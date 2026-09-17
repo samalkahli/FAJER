@@ -6,3 +6,4 @@ button { background: #cba26a; color: #000; border: none; padding: 12px; width: 1
 button:hover { opacity: 0.8; }
 button:disabled { opacity: 0.6; cursor: wait; }
 #status { color: #ff4d4d; font-size: 13px; margin-top: 15px; line-height: 1.4; }
+

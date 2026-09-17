@@ -12,9 +12,9 @@
     <div class="login-box">
         <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo">
         <h2 style="color:#cba26a; margin-top:0;">دخول الإدارة</h2>
-        <input type="email" id="email" placeholder="البريد الإلكتروني">
-        <input type="password" id="password" placeholder="كلمة المرور">
-        <button id="loginBtn" onclick="login()">دخول</button>
+        <input type="email" id="email" autocomplete="username" placeholder="البريد الإلكتروني">
+        <input type="password" id="password" autocomplete="current-password" placeholder="كلمة المرور">
+        <button id="loginBtn" data-bind-click="login-1">دخول</button>
         <p id="status"></p>
     </div>
 
@@ -22,7 +22,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script src="js/firebase-config.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/login.js"></script>
+    <script src="js/login-bindings.js"></script>
 </body>
 
 </html>

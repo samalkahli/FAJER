@@ -341,7 +341,8 @@ body[data-mode="printing"] {
     width: 100%;
     margin-bottom: clamp(26px, 5vw, 50px);
     text-align: center;
-    animation: fade-in 0.7s ease both;
+    /* A transformed ancestor traps fixed navigation inside the header. */
+    min-height: 186px;
 }
 
 .nav-box {
@@ -704,7 +705,7 @@ body[data-mode="printing"] {
     border: 1px solid var(--border);
     border-radius: 14px;
     background: rgba(15, 15, 15, 0.96);
-    background: color-mix(in srgb, var(--surface-strong) 80%, #111 20%);
+    background: var(--dialog-background, #151515);
     box-shadow: var(--shadow);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -973,7 +974,7 @@ body[data-mode="printing"] {
     border: 1px solid var(--border);
     border-radius: 20px;
     background: rgba(15, 15, 15, 0.96);
-    background: color-mix(in srgb, var(--surface-strong) 82%, #111 18%);
+    background: var(--dialog-background, #151515);
     box-shadow: 0 18px 55px rgba(0, 0, 0, 0.65);
 }
 
@@ -1137,6 +1138,10 @@ body[data-mode="printing"] .modal {
     background: rgba(35, 25, 21, 0.84);
 }
 
+body[data-mode="printing"] {
+    --dialog-background: #48352c;
+}
+
 body[data-mode="printing"] .modalSwiper {
     background: #3d2d26;
 }
@@ -1212,6 +1217,7 @@ body[data-mode="printing"] .modalSwiper {
 
     .profile-header {
         margin-bottom: 26px;
+        min-height: 168px;
     }
 
     .store-app .profile-logo {

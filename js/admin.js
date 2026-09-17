@@ -1,558 +1,361 @@
-const db = window.athntaDb;
-            const auth = window.athntaAuth;
-
-     let adminMode = 'embroidery';
-
-            const adminCollections = {
-                embroidery: {
-                    categories: 'categories',
-                    products: 'products',
-                    reviews: 'reviews'
-                },
-
-                printing: {
-                    categories: 'printCategories',
-                    products: 'printProducts',
-                    reviews: 'printReviews'
-                }
-            };
-
-            function getCollection(type) {
-                return db.collection(adminCollections[adminMode][type]);
+/* Admin: safe DOM rendering, serialized writes, captured store, no credential storage. */
+(function () {
+    'use strict';
+    const U = window.StoreUI, db = window.athntaDb, auth = window.athntaAuth;
+    const $ = id => document.getElementById(id);
+    const collections = {
+        embroidery: { categories: 'categories', products: 'products', reviews: 'reviews' },
+        printing: { categories: 'printCategories', products: 'printProducts', reviews: 'printReviews' }
+    };
+    let mode = 'embroidery', ready = false, busy = false, loading = false, generation = 0, sortable = null, lastActivity = Date.now();
+    let cats = [], products = [], reviews = [], currentImages = [], editMode = null, activeTab = 'productsTab';
+    const cache = new Map();
+    const col = (type, selected = mode) => db.collection(collections[selected][type]);
+    const data = snap => snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+    const api = path => /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https://athnta-ten.vercel.app' + path : path;
+    let toastTimer;
+    function toast(text) {
+        $('toast').textContent = text; $('toast').style.display = 'block';
+        clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').style.display = 'none', 4500);
+    }
+    function name(value) {
+        const text = String(value || '').trim();
+        if (!text || text.length > 180) throw new Error('أدخل اسما من 1 إلى 180 حرفا');
+        return text;
+    }
+    function categoryName(value) {
+        const text = name(value);
+        if (text.includes('/') || text === '.' || text === '..' || /^__.*__$/.test(text)) throw new Error('اسم القسم يحتوي رموزا غير مسموحة');
+        return text;
+    }
+    function selections(mainId, subId, selected = '') {
+        const main = $(mainId).value, select = $(subId);
+        select.replaceChildren(new Option('(بدون فرعي)', ''));
+        const cat = cats.find(c => c.id === main);
+        for (const sub of (cat && Array.isArray(cat.subs) ? cat.subs : [])) select.add(new Option(sub, sub, false, sub === selected));
+        if (selected && !Array.from(select.options).some(option => option.value === selected)) select.add(new Option(selected,selected,true,true));
+    }
+    window.loadSubCats = selections;
+    window.logout = async () => {
+        if (busy) { toast('انتظر اكتمال العملية الحالية'); return; }
+        ready = false; cache.clear(); localStorage.removeItem('at');
+        await auth.signOut(); location.replace('login.html');
+    };
+    for (const event of ['pointerdown','keydown','touchstart']) document.addEventListener(event, () => { lastActivity = Date.now(); }, { passive: true });
+    setInterval(() => { if (ready && !busy && Date.now() - lastActivity > 3600000) window.logout(); }, 30000);
+    async function run(task) {
+        if (!ready || busy || loading) return;
+        busy = true;
+        const selected = mode;
+        const controls = [...document.querySelectorAll('button, input, select')].filter(el => !el.disabled);
+        controls.forEach(el => el.disabled = true);
+        if (sortable) sortable.option('disabled', true);
+        $('uploadProgress').style.display = 'block';
+        $('pBar').style.width = '20%';
+        try {
+            await task(selected);
+            cache.delete(selected);
+            toast('تمت العملية بنجاح ✅');
+        } catch (error) {
+            toast(error.message || 'تعذر تنفيذ العملية');
+            console.error('Admin operation failed:', error.code || error.name);
+        } finally {
+            busy = false;
+            controls.forEach(el => { if (el.isConnected) el.disabled = false; });
+            $('uploadProgress').style.display = 'none';
+            if (sortable) sortable.option('disabled', false);
+            await init(true);
+        }
+    }
+    async function prepareImage(file) {
+        if (!file || !['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) throw new Error('اختر صورة JPG أو PNG أو WebP أو GIF');
+        if (file.size > 16 * 1024 * 1024) throw new Error('الصورة كبيرة جدا. الحد قبل التحسين 16 ميجابايت');
+        if (file.type === 'image/gif') {
+            if (file.size > 4 * 1024 * 1024) throw new Error('GIF يجب ألا يتجاوز 4 ميجابايت');
+            return file;
+        }
+        const url = URL.createObjectURL(file);
+        try {
+            const image = new Image();
+            await new Promise((resolve,reject) => { image.onload=resolve; image.onerror=() => reject(new Error('تعذر فتح الصورة')); image.src=url; });
+            const scale = Math.min(1, 2000 / Math.max(image.width, image.height));
+            if (scale === 1 && file.size < 600 * 1024) return file;
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+            canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.88));
+            const result = blob && blob.size < file.size ? new File([blob], 'image.' + (blob.type === 'image/webp' ? 'webp' : 'png'), { type: blob.type }) : file;
+            if (result.size > 4 * 1024 * 1024) throw new Error('حجم الصورة بعد التحسين يتجاوز 4 ميجابايت');
+            return result;
+        } finally { URL.revokeObjectURL(url); }
+    }
+    async function upload(file) {
+        const optimized = await prepareImage(file);
+        const token = await auth.currentUser.getIdToken();
+        const body = new FormData(); body.append('image', optimized, optimized.name);
+        const result = await U.fetchJSON(api('/api/upload-image'), { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body }, 45000);
+        if (!result.url || !result.url.startsWith('https://i.ibb.co/')) throw new Error('رابط صورة غير صالح');
+        return result.url;
+    }
+    async function uploadMany(files) {
+        const list = Array.from(files);
+        if (list.length > 12) throw new Error('اختر 12 صورة كحد أقصى في الدفعة');
+        const urls = new Array(list.length);
+        let next = 0, finished = 0;
+        // Two workers, settle both before releasing the write lock after any failure.
+        const worker = async () => {
+            while (next < list.length) {
+                const i = next++;
+                urls[i] = await upload(list[i]);
+                $('pBar').style.width = (20 + (++finished / list.length) * 65) + '%';
             }
-
-            function updateS() { localStorage.setItem('at', Date.now()); }
-            function checkS() { if (localStorage.getItem('at') && (Date.now() - localStorage.getItem('at') > 3600000)) logout(); }
-            setInterval(checkS, 30000);
-            auth.onAuthStateChanged(u => { if (u) { updateS(); document.body.style.display = 'block'; init(); } else window.location.href = 'login.html'; });
-            function logout() { localStorage.clear(); auth.signOut().then(() => window.location.href = 'login.html'); }
-
-            function showToast(msg) {
-                const t = document.getElementById('toast');
-                t.innerText = msg; t.style.display = 'block';
-                setTimeout(() => { t.style.display = 'none'; }, 3000);
-            }
-
-            async function startProgress() {
-                document.getElementById('uploadProgress').style.display = 'block';
-                let p = 0, bar = document.getElementById('pBar');
-                return new Promise(res => {
-                    let itv = setInterval(() => {
-                        p += Math.random() * 15;
-                        if (p >= 90) { clearInterval(itv); res(); }
-                        bar.style.width = p + '%';
-                    }, 150);
+        };
+        const results = await Promise.allSettled([worker(), worker()]);
+        const failed = results.find(r => r.status === 'rejected');
+        if (failed) throw failed.reason;
+        return urls;
+    }
+    window.previewMultiple = (input, target, zone) => {
+        const container = $(target); container.replaceChildren();
+        $(zone).classList.toggle('has-img', input.files.length > 0);
+        Array.from(input.files).slice(0,12).forEach(file => {
+            const url = URL.createObjectURL(file), image = document.createElement('img');
+            image.alt = 'معاينة الصورة';
+            image.onload = image.onerror = () => URL.revokeObjectURL(url);
+            image.src = url; container.append(image);
+        });
+    };
+    function clearUpload(input, target, zone) { $(input).value = ''; $(target).replaceChildren(); $(zone).classList.remove('has-img'); }
+    const stamp = () => firebase.firestore.FieldValue.serverTimestamp();
+    window.saveProduct = () => run(async selected => {
+        const n = name($('productName').value), m = $('productMainCat').value, s = $('productSubCat').value;
+        if (!cats.some(c => c.id === m) || !$('productFile').files.length) throw new Error('اختر القسم وصور المنتج');
+        const urls = await uploadMany($('productFile').files);
+        await col('products',selected).add({ name:n, mainCategory:m, subCategory:s || 'عام', imageURLs:urls, timestamp:stamp() });
+        $('productName').value = ''; clearUpload('productFile','prodPrevContainer','prodDZ');
+    });
+    window.saveMainCategory = () => run(async selected => {
+        const n = categoryName($('newMainCat').value), ref = col('categories',selected).doc(n);
+        if ((await ref.get()).exists) throw new Error('يوجد قسم بهذا الاسم بالفعل');
+        const imageUrl = await upload($('catFile').files[0]);
+        await db.runTransaction(async tx => {
+            if ((await tx.get(ref)).exists) throw new Error('يوجد قسم بهذا الاسم بالفعل');
+            tx.set(ref, { imageUrl, subs:[], order:cats.length });
+        });
+        $('newMainCat').value=''; clearUpload('catFile','catPrevContainer','catDZ');
+    });
+    window.saveSubCategory = () => run(async selected => {
+        const main = $('mainCatForSub').value, sub = name($('newSubCat').value);
+        if (!main) throw new Error('اختر القسم الرئيسي');
+        await col('categories',selected).doc(main).update({ subs:firebase.firestore.FieldValue.arrayUnion(sub) });
+        $('newSubCat').value='';
+    });
+    window.saveReviews = () => run(async selected => {
+        if (!$('reviewFile').files.length) throw new Error('اختر صور الآراء');
+        const urls = await uploadMany($('reviewFile').files), batch = db.batch();
+        urls.forEach(imageUrl => batch.set(col('reviews',selected).doc(), { imageUrl, timestamp:stamp() }));
+        await batch.commit(); clearUpload('reviewFile','revPrevContainer','revDZ');
+    });
+    window.delRev = id => { if (confirm('حذف هذا التقييم؟')) run(selected => col('reviews',selected).doc(id).delete()); };
+    window.delP = id => { if (confirm('حذف هذا المنتج؟')) run(selected => col('products',selected).doc(id).delete()); };
+    window.delC = id => {
+        if (!confirm('حذف القسم الفارغ؟ يجب نقل منتجاته أو حذفها أولا')) return;
+        run(async selected => {
+            if (!(await col('products',selected).where('mainCategory','==',id).limit(1).get()).empty) throw new Error('القسم يحتوي منتجات. انقلها أو احذفها أولا');
+            await col('categories',selected).doc(id).delete();
+        });
+    };
+    function bounded(snapshot) { if (snapshot.size > 450) throw new Error('هذه العملية تشمل أكثر من 450 منتجا. يلزم ترحيل مخصص لتجنب التعديل الجزئي'); }
+    window.delS = (main, sub) => {
+        if (!confirm('حذف الفرعي ونقل منتجاته إلى عام؟')) return;
+        run(async selected => {
+            const snapshot = await col('products',selected).where('mainCategory','==',main).where('subCategory','==',sub).get();
+            bounded(snapshot);
+            const batch = db.batch();
+            snapshot.forEach(doc => batch.update(doc.ref,{subCategory:'عام'}));
+            batch.update(col('categories',selected).doc(main),{subs:firebase.firestore.FieldValue.arrayRemove(sub)});
+            await batch.commit();
+        });
+    };
+    window.editSub = (main, old) => {
+        const next = prompt('اسم القسم الفرعي:',old);
+        if (next == null || next === old) return;
+        run(async selected => {
+            const value = name(next), ref = col('categories',selected).doc(main);
+            const [cat,snapshot] = await Promise.all([ref.get(),col('products',selected).where('mainCategory','==',main).where('subCategory','==',old).get()]);
+            bounded(snapshot);
+            const subs = cat.data().subs || [];
+            if (subs.includes(value)) throw new Error('الاسم الجديد موجود بالفعل');
+            const batch=db.batch();
+            batch.update(ref,{subs:subs.map(s => s === old ? value : s)});
+            snapshot.forEach(doc => batch.update(doc.ref,{subCategory:value}));
+            await batch.commit();
+        });
+    };
+    window.editCatName = old => {
+        const next = prompt('اسم القسم الرئيسي:',old);
+        if (next == null || next === old || !confirm('نقل المنتجات إلى الاسم الجديد؟')) return;
+        run(async selected => {
+            const value=categoryName(next), oldRef=col('categories',selected).doc(old), newRef=col('categories',selected).doc(value);
+            if (value === old) return;
+            const snapshot=await col('products',selected).where('mainCategory','==',old).get();
+            bounded(snapshot);
+            await db.runTransaction(async tx => {
+                const source=await tx.get(oldRef), target=await tx.get(newRef);
+                if (!source.exists || target.exists) throw new Error('القسم القديم غير موجود أو الاسم الجديد مستخدم');
+                tx.set(newRef,source.data());
+                snapshot.forEach(doc => tx.update(doc.ref,{mainCategory:value}));
+                tx.delete(oldRef);
+            });
+        });
+    };
+    window.editCatImage = id => {
+        if (busy) return;
+        const selected=mode, input=document.createElement('input');
+        input.type='file'; input.accept='image/jpeg,image/png,image/webp,image/gif';
+        input.onchange=() => {
+            if (!input.files[0] || selected !== mode) return;
+            run(async () => col('categories',selected).doc(id).update({imageUrl:await upload(input.files[0])}));
+        };
+        input.click();
+    };
+    function renderEditImages() {
+        $('editPrevContainer').replaceChildren(...currentImages.map((url,i) => {
+            const wrap=U.node('div','edit-img-wrap');
+            wrap.append(U.img(url,'صورة المنتج'),U.button('×','delete-img-btn',() => { if (!busy && confirm('إزالة الصورة من المنتج؟')) { currentImages.splice(i,1); renderEditImages(); } }));
+            return wrap;
+        }));
+    }
+    function openEdit(product) {
+        if (busy) return;
+        editMode=mode;
+        $('editId').value=product.id; $('editName').value=product.name || ''; $('editMainCat').value=product.mainCategory;
+        selections('editMainCat','editSubCat',product.subCategory);
+        currentImages=[...U.images(product)]; renderEditImages();
+        clearUpload('editFile','newEditPrevContainer','editDZ');
+        $('editModal').classList.add('active');
+    }
+    window.closeModal=() => { if (!busy) { $('editModal').classList.remove('active'); editMode=null; } };
+    window.updateProduct=() => run(async selected => {
+        if (editMode !== selected) throw new Error('أعد فتح المنتج قبل تعديله');
+        const n=name($('editName').value), m=$('editMainCat').value, s=$('editSubCat').value, id=$('editId').value;
+        if (!cats.some(c=>c.id===m)) throw new Error('اختر القسم');
+        const urls=[...currentImages,...await uploadMany($('editFile').files)];
+        if (!urls.length || urls.length > 24) throw new Error('يجب وجود 1 إلى 24 صورة');
+        await col('products',selected).doc(id).update({name:n,mainCategory:m,subCategory:s || 'عام',imageURLs:urls});
+        $('editModal').classList.remove('active'); editMode=null;
+    });
+    window.switchTab=(e,id) => {
+        activeTab=id;
+        document.querySelectorAll('.tabs button').forEach(el=>el.classList.toggle('active',el=== (e ? e.currentTarget : $('btnProductsTab'))));
+        document.querySelectorAll('.tab-content').forEach(el=>el.classList.toggle('active',el.id===id));
+    };
+    function accordion(title, group) {
+        const wrap=U.node('div'), head=U.node('div','accordion-header'), content=U.node('div','accordion-content '+group);
+        head.append(U.node('strong','',title),U.node('span','arrow','▼'));
+        U.actionable(head,()=>{
+            const open=!content.classList.contains('open');
+            content.classList.toggle('open',open); head.querySelector('.arrow').textContent=open?'▲':'▼';
+        });
+        wrap.append(head,content); return {wrap,head,content};
+    }
+    function render() {
+        for (const id of ['productMainCat','mainCatForSub','editMainCat']) {
+            const el=$(id), old=el.value; el.replaceChildren(new Option('اختر القسم',''));
+            cats.forEach(c=>el.add(new Option(c.id,c.id))); el.value=old;
+        }
+        selections('productMainCat','productSubCat');
+        const categoryNodes=cats.map(cat=>{
+            const a=accordion(cat.id,'cat-acc'); a.wrap.className='cat-sort-item'; a.wrap.dataset.id=cat.id;
+            a.head.prepend(U.node('span','drag-handle','☰'), U.img(cat.imageUrl,cat.id));
+            a.head.querySelector('img').style.cssText='width:40px;height:40px;object-fit:cover;border-radius:5px';
+            const buttons=U.node('div','btn-group-large');
+            buttons.append(U.button('تغيير الاسم ✎','edit-btn',()=>window.editCatName(cat.id)),U.button('تغيير الصورة 🖼️','edit-btn',()=>window.editCatImage(cat.id)));
+            a.content.append(buttons);
+            (Array.isArray(cat.subs)?cat.subs:[]).forEach(s=>{
+                const tag=U.node('div','sub-tag');
+                tag.append(U.node('span','',s),U.button('✎','edit-btn',()=>window.editSub(cat.id,s)),U.button('×','danger-btn',()=>window.delS(cat.id,s)));
+                a.content.append(tag);
+            });
+            a.content.append(U.button('حذف القسم','danger-btn',()=>window.delC(cat.id))); return a.wrap;
+        });
+        if (sortable) { sortable.destroy(); sortable=null; }
+        $('categoriesAdminList').replaceChildren(...categoryNodes);
+        if (window.Sortable) sortable=new Sortable($('categoriesAdminList'),{handle:'.drag-handle',animation:150,onEnd:()=>run(async selected=>{
+            const items=[...$('categoriesAdminList').children];
+            if (items.length>450) throw new Error('عدد الأقسام أكبر من حد الترتيب دفعة واحدة');
+            const batch=db.batch(); items.forEach((el,i)=>batch.update(col('categories',selected).doc(el.dataset.id),{order:i}));
+            await batch.commit();
+        })});
+        const nodes=[];
+        // Include orphaned/legacy products so they do not disappear from administration.
+        for (const main of new Set(products.map(p=>p.mainCategory || 'بدون قسم'))) {
+            const a=accordion('📁 '+main,'prod-acc');
+            const group=products.filter(p=>(p.mainCategory || 'بدون قسم')===main);
+            for (const sub of new Set(group.map(p=>p.subCategory || 'عام'))) {
+                const b=accordion('↳ '+sub,'sub-content'); b.head.classList.add('sub-header');
+                group.filter(p=>(p.subCategory || 'عام')===sub).forEach(p=>{
+                    const card=U.node('div','list-item'), row=U.node('div','item-row'), actions=U.node('div','btn-group-large');
+                    row.append(U.img(U.images(p)[0],p.name),U.node('strong','',p.name));
+                    actions.append(U.button('تعديل','edit-btn',()=>openEdit(p)),U.button('حذف','danger-btn',()=>window.delP(p.id)));
+                    card.append(row,actions); b.content.append(card);
                 });
+                a.content.append(b.wrap);
             }
-
-            function endProgress() {
-                document.getElementById('pBar').style.width = '100%';
-                setTimeout(() => {
-                    document.getElementById('uploadProgress').style.display = 'none';
-                    document.getElementById('pBar').style.width = '0%';
-                }, 500);
+            nodes.push(a.wrap);
+        }
+        $('productsList').replaceChildren(...nodes);
+        if (!nodes.length) $('productsList').append(U.node('p','','لا توجد منتجات'));
+        $('reviewsAdminList').replaceChildren(...reviews.map(r=>{
+            const wrap=U.node('div','edit-img-wrap'), img=U.img(r.imageUrl,'رأي عميل');
+            img.style.cssText='width:100px;height:100px;object-fit:cover';
+            wrap.append(img,U.button('×','delete-img-btn',()=>window.delRev(r.id))); return wrap;
+        }));
+    }
+    async function init(force=false) {
+        const ticket=++generation, selected=mode;
+        loading=true;
+        try {
+            let state=cache.get(selected);
+            if (force || !state || Date.now()-state.time>60000) {
+                const snapshots=await Promise.all(['categories','products','reviews'].map(type=>col(type,selected).get()));
+                state={time:Date.now(),cats:data(snapshots[0]).sort((a,b)=>(a.order||0)-(b.order||0)),products:data(snapshots[1]),reviews:data(snapshots[2])};
+                const time=p=>p.timestamp && p.timestamp.toMillis ? p.timestamp.toMillis():0;
+                state.products.sort((a,b)=>time(b)-time(a)); state.reviews.sort((a,b)=>time(b)-time(a));
+                cache.set(selected,state);
             }
-
-            function previewMultiple(input, containerId, zoneId) {
-                const container = document.getElementById(containerId);
-                container.innerHTML = '';
-                if (input.files && input.files.length > 0) {
-                    document.getElementById(zoneId).classList.add('has-img');
-                    Array.from(input.files).forEach(file => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => { container.innerHTML += `<img src="${e.target.result}">`; };
-                        reader.readAsDataURL(file);
-                    });
-                }
-            }
-
-           async function up(f) {
-  const allowedTypes = new Set([
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif"
-  ]);
-
-  const maxFileSize = 4 * 1024 * 1024;
-
-  if (!f || !allowedTypes.has(f.type)) {
-    throw new Error("يسمح فقط بصور JPG وPNG وWebP وGIF");
-  }
-
-  if (f.size > maxFileSize) {
-    throw new Error("حجم الصورة يجب ألا يتجاوز 4 ميجابايت");
-  }
-
-  if (!auth || !auth.currentUser) {
-    throw new Error("يجب تسجيل الدخول أولًا");
-  }
-
-  const idToken = await auth.currentUser.getIdToken();
-
-  const formData = new FormData();
-  formData.append("image", f, f.name || "image");
-
-  const isLocal =
-    location.hostname === "localhost" ||
-    location.hostname === "127.0.0.1";
-
-  const uploadUrl = isLocal
-    ? "https://athnta-ten.vercel.app/api/upload-image"
-    : "/api/upload-image";
-
-  const response = await fetch(uploadUrl, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${idToken}`
-    },
-    body: formData
-  });
-
-  let result;
-
-  try {
-    result = await response.json();
-  } catch {
-    throw new Error("استجابة غير صالحة من الخادم");
-  }
-
-  if (!response.ok || !result.url) {
-    throw new Error(result.error || "فشل رفع الصورة");
-  }
-
-  return result.url;
-}
-
-
-            window.loadSubCats = (mId, sId, sel = '') => {
-                const m = document.getElementById(mId).value, s = document.getElementById(sId);
-                s.innerHTML = '<option value="">(بدون فرعي)</option>';
-                if (m && siteCategories[m]) siteCategories[m].subs.forEach(sub => s.innerHTML += `<option value="${sub}" ${sub === sel ? 'selected' : ''}>${sub}</option>`);
-            };
-
-            async function saveProduct() {
-                const n = document.getElementById('productName').value;
-                const m = document.getElementById('productMainCat').value;
-                const s = document.getElementById('productSubCat').value;
-                const files = document.getElementById('productFile').files;
-
-                if (!n || !m || files.length === 0) return alert("الرجاء إدخال البيانات المطلوبة");
-
-                await startProgress();
-
-                try {
-                    let uploadedUrls = [];
-                    for (let i = 0; i < files.length; i++) {
-                        let url = await up(files[i]);
-                        uploadedUrls.push(url);
-                    }
-
-                    await getCollection("products").add({
-                        name: n,
-                        mainCategory: m,
-                        subCategory: s || "عام",
-                        imageURLs: uploadedUrls,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    endProgress();
-                    showToast("تم رفع المنتج! ✅");
-                    document.getElementById('productName').value = '';
-                    document.getElementById('productFile').value = '';
-                    document.getElementById('prodPrevContainer').innerHTML = '';
-                    document.getElementById('prodDZ').classList.remove('has-img');
-                    init();
-
-                } catch (error) {
-                    endProgress(); // إيقاف شريط التحميل عشان ما يعلق
-                    alert("حدث خطأ أثناء الرفع: " + error.message); // إظهار المشكلة لك مباشرة
-                    console.error("Error details:", error);
-                }
-            }
-
-
-            async function saveMainCategory() {
-                const n = document.getElementById('newMainCat').value, f = document.getElementById('catFile').files[0];
-                if (!n || !f) return alert("أكمل البيانات");
-                await startProgress();
-                const url = await up(f);
-                const orderIndex = Object.keys(siteCategories).length;
-                await getCollection("categories").doc(n).set({ imageUrl: url, subs: [], order: orderIndex });
-                endProgress();
-                showToast("تم إنشاء القسم! ✅");
-                document.getElementById('newMainCat').value = '';
-                document.getElementById('catPrevContainer').innerHTML = '';
-                document.getElementById('catDZ').classList.remove('has-img');
-                init();
-            }
-
-            async function saveSubCategory() {
-                const m = document.getElementById('mainCatForSub').value, s = document.getElementById('newSubCat').value;
-                if (!m || !s) return alert("أكمل البيانات");
-                await startProgress();
-                await getCollection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(s) });
-                endProgress();
-                showToast("تمت إضافة القسم الفرعي! ✅");
-                document.getElementById('newSubCat').value = '';
-                init();
-            }
-
-            // حفظ التقييمات
-            window.saveReviews = async () => {
-                const files = document.getElementById('reviewFile').files;
-                if (files.length === 0) return alert("اختر صورة واحدة على الأقل");
-
-                await startProgress();
-                for (let i = 0; i < files.length; i++) {
-                    let url = await up(files[i]);
-                    await getCollection("reviews").add({ imageUrl: url, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                }
-                endProgress();
-                showToast("تم رفع الآراء بنجاح! ✅");
-                document.getElementById('reviewFile').value = '';
-                document.getElementById('revPrevContainer').innerHTML = '';
-                document.getElementById('revDZ').classList.remove('has-img');
-                init();
-            }
-
-            window.delRev = async (id) => {
-                if (confirm("حذف هذا التقييم؟")) {
-                    await getCollection("reviews").doc(id).delete();
-                    showToast("تم الحذف 🗑️");
-                    init();
-                }
-            };
-
-            window.editSub = async (m, oldS) => {
-                const newS = prompt("تعديل القسم الفرعي:", oldS);
-                if (newS && newS !== oldS) {
-                    await startProgress();
-                    await getCollection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(oldS) });
-                    await getCollection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayUnion(newS) });
-                    const ps = await getCollection("products").where("mainCategory", "==", m).where("subCategory", "==", oldS).get();
-                    const b = db.batch(); ps.forEach(d => b.update(d.ref, { subCategory: newS }));
-                    await b.commit();
-                    endProgress();
-                    showToast("تم التعديل! ✅");
-                    init();
-                }
-            };
-            // دالة تعديل اسم القسم الرئيسي
-            window.editCatName = async (oldName) => {
-                const newName = prompt("تعديل اسم القسم الرئيسي:", oldName);
-                if (!newName || newName.trim() === "" || newName === oldName) return;
-
-                if (confirm(`هل أنت متأكد من تغيير الاسم إلى "${newName}"؟ سيتم نقل جميع المنتجات تلقائياً.`)) {
-                    await startProgress();
-                    try {
-                        const catRef = getCollection("categories").doc(oldName);
-                        const catDoc = await catRef.get();
-                        const catData = catDoc.data();
-
-                        // 1. إنشاء القسم بالاسم الجديد
-                        await getCollection("categories").doc(newName).set(catData);
-
-                        // 2. تحديث اسم القسم في جميع المنتجات المرتبطة
-                        const ps = await getCollection("products").where("mainCategory", "==", oldName).get();
-                        const batch = db.batch();
-                        ps.forEach(d => batch.update(d.ref, { mainCategory: newName }));
-                        await batch.commit();
-
-                        // 3. حذف القسم القديم
-                        await catRef.delete();
-
-                        endProgress();
-                        showToast("تم تغيير اسم القسم بنجاح! ✅");
-                        init();
-                    } catch (e) {
-                        endProgress();
-                        console.error(e);
-                        alert("حدث خطأ أثناء التعديل.");
-                    }
-                }
-            };
-
-            // دالة تعديل صورة القسم الرئيسي
-            window.editCatImage = async (catId) => {
-                // إنشاء زر اختيار ملف مخفي برمجياً
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.onchange = async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    if (confirm('هل أنت متأكد من رفع هذه الصورة كغلاف للقسم؟')) {
-                        await startProgress();
-                        const newUrl = await up(file);
-                        await getCollection("categories").doc(catId).update({ imageUrl: newUrl });
-                        endProgress();
-                        showToast("تم تحديث صورة القسم! ✅");
-                        init();
-                    }
-                };
-                input.click(); // فتح نافذة اختيار الصورة
-            };
-
-            let currentImgUrls = [];
-            window.renderEditImages = () => {
-                const container = document.getElementById('editPrevContainer');
-                if (currentImgUrls.length === 0) {
-                    container.innerHTML = '<span style="color:#888;">لا توجد صور.</span>'; return;
-                }
-                container.innerHTML = currentImgUrls.map((url, index) => `
-                <div class="edit-img-wrap">
-                    <img src="${url}">
-                    <button class="delete-img-btn" onclick="removeExistingImg(event, ${index})">×</button>
-                </div>
-            `).join('');
-            };
-
-            window.removeExistingImg = (event, index) => {
-                event.stopPropagation();
-                if (confirm("حذف هذه الصورة؟")) { currentImgUrls.splice(index, 1); renderEditImages(); }
-            };
-
-            window.openEdit = (id, n, m, s, imgUrlsStr) => {
-                document.getElementById('editModal').classList.add('active');
-                document.getElementById('editId').value = id;
-                document.getElementById('editName').value = n;
-                document.getElementById('editMainCat').value = m;
-                currentImgUrls = JSON.parse(decodeURIComponent(imgUrlsStr));
-                renderEditImages();
-                document.getElementById('newEditPrevContainer').innerHTML = '';
-                document.getElementById('editFile').value = '';
-                document.getElementById('editDZ').classList.remove('has-img');
-                loadSubCats('editMainCat', 'editSubCat', s);
-            };
-
-            window.closeModal = () => document.getElementById('editModal').classList.remove('active');
-
-            async function updateProduct() {
-                const id = document.getElementById('editId').value;
-                const n = document.getElementById('editName').value;
-                const m = document.getElementById('editMainCat').value;
-                const s = document.getElementById('editSubCat').value;
-                const files = document.getElementById('editFile').files;
-
-                await startProgress();
-                let finalUrlsToSave = [...currentImgUrls];
-                if (files.length > 0) {
-                    for (let i = 0; i < files.length; i++) {
-                        let url = await up(files[i]);
-                        finalUrlsToSave.push(url);
-                    }
-                }
-                if (finalUrlsToSave.length === 0) {
-                    endProgress(); alert("يجب وجود صورة واحدة على الأقل!"); return;
-                }
-                await getCollection("products").doc(id).update({ name: n, mainCategory: m, subCategory: s || "عام", imageURLs: finalUrlsToSave });
-                endProgress(); closeModal(); showToast("تم الحفظ! ✅"); init();
-            }
-
-            window.delP = async (id) => { if (confirm("حذف المنتج؟")) { await getCollection("products").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
-            window.delC = async (id) => { if (confirm("حذف القسم؟")) { await getCollection("categories").doc(id).delete(); showToast("تم الحذف 🗑️"); init(); } };
-            window.delS = async (m, s) => { if (confirm("حذف الفرعي؟")) { await getCollection("categories").doc(m).update({ subs: firebase.firestore.FieldValue.arrayRemove(s) }); showToast("تم الحذف 🗑️"); init(); } };
-
-            window.switchTab = (e, id) => {
-                document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                if (e) e.target.classList.add('active'); else document.getElementById('btnProductsTab').classList.add('active');
-                document.getElementById(id).classList.add('active');
-            };
-
-            window.toggleAccordion = (headerEl, groupClass) => {
-                const content = headerEl.nextElementSibling;
-                const isOpening = !content.classList.contains('open');
-
-                document.querySelectorAll(`.${groupClass}`).forEach(el => {
-                    el.classList.remove('open');
-                    const arrow = el.previousElementSibling.querySelector('.arrow');
-                    if (arrow) arrow.innerText = '▼';
-                });
-
-                if (isOpening) {
-                    content.classList.add('open');
-                    const myArrow = headerEl.querySelector('.arrow');
-                    if (myArrow) myArrow.innerText = '▲';
-                }
-            };
-            window.switchAdminMode = async function (mode) {
-                adminMode = mode;
-
-                document
-                    .getElementById('adminEmbroideryTab')
-                    .classList.toggle('active', mode === 'embroidery');
-
-                document
-                    .getElementById('adminPrintingTab')
-                    .classList.toggle('active', mode === 'printing');
-
-                document.getElementById('currentModeTitle').innerText =
-                    mode === 'printing'
-                        ? 'إدارة منتجات وأقسام الطباعة'
-                        : 'إدارة منتجات وأقسام التطريز';
-
-                // العودة تلقائيًا إلى تبويب المنتجات
-                document.querySelectorAll('.tabs button')
-                    .forEach(button => button.classList.remove('active'));
-
-                document
-                    .getElementById('btnProductsTab')
-                    .classList.add('active');
-
-                document.querySelectorAll('.tab-content')
-                    .forEach(content => content.classList.remove('active'));
-
-                document
-                    .getElementById('productsTab')
-                    .classList.add('active');
-
-                // إعادة تحميل بيانات النوع المحدد
-                await init();
-            };
-            let siteCategories = {};
-
-            async function init() {
-                try {
-                    siteCategories = {};
-                    // تحميل التصنيفات
-                    const [cSnap, pSnap, rSnap] = await Promise.all([
-                        getCollection("categories").get(),
-                        getCollection("products").orderBy("timestamp", "desc").get(),
-                        getCollection("reviews").orderBy("timestamp", "desc").get()
-                    ]);
-                    let catsArray = [];
-                    cSnap.forEach(doc => {
-                        let data = doc.data(); data.id = doc.id;
-                        catsArray.push(data); siteCategories[doc.id] = data;
-                    });
-                    catsArray.sort((a, b) => (a.order || 0) - (b.order || 0));
-
-                    const pM = document.getElementById('productMainCat'), sM = document.getElementById('mainCatForSub'), eM = document.getElementById('editMainCat');
-                    pM.innerHTML = sM.innerHTML = eM.innerHTML = '<option value="">اختر القسم</option>';
-                    catsArray.forEach(cat => {
-                        const opt = `<option value="${cat.id}">${cat.id}</option>`;
-                        pM.innerHTML += opt; sM.innerHTML += opt; eM.innerHTML += opt;
-                    });
-
-                    const cL = document.getElementById('categoriesAdminList');
-                    let cHTML = '';
-                    catsArray.forEach(cat => {
-                        let subsHTML = (cat.subs || []).map(s => `
-                        <div class="sub-tag">
-                            <span>${s}</span>
-                            <div>
-                                <button onclick="editSub('${cat.id}','${s}')" style="background:none; border:none; color:var(--primary); font-size:18px; margin-left:10px;">✎</button>
-                                <button onclick="delS('${cat.id}','${s}')" style="background:none; border:none; color:red; font-size:18px;">×</button>
-                            </div>
-                        </div>
-                    `).join('');
-
-                        cHTML += `
-                    <div class="cat-sort-item" data-id="${cat.id}">
-                        <div class="accordion-header" onclick="toggleAccordion(this, 'cat-acc')">
-                            <div style="display:flex; align-items:center;">
-                                <span class="drag-handle">☰</span>
-                                <img src="${cat.imageUrl}" style="width:40px; height:40px; border-radius:5px; object-fit:cover; margin-left:10px;">
-                                <strong>${cat.id}</strong>
-                            </div>
-                            <span class="arrow">▼</span>
-                        </div>
-                        <div class="accordion-content cat-acc">
-                            
-                            <div class="btn-group-large" style="margin-bottom: 15px;">
-                                <button class="edit-btn" onclick="editCatName('${cat.id.replace(/'/g, "\\'")}')">تغيير الاسم ✎</button>
-                                <button class="edit-btn" onclick="editCatImage('${cat.id.replace(/'/g, "\\'")}')">تغيير الصورة 🖼️</button>
-                            </div>
-
-                            <div style="border-top: 1px solid #333; margin: 15px 0; padding-top: 15px;">
-                                <strong style="color:var(--primary); font-size:14px; margin-bottom:10px; display:block;">الأقسام الفرعية:</strong>
-                                ${subsHTML || '<p style="color:#666; font-size:14px;">لا توجد فرعيات</p>'}
-                            </div>
-
-                            <button class="danger-btn" style="width:100%; padding:10px; margin-top:15px; border-radius:8px;" onclick="delC('${cat.id}')">حذف القسم بالكامل</button>
-                        </div>
-                    </div>`;
-                    });
-                    cL.innerHTML = cHTML;
-
-                    if (typeof Sortable !== 'undefined') {
-                        Sortable.create(cL, {
-                            handle: '.drag-handle', animation: 150,
-                            onEnd: async function () {
-                                const items = document.querySelectorAll('.cat-sort-item');
-                                const batch = db.batch();
-                                items.forEach((item, index) => {
-                                    batch.update(
-                                        getCollection("categories").doc(item.getAttribute('data-id')),
-                                        { order: index }
-                                    );
-                                });
-                                await batch.commit();
-                                showToast("تم تحديث الترتيب! ✅");
-                            }
-                        });
-                    }
-
-                    // تحميل المنتجات
-
-                    let allProds = [];
-                    pSnap.forEach(doc => { let d = doc.data(); d.id = doc.id; allProds.push(d); });
-
-                    const pL = document.getElementById('productsList');
-                    let pHTML = '';
-                    catsArray.forEach(cat => {
-                        let catProds = allProds.filter(p => p.mainCategory === cat.id);
-                        if (catProds.length === 0) return;
-
-                        let subsList = [...(cat.subs || []), "عام"];
-                        let subsHTML = subsList.map(sub => {
-                            let subProds = catProds.filter(p => p.subCategory === sub || (!p.subCategory && sub === "عام"));
-                            if (subProds.length === 0) return '';
-
-                            return `
-                        <div class="accordion-header sub-header" onclick="toggleAccordion(this, 'sub-content')">
-                            <strong>↳ ${sub}</strong> <span class="arrow">▼</span>
-                        </div>
-                        <div class="accordion-content sub-content">
-                            ${subProds.map(p => `
-                                <div class="list-item">
-                                    <div class="item-row">
-                                        <img src="${(p.imageURLs && p.imageURLs[0]) || p.imageUrl || ''}">
-                                        <div><strong>${p.name}</strong></div>
-                                    </div>
-                                    <div class="btn-group-large">
-                                        <button class="edit-btn" onclick="openEdit('${p.id}','${p.name.replace(/'/g, "\\'")}','${p.mainCategory}','${p.subCategory}','${encodeURIComponent(JSON.stringify(p.imageURLs || []))}')">تعديل</button>
-                                        <button class="danger-btn" onclick="delP('${p.id}')">حذف</button>
-                                    </div>
-                                </div>`).join('')}
-                        </div>`;
-                        }).join('');
-
-                        pHTML += `
-                    <div style="margin-bottom:10px;">
-                        <div class="accordion-header" onclick="toggleAccordion(this, 'prod-acc')">
-                            <strong>📁 ${cat.id}</strong> <span class="arrow">▼</span>
-                        </div>
-                        <div class="accordion-content prod-acc" style="padding: 10px;">${subsHTML}</div>
-                    </div>`;
-                    });
-                    pL.innerHTML = pHTML || '<p style="text-align:center;">لا توجد منتجات.</p>';
-
-                    // تحميل التقييمات في صفحة الإدارة
-
-                    let rHTML = '';
-                    rSnap.forEach(doc => {
-                        let r = doc.data();
-                        rHTML += `
-                        <div class="edit-img-wrap" style="margin-bottom:10px;">
-                            <img src="${r.imageUrl}" style="width:100px; height:100px;">
-                            <button class="delete-img-btn" onclick="delRev('${doc.id}')">×</button>
-                        </div>
-                    `;
-                    });
-                    document.getElementById('reviewsAdminList').innerHTML = rHTML || '<span style="color:#888;">لا توجد آراء مسجلة حتى الآن.</span>';
-
-                } catch (e) { console.error("Error in init:", e); }
-            }
+            if (ticket!==generation || selected!==mode || !ready) return;
+            cats=state.cats; products=state.products; reviews=state.reviews; render();
+        } catch(error) { if(ticket===generation) toast('تعذر تحميل البيانات. تحقق من الشبكة وصلاحيات Firestore ثم أعد فتح الصفحة'); }
+        finally { if(ticket===generation) loading=false; }
+    }
+    window.switchAdminMode=async next=>{
+        if (busy || !ready || !Object.hasOwn(collections,next)) return;
+        window.closeModal(); mode=next;
+        ['Embroidery','Printing'].forEach(label=>$('admin'+label+'Tab').classList.toggle('active',mode===label.toLowerCase()));
+        $('currentModeTitle').textContent=mode==='printing'?'إدارة منتجات وأقسام الطباعة':'إدارة منتجات وأقسام التطريز';
+        window.switchTab(null,'productsTab');
+        for(const id of ['productName','newMainCat','newSubCat']) $(id).value='';
+        for(const args of [['productFile','prodPrevContainer','prodDZ'],['catFile','catPrevContainer','catDZ'],['reviewFile','revPrevContainer','revDZ']]) clearUpload(...args);
+        for(const id of ['productsList','categoriesAdminList','reviewsAdminList']) $(id).replaceChildren();
+        await init();
+    };
+    if (!auth || !db) { document.body.style.display='block'; toast('تعذر تشغيل Firebase. أعد تحميل الصفحة'); return; }
+    auth.onAuthStateChanged(async user=>{
+        const check=++generation;
+        ready=false;
+        if (!user) { location.replace('login.html'); return; }
+        try {
+            const token=await user.getIdToken();
+            await U.fetchJSON(api('/api/admin-session'),{headers:{Authorization:'Bearer '+token}});
+            if (check!==generation) return;
+            ready=true; document.body.style.display='block'; await init();
+        } catch {
+            document.body.style.display='block';
+            document.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);
+            const exit=document.querySelector('.logout-btn'); exit.disabled=false;
+            toast('تعذر التحقق من صلاحية الإدارة. راجع اتصالك وإعداد ADMIN_UIDS ثم أعد تحميل الصفحة');
+        }
+    });
+})();

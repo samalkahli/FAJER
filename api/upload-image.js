@@ -1,5 +1,5 @@
 const Busboy = require("busboy");
-const admin = require("firebase-admin");
+const { getDatabase, authorize, cors, json: sendJson } = require("../lib/server-auth");
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
@@ -9,87 +9,6 @@ const allowedTypes = new Set([
   "image/webp",
   "image/gif"
 ]);
-
-function sendJson(res, status, data) {
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.setHeader("Cache-Control", "no-store");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.end(JSON.stringify(data));
-}
-
-function isAllowedOrigin(origin) {
-  if (!origin) return true;
-
-  return (
-    origin === "https://athnta-ten.vercel.app" ||
-    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
-  );
-}
-
-function setCors(req, res) {
-  const origin = req.headers.origin || "";
-
-  if (!isAllowedOrigin(origin)) {
-    return false;
-  }
-
-  if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Vary", "Origin");
-  }
-
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Authorization, Content-Type"
-  );
-
-  return true;
-}
-
-function getAdminAuth() {
-  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-  const privateKey = String(
-    process.env.FIREBASE_ADMIN_PRIVATE_KEY || ""
-  ).replace(/\\n/g, "\n");
-
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error("FIREBASE_ADMIN_CONFIG_MISSING");
-  }
-
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId,
-        clientEmail,
-        privateKey
-      })
-    });
-  }
-
-  return admin.auth();
-}
-
-function getBearerToken(req) {
-  const header = req.headers.authorization || "";
-
-  if (!header.startsWith("Bearer ")) {
-    return "";
-  }
-
-  return header.slice(7).trim();
-}
-
-function getAdminUids() {
-  return new Set(
-    String(process.env.ADMIN_UIDS || "")
-      .split(",")
-      .map((uid) => uid.trim())
-      .filter(Boolean)
-  );
-}
 
 function isValidImageSignature(buffer, mimeType) {
   if (mimeType === "image/jpeg") {
@@ -132,6 +51,8 @@ function readImage(req) {
         headers: req.headers,
         limits: {
           files: 1,
+          fields: 0,
+          parts: 2,
           fileSize: MAX_FILE_SIZE
         }
       });
@@ -142,6 +63,7 @@ function readImage(req) {
 
     let imageFound = false;
     let imageTooLarge = false;
+    let invalidParts = false;
     let mimeType = "";
     const chunks = [];
 
@@ -166,8 +88,14 @@ function readImage(req) {
     });
 
     parser.on("error", reject);
+    parser.on("filesLimit", () => { invalidParts = true; });
+    parser.on("fieldsLimit", () => { invalidParts = true; });
+    parser.on("partsLimit", () => { invalidParts = true; });
+    req.on("aborted", () => { parser.destroy(new Error("INVALID_FORM")); });
+    req.on("error", reject);
 
     parser.on("finish", () => {
+      if (invalidParts) { reject(new Error("INVALID_FORM")); return; }
       if (imageTooLarge) {
         reject(new Error("FILE_TOO_LARGE"));
         return;
@@ -198,7 +126,7 @@ function readImage(req) {
 }
 
 async function handler(req, res) {
-  if (!setCors(req, res)) {
+  if (!cors(req, res)) {
     return sendJson(res, 403, {
       error: "هذا النطاق غير مسموح"
     });
@@ -210,46 +138,31 @@ async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
+    res.setHeader("Allow", "POST, OPTIONS");
     return sendJson(res, 405, {
       error: "الطلب غير مسموح"
     });
   }
 
-  const token = getBearerToken(req);
-
-  if (!token) {
-    return sendJson(res, 401, {
-      error: "يجب تسجيل الدخول أولًا"
-    });
-  }
-
-  let firebaseAuth;
-
+  const user = await authorize(req, res);
+  if (!user) return;
+  // Persistent per-user counters work across serverless instances.
   try {
-    firebaseAuth = getAdminAuth();
+    const now = Date.now(), db = getDatabase(), ref = db.collection("_uploadLimits").doc(user.uid);
+    await db.runTransaction(async tx => {
+      const snap = await tx.get(ref), old = snap.data() || {};
+      const minute = Math.floor(now / 60000), day = Math.floor(now / 86400000);
+      const minuteCount = old.minute === minute ? old.minuteCount || 0 : 0;
+      const dayCount = old.day === day ? old.dayCount || 0 : 0;
+      if (minuteCount >= 60 || dayCount >= 500) throw new Error("RATE_LIMIT");
+      tx.set(ref, { minute, day, minuteCount: minuteCount + 1, dayCount: dayCount + 1 });
+    });
   } catch (error) {
-    console.error("Firebase Admin configuration error");
-    return sendJson(res, 500, {
-      error: "إعدادات الخادم غير مكتملة"
-    });
-  }
-
-  let decodedToken;
-
-  try {
-    decodedToken = await firebaseAuth.verifyIdToken(token);
-  } catch {
-    return sendJson(res, 401, {
-      error: "جلسة الدخول غير صالحة"
-    });
-  }
-
-  const adminUids = getAdminUids();
-
-  if (!adminUids.has(decodedToken.uid)) {
-    return sendJson(res, 403, {
-      error: "ليس لديك صلاحية رفع الصور"
-    });
+    if (error.message === "RATE_LIMIT") {
+      res.setHeader("Retry-After", "60");
+      return sendJson(res, 429, { error: "تم بلوغ حد الرفع. الحد 60 صورة بالدقيقة و500 باليوم لكل مدير" });
+    }
+    return sendJson(res, 503, { error: "تعذر التحقق من حد الرفع. راجع صلاحيات حساب الخادم على Firestore" });
   }
 
   if (!process.env.IMGBB_API_KEY) {
@@ -290,7 +203,8 @@ async function handler(req, res) {
 
     const response = await fetch("https://api.imgbb.com/1/upload", {
       method: "POST",
-      body: form
+      body: form,
+      signal: AbortSignal.timeout(25000)
     });
 
     const result = await response.json();
@@ -320,7 +234,7 @@ async function handler(req, res) {
       url: imageUrl
     });
   } catch (error) {
-    console.error("Upload function failed", error.message);
+    console.error("Upload function failed");
 
     return sendJson(res, 500, {
       error: "حدث خطأ أثناء رفع الصورة"

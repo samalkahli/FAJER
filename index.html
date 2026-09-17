@@ -9,13 +9,13 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://i.ibb.co">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10.3.1/swiper-bundle.min.css" />
 
     <link rel="stylesheet" href="css/public.css">
-    <link rel="stylesheet" href="css/store-header.css">
 </head>
 
 <body data-mode="gateway">
@@ -23,7 +23,7 @@
         <section id="store-gateway" class="store-gateway" aria-labelledby="gatewayTitle">
             <div class="gateway-inner">
 
-                <span class="gateway-kicker">ATHNTA × LAVINTA</span>
+                <span class="gateway-kicker" id="gatewayTitle">ATHNTA × LAVINTA</span>
 
 
                 <p class="gateway-description">
@@ -33,7 +33,7 @@
                 <div class="store-choices">
 
                     <button type="button" class="store-choice store-choice--embroidery"
-                        onclick="enterStore('embroidery')">
+                        data-bind-click="index-1">
 
                         <span class="store-choice-logo-wrap">
                             <img src="https://i.ibb.co/XftPtTSg/image.png" alt="شعار ATHNTA" class="store-choice-logo">
@@ -50,7 +50,7 @@
                     </button>
 
 
-                    <button type="button" class="store-choice store-choice--printing" onclick="enterStore('printing')">
+                    <button type="button" class="store-choice store-choice--printing" data-bind-click="index-2">
 
                         <span class="store-choice-logo-wrap">
                             <img src="assets/lavinta-logo.jpeg" alt="شعار LAVINTA" class="store-choice-logo">
@@ -73,14 +73,14 @@
         <div id="store-app" class="store-app" hidden>
             <div class="profile-header">
                 <div class="nav-box" id="mainNav">
-                    <button type="button" class="store-back-btn" onclick="backToGateway()"
+                    <button type="button" class="store-back-btn" data-bind-click="index-3"
                         aria-label="العودة إلى قائمة المتاجر" title="العودة إلى قائمة المتاجر">
 
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M10 6l6 6-6 6M16 12H4"></path>
                         </svg>
                     </button>
-                    <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank" title="تواصل معنا">
+                    <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank" rel="noopener noreferrer" title="تواصل معنا">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
@@ -89,7 +89,7 @@
                 </div>
 
                 <img id="brandLogo" src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="profile-logo"
-                    onclick="backToCategories()" fetchpriority="high">
+                    data-bind-click="index-4" fetchpriority="high">
             </div>
 
             <section id="categories-section">
@@ -107,7 +107,7 @@
             <section id="products-section">
                 <div class="products-header">
                     <h2 id="category-title">اسم القسم</h2>
-                    <button class="btn-back" onclick="backToCategories()">العودة للأقسام</button>
+                    <button class="btn-back" data-bind-click="index-5">العودة للأقسام</button>
                 </div>
                 <div class="filters" id="filters-container"></div>
                 <div class="products-grid" id="products-grid"></div>
@@ -116,31 +116,31 @@
             <section id="reviews-section">
                 <div class="products-header">
                     <h2>آراء العملاء ⭐</h2>
-                    <button class="btn-back" onclick="backToCategories()">العودة للأقسام</button>
+                    <button class="btn-back" data-bind-click="index-6">العودة للأقسام</button>
                 </div>
                 <div class="reviews-masonry" id="reviews-grid"></div>
             </section>
 
             <div class="reviews-btn-wrapper" id="reviewsBtnWrapper">
-                <button class="reviews-btn" onclick="showReviews()">
+                <button class="reviews-btn" data-bind-click="index-7">
                     آراء العملاء ⭐
                 </button>
             </div>
 
             <div class="social-footer">
-                <a href="https://wa.me/966552125258" class="social-btn" target="_blank" title="واتساب">
+                <a href="https://wa.me/966552125258" class="social-btn" target="_blank" rel="noopener noreferrer" title="واتساب">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
                     </svg>
                 </a>
-                <a href="#" class="social-btn" target="_blank" title="إنستقرام">
+                <a href="#" class="social-btn" target="_blank" rel="noopener noreferrer" title="إنستقرام">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
                     </svg>
                 </a>
-                <a href="#" class="social-btn" target="_blank" title="تيك توك">
+                <a href="#" class="social-btn" target="_blank" rel="noopener noreferrer" title="تيك توك">
                     <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                         <path
                             d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3V0Z" />
@@ -152,7 +152,7 @@
 
     <div class="modal" id="productModal">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeProductModal()">×</button>
+            <button class="close-modal" data-bind-click="index-8">×</button>
             <div class="modal-body">
                 <div class="swiper modalSwiper">
                     <div class="swiper-wrapper" id="modalSwiperWrapper"></div>
@@ -161,7 +161,7 @@
                     <div class="swiper-button-prev"></div>
                 </div>
                 <h3 id="modalProductTitle" class="modal-title">اسم المنتج</h3>
-                <a id="modalWhatsappBtn" href="#" class="modal-whatsapp-btn" target="_blank">
+                <a id="modalWhatsappBtn" href="#" class="modal-whatsapp-btn" target="_blank" rel="noopener noreferrer">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
@@ -172,15 +172,14 @@
         </div>
     </div>
 
-    <div class="modal" id="reviewImgModal" onclick="this.classList.remove('active')" style="cursor:zoom-out;">
+    <div class="modal" id="reviewImgModal" data-bind-click="index-9" style="cursor:zoom-out;">
         <img id="expandedReviewImg" style="max-width:90vw; max-height:90vh; border-radius:12px; object-fit:contain;">
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <script src="js/firebase-config.js"></script>
-    <script src="js/public.js"></script>
+    <script defer src="js/ui.js"></script>
+    <script defer src="js/public.js"></script>
+    <script defer src="js/index-bindings.js"></script>
 </body>
 
 </html>

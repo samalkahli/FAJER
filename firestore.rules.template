@@ -1,0 +1,24 @@
+// TEMPLATE ONLY: replace BOTH UID placeholders before publishing in Firebase.
+// These UIDs are identifiers, not secrets. Keep them identical to Vercel ADMIN_UIDS.
+// Do not deploy this template unchanged: it deliberately denies admin writes.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function adminUser() {
+      return request.auth != null
+        && request.auth.uid in ['REPLACE_WITH_FIRST_ADMIN_UID', 'REPLACE_WITH_SECOND_ADMIN_UID'];
+    }
+    function gallery(collection) {
+      return collection in ['categories','printCategories','products','printProducts','reviews','printReviews'];
+    }
+    match /{collection}/{id} {
+      allow read: if gallery(collection);
+      allow create, update, delete: if gallery(collection) && adminUser();
+    }
+    // No public access to upload counters or any other collection/subcollection.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

@@ -1,7 +1,11 @@
 {
   "private": true,
+  "engines": { "node": "22.x" },
+  "scripts": { "test": "node --test tests/*.test.js" },
+  "devDependencies": { "jsdom": "26.1.0" },
+  "overrides": { "gaxios@6.7.1": { "uuid": "11.1.1" } },
   "dependencies": {
     "busboy": "1.6.0",
-    "firebase-admin": "^13.0.0"
+    "firebase-admin": "14.4.0"
   }
 }

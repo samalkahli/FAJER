@@ -11,7 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
 
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
     <link rel="stylesheet" href="css/admin.css">
 </head>
@@ -24,16 +24,16 @@
     <div id="toast" class="toast">تم الإجراء بنجاح! ✅</div>
 
     <header>
-        <button class="logout-btn" onclick="logout()">خروج</button>
+        <button class="logout-btn" data-bind-click="admin-1">خروج</button>
         <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo">
     </header>
 
     <div class="admin-mode-tabs">
-        <button class="admin-mode-tab active" id="adminEmbroideryTab" onclick="switchAdminMode('embroidery')">
+        <button class="admin-mode-tab active" id="adminEmbroideryTab" data-bind-click="admin-2">
             إدارة التطريز
         </button>
 
-        <button class="admin-mode-tab" id="adminPrintingTab" onclick="switchAdminMode('printing')">
+        <button class="admin-mode-tab" id="adminPrintingTab" data-bind-click="admin-3">
             إدارة الطباعة
         </button>
     </div>
@@ -43,15 +43,15 @@
     </h2>
 
     <div class="tabs">
-    <button class="active" id="btnProductsTab" onclick="switchTab(event, 'productsTab')">
+    <button class="active" id="btnProductsTab" data-bind-click="admin-4">
         المنتجات
     </button>
 
-    <button id="btnCatsTab" onclick="switchTab(event, 'catsTab')">
+    <button id="btnCatsTab" data-bind-click="admin-5">
         التصنيفات
     </button>
 
-    <button id="btnReviewsTab" onclick="switchTab(event, 'reviewsTab')">
+    <button id="btnReviewsTab" data-bind-click="admin-6">
         التقييمات والآراء
     </button>
 </div>
@@ -65,7 +65,7 @@
         <div style="display:flex; gap:10px;">
             <select
                 id="productMainCat"
-                onchange="loadSubCats('productMainCat', 'productSubCat')">
+                data-bind-change="admin-7">
             </select>
 
             <select id="productSubCat"></select>
@@ -74,7 +74,7 @@
         <div
             class="drop-zone"
             id="prodDZ"
-            onclick="document.getElementById('productFile').click()">
+            data-bind-click="admin-8">
 
             <div
                 id="prodPrevContainer"
@@ -88,13 +88,13 @@
                 id="productFile"
                 style="display:none;"
                 multiple
-                onchange="previewMultiple(this, 'prodPrevContainer', 'prodDZ')">
+                data-bind-change="admin-9">
         </div>
 
         <button
             class="action-btn"
             id="prodBtn"
-            onclick="saveProduct()">
+            data-bind-click="admin-10">
             رفع وحفظ المنتج
         </button>
     </div>
@@ -114,7 +114,7 @@
         <div
             class="drop-zone"
             id="catDZ"
-            onclick="document.getElementById('catFile').click()">
+            data-bind-click="admin-11">
 
             <div
                 id="catPrevContainer"
@@ -127,13 +127,13 @@
                 type="file"
                 id="catFile"
                 style="display:none;"
-                onchange="previewMultiple(this, 'catPrevContainer', 'catDZ')">
+                data-bind-change="admin-12">
         </div>
 
         <button
             class="action-btn"
             id="catBtn"
-            onclick="saveMainCategory()">
+            data-bind-click="admin-13">
             إنشاء القسم
         </button>
     </div>
@@ -151,7 +151,7 @@
         <button
             class="action-btn"
             id="subBtn"
-            onclick="saveSubCategory()"
+            data-bind-click="admin-14"
             style="background:#444; color:#fff;">
             إضافة فرعي
         </button>
@@ -167,7 +167,7 @@
         <div
             class="drop-zone"
             id="revDZ"
-            onclick="document.getElementById('reviewFile').click()">
+            data-bind-click="admin-15">
 
             <div
                 id="revPrevContainer"
@@ -184,12 +184,12 @@
                 id="reviewFile"
                 style="display:none;"
                 multiple
-                onchange="previewMultiple(this, 'revPrevContainer', 'revDZ')">
+                data-bind-change="admin-16">
         </div>
 
         <button
             class="action-btn"
-            onclick="saveReviews()">
+            data-bind-click="admin-17">
             رفع الصور للمعرض
         </button>
     </div>
@@ -220,7 +220,7 @@
 
         <select
             id="editMainCat"
-            onchange="loadSubCats('editMainCat', 'editSubCat')">
+            data-bind-change="admin-18">
         </select>
 
         <select id="editSubCat"></select>
@@ -243,7 +243,7 @@
         <div
             class="drop-zone"
             id="editDZ"
-            onclick="document.getElementById('editFile').click()">
+            data-bind-click="admin-19">
 
             <div
                 id="newEditPrevContainer"
@@ -257,20 +257,20 @@
                 id="editFile"
                 style="display:none;"
                 multiple
-                onchange="previewMultiple(this, 'newEditPrevContainer', 'editDZ')">
+                data-bind-change="admin-20">
         </div>
 
         <div class="btn-group-large">
             <button
                 class="edit-btn"
                 id="updateBtn"
-                onclick="updateProduct()">
+                data-bind-click="admin-21">
                 حفظ التعديلات
             </button>
 
             <button
                 class="danger-btn"
-                onclick="closeModal()">
+                data-bind-click="admin-22">
                 إلغاء
             </button>
         </div>
@@ -278,7 +278,9 @@
 </div>
         
     <script src="js/firebase-config.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/admin-bindings.js"></script>
 </body>
 
 </html>

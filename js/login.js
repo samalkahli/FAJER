@@ -1,42 +1,33 @@
+'use strict';
+let loggingIn=false;
 async function login() {
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('password').value;
-    const status = document.getElementById('status');
-    const btn = document.getElementById('loginBtn');
-
-    if (!email || !pass) {
-        status.innerText = 'الرجاء إدخال البريد وكلمة المرور';
-        return;
-    }
-
-    if (!window.athntaAuth) {
-        status.innerText = 'تعذر تشغيل Firebase Auth. تأكد من وجود مجلد js وفتح الموقع عبر localhost أو Vercel.';
-        console.error('Firebase Auth is not initialized. Check firebase-config.js and script paths.');
-        return;
-    }
-
-    btn.innerText = 'جاري التحقق...';
-    btn.disabled = true;
-
+    if(loggingIn) return;
+    const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
+    const status=document.getElementById('status'),btn=document.getElementById('loginBtn');
+    status.style.color='#f08080';
+    if(!email || !password) {status.textContent='أدخل البريد وكلمة المرور';return;}
+    if(!window.athntaAuth) {status.textContent='تعذر تشغيل تسجيل الدخول. أعد تحميل الصفحة';return;}
+    loggingIn=true;btn.disabled=true;btn.textContent='جاري التحقق...';
     try {
-        await window.athntaAuth.signInWithEmailAndPassword(email, pass);
-
-            status.style.color = '#28a745';
-            status.innerText = 'نجح الدخول! جاري التحويل...';
-            window.location.href = 'admin.html';
-    } catch (error) {
-        btn.innerText = 'دخول';
-        btn.disabled = false;
-        console.error('Error Code:', error.code, error);
-
-        if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-            status.innerText = 'البريد أو كلمة المرور غير صحيحة';
-        } else if (error.code === 'auth/operation-not-allowed') {
-            status.innerText = 'تسجيل الدخول بالبريد غير مفعل من Firebase Authentication';
-        } else if (error.code === 'auth/network-request-failed') {
-            status.innerText = 'تعذر الاتصال بـ Firebase. افتح الموقع عبر localhost أو Vercel وتأكد من الإنترنت';
-        } else {
-            status.innerText = 'خطأ: ' + (error.message || 'تعذر تسجيل الدخول');
-        }
-    }
+        await athntaAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+        await athntaAuth.signInWithEmailAndPassword(email,password);
+        const token=await athntaAuth.currentUser.getIdToken();
+        const url=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'https://athnta-ten.vercel.app/api/admin-session':'/api/admin-session';
+        await StoreUI.fetchJSON(url,{headers:{Authorization:'Bearer '+token}});
+        status.style.color='#28a745';status.textContent='تم الدخول';
+        location.replace('admin.html');
+    } catch(error) {
+        document.getElementById('password').value='';
+        if(athntaAuth.currentUser) await athntaAuth.signOut().catch(()=>{});
+        const messages={
+            'auth/wrong-password':'البريد أو كلمة المرور غير صحيحة',
+            'auth/user-not-found':'البريد أو كلمة المرور غير صحيحة',
+            'auth/invalid-credential':'البريد أو كلمة المرور غير صحيحة',
+            'auth/too-many-requests':'محاولات كثيرة. انتظر قليلا ثم حاول مجددا',
+            'auth/network-request-failed':'تعذر الاتصال. تحقق من الإنترنت',
+            'auth/user-disabled':'هذا الحساب غير متاح'
+        };
+        status.textContent=messages[error.code] || (error.code?'تعذر تسجيل الدخول':error.message);
+    } finally {loggingIn=false;btn.disabled=false;btn.textContent='دخول';}
 }
+document.getElementById('password').addEventListener('keydown',event=>{if(event.key==='Enter') login();});
