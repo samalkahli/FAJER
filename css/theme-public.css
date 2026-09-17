@@ -19,6 +19,8 @@ body[data-theme-odd] .categories-grid > .cat-card { grid-column:auto;aspect-rati
 body[data-theme-odd="true"] .categories-grid > .cat-card:last-child:nth-child(odd) { grid-column:1/-1;aspect-ratio:16/9; }
 body[data-theme-odd] .products-grid { grid-template-columns:repeat(var(--theme-product-columns,4),minmax(0,1fr)); }
 body[data-theme-odd] .product-card { border-radius:var(--theme-product-radius,20px); }
+body[data-theme-odd] .glass-card,body[data-theme-odd] .product-card { background:var(--surface); }
+body[data-theme-odd] .reviews-btn,body[data-theme-odd] .social-btn,body[data-theme-odd] .store-back-btn { background:var(--theme-controls-bg); }
 body[data-theme-odd] .store-app .profile-logo { width:min(82vw,var(--theme-header-logo,230px)); }
 body[data-theme-odd] .nav-box.sticky + .profile-logo { width:118px; }
 body[data-theme-scattered="false"] .reviews-masonry .review-img-wrap { transform:none;width:100%;margin:0 0 14px; }

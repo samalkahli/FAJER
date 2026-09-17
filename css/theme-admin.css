@@ -12,6 +12,7 @@
 .theme-fields{display:grid;gap:16px;padding:14px;}
 .theme-field{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border-bottom:1px solid #333;padding-bottom:13px;}
 .theme-field label{grid-column:1/-1;color:#eee;font-size:14px;}
+.theme-field[hidden]{display:none;}
 .theme-field input[type=text],.theme-field input[type=file],.theme-field select{grid-column:1/-1;}
 .theme-field input[type=range]{width:100%;accent-color:#d4aa6d;}
 .theme-field input[type=checkbox]{width:22px;height:22px;accent-color:#d4aa6d;}

@@ -43,13 +43,48 @@ for(const [prefix,name,bg,accent,logo] of [['e','التطريز','#171717','#d4a
  choice(f('productColumns'),'أعمدة المنتجات على الكمبيوتر','4',g,['2','3','4','5']);choice(f('productMobile'),'أعمدة المنتجات على الجوال','2',g,['1','2']);number(f('productRadius'),'استدارة بطاقات المنتجات',20,g,0,40);
  yes(f('scatteredReviews'),'تقييمات مبعثرة',true,g);yes(f('mixedReviews'),'أشكال تقييمات متنوعة',true,g);
 }
+// Background recipes share validated controls; old color keys stay compatible.
+const backgrounds=[];
+function background(id,label,first,second,enabled,angle,group){
+ const original=fields.find(f=>f.key===first).value;
+ if(!fields.some(f=>f.key===second))color(second,'اللون الثاني',original,group);
+ if(!fields.some(f=>f.key===enabled))yes(enabled,'تفعيل دمج الألوان',false,group);
+ if(!fields.some(f=>f.key===angle))number(angle,'اتجاه الدمج',135,group,0,360);
+ const spec={id,label,first,second,enabled,angle,group};backgrounds.push(spec);
+ choice(id+'Count','عدد الألوان','2',group,['2','3','4']);
+ choice(id+'Kind','نوع الدمج','linear',group,['linear','radial']);
+ color(id+'C','اللون الثالث',original,group);color(id+'D','اللون الرابع',original,group);
+ for(let i=1;i<=4;i++)number(id+'Stop'+i,'موضع اللون '+i+' %',[0,100,70,100][i-1],group,0,100);
+ number(id+'X','مركز الدمج الأفقي %',50,group,0,100);number(id+'Y','مركز الدمج الرأسي %',50,group,0,100);
+}
+background('page','خلفية الرئيسية','pageA','pageB','pageGradient','pageAngle','الواجهة الرئيسية');
+yes('pageGlow','الإضاءة الذهبية والبنية الأصلية',true,'الواجهة الرئيسية');
+for(const [p,name] of [['e','التطريز'],['p','الطباعة']]){
+ const card='شريحة '+name,store='داخل معرض '+name;
+ background(p+'_card','خلفية الشريحة',p+'_bgA',p+'_bgB',p+'_gradient',p+'_angle',card);
+ for(const [key,label,group]of [['boxColor','مربع الشعار',card],['buttonBg','زر الاستكشاف',card],['overlayColor','الطبقة المعتمة',card],['storeBg','خلفية المعرض',store],['storeSurface','بطاقات المعرض',store]])
+  background(p+'_'+key,label,p+'_'+key,p+'_'+key+'B',p+'_'+key+'Gradient',p+'_'+key+'Angle',group);
+ yes(p+'_storeGlow','إضاءة الخلفية الأصلية',p==='p',store);
+ for(const [key,label,value]of [['navBg','الشريط العلوي',p==='p'?'#5e4a3f':'#050505'],['dialogBg','نافذة المنتج',p==='p'?'#48352c':'#151515'],['controlsBg','أزرار المعرض والتواصل',p==='p'?'#6a574c':'#151515']]){
+  color(p+'_'+key,label,value,store);background(p+'_'+key,label,p+'_'+key,p+'_'+key+'B',p+'_'+key+'Gradient',p+'_'+key+'Angle',store);
+ }
+}
 const defaults=Object.fromEntries(fields.map(f=>[f.key,f.value]));
+Object.assign(defaults,{pageA:'#050505',pageB:'#5e4a3f',pageAngle:115,pageCount:'3',pageC:'#15110f',pageStop2:100,pageStop3:44,e_storeBg:'#050505',p_storeBg:'#5e4a3f',p_storeBgB:'#45342d',p_storeBgGradient:true});
+function paint(t,id,opacity=100){
+ const s=backgrounds.find(s=>s.id===id);if(!s)throw Error('Unknown background');
+ const alpha=c=>opacity===100?c:`rgba(${parseInt(c.slice(1,3),16)},${parseInt(c.slice(3,5),16)},${parseInt(c.slice(5,7),16)},${opacity/100})`;
+ if(!t[s.enabled])return alpha(t[s.first]);
+ const colors=[t[s.first],t[s.second],t[id+'C'],t[id+'D']];
+ const stops=colors.slice(0,Number(t[id+'Count'])).map((c,i)=>({c,pos:t[id+'Stop'+(i+1)]})).sort((a,b)=>a.pos-b.pos).map(s=>alpha(s.c)+' '+s.pos+'%').join(',');
+ return t[id+'Kind']==='radial'?`radial-gradient(ellipse at ${t[id+'X']}% ${t[id+'Y']}%,${stops})`:`linear-gradient(${t[s.angle]}deg,${stops})`;
+}
 function validURL(value){if(typeof value!=='string'||value.length>1500)return false;if(value==='')return true;if(/^assets\/[a-zA-Z0-9_./-]+$/.test(value)&&!value.includes('..'))return true;try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password;}catch{return false;}}
 function normalize(input,strict=false){
  if(!input||typeof input!=='object'||Array.isArray(input))throw Error('إعدادات الثيم غير صالحة');
  if(strict&&Object.keys(input).some(k=>!Object.hasOwn(defaults,k)))throw Error('إعداد غير معروف في الثيم');
  const out={};
- for(const f of fields){let v=Object.hasOwn(input,f.key)?input[f.key]:f.value;let ok=false;
+ for(const f of fields){let v=Object.hasOwn(input,f.key)?input[f.key]:defaults[f.key];let ok=false;
  if(f.type==='number')ok=typeof v==='number'&&Number.isFinite(v)&&v>=f.min&&v<=f.max;
  if(f.type==='color')ok=typeof v==='string'&&/^#[0-9a-fA-F]{6}$/.test(v);
  if(f.type==='boolean')ok=typeof v==='boolean';
@@ -57,9 +92,9 @@ function normalize(input,strict=false){
  if(f.type==='text')ok=typeof v==='string'&&v.length<=f.max;
  if(f.type==='url')ok=validURL(v);
  if(!ok&&strict)throw Error('قيمة غير صالحة: '+f.label);
- out[f.key]=ok?v:f.value;
+ out[f.key]=ok?v:defaults[f.key];
  }
  return out;
 }
-return Object.freeze({fields,defaults,normalize,validURL});
+return Object.freeze({fields,defaults,normalize,validURL,backgrounds,paint});
 });
