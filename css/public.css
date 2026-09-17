@@ -1460,3 +1460,13 @@ body[data-mode="printing"] .modalSwiper {
 .swiper-button-next, .swiper-button-prev { padding: 7px; border: 0; cursor: pointer; }
 .swiper-button-next svg, .swiper-button-prev svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .swiper-rtl .swiper-button-next svg, .swiper-rtl .swiper-button-prev svg { transform: rotate(180deg); }
+/* التصنيفات: اثنان في كل صف */
+.categories-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* إذا العدد فردي، آخر تصنيف يأخذ عرض الصف كامل */
+.categories-grid > .cat-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 9;
+}
