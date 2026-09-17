@@ -4,7 +4,7 @@
     const U = window.StoreUI;
     const $ = id => document.getElementById(id);
     const modes = {
-        embroidery: { categories: 'categories', products: 'products', reviews: 'reviews', name: 'ATHNTA', logo: 'https://i.ibb.co/XftPtTSg/image.png', color: '#050505' },
+        embroidery: { categories: 'categories', products: 'products', reviews: 'reviews', name: 'ATHNTA', logo: 'assets/athnta-logo.png', color: '#050505' },
         printing: { categories: 'printCategories', products: 'printProducts', reviews: 'printReviews', name: 'LAVINTA', logo: 'assets/lavinta-logo.jpeg', color: '#5e4a3f' }
     };
     let mode = 'embroidery', view = 'gateway', category = '', sub = 'all', revision = 0;

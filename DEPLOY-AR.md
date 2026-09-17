@@ -44,7 +44,7 @@ UID ليس كلمة مرور ولا مفتاحا سريا. لا ترسل كلم�
 
 ## 4. استبدال الملفات
 
-انسخ محتويات مجلد FAJER-fixes-v3 إلى جذر المشروع مع الحفاظ على المجلدات:
+انسخ محتويات مجلد FAJER-theme إلى جذر المشروع مع الحفاظ على المجلدات:
 api وlib وjs وcss وassets، والملفات index.html وadmin.html وlogin.html وpackage.json وpackage-lock.json وvercel.json.
 
 احتفظ بملفات tests وملفات الشرح في المستودع إذا أردت. .vercelignore يستبعدها من النشر.

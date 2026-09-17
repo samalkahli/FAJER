@@ -344,13 +344,13 @@
     if (!auth || !db) { document.body.style.display='block'; toast('تعذر تشغيل Firebase. أعد تحميل الصفحة'); return; }
     auth.onAuthStateChanged(async user=>{
         const check=++generation;
-        ready=false;
+        ready=false; window.themeAdminReady=false;
         if (!user) { location.replace('login.html'); return; }
         try {
             const token=await user.getIdToken();
             await U.fetchJSON(api('/api/admin-session'),{headers:{Authorization:'Bearer '+token}});
             if (check!==generation) return;
-            ready=true; document.body.style.display='block'; await init();
+            ready=true; window.themeAdminReady=true; window.dispatchEvent(new Event('theme-admin-ready')); document.body.style.display='block'; await init();
         } catch {
             document.body.style.display='block';
             document.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);

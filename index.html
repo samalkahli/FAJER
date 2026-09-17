@@ -16,56 +16,34 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10.3.1/swiper-bundle.min.css" />
 
     <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="css/theme-public.css">
 </head>
 
 <body data-mode="gateway">
     <main class="container">
         <section id="store-gateway" class="store-gateway" aria-labelledby="gatewayTitle">
             <div class="gateway-inner">
-
-                <span class="gateway-kicker" id="gatewayTitle">ATHNTA × LAVINTA</span>
-
-
-                <p class="gateway-description">
-
-                </p>
-
-                <div class="store-choices">
-
-                    <button type="button" class="store-choice store-choice--embroidery"
-                        data-bind-click="index-1">
-
-                        <span class="store-choice-logo-wrap">
-                            <img src="https://i.ibb.co/XftPtTSg/image.png" alt="شعار ATHNTA" class="store-choice-logo">
-                        </span>
-
-                        <span class="store-choice-title">
-                            متجرنا المتخصص في التطريز
-                        </span>
-
-                        <span class="store-choice-action">
-                            استكشف متجر التطريز
-                            <span aria-hidden="true">←</span>
+                <h1 id="gatewayTitle" class="theme-heading">معارض أعمالنا</h1>
+                <p id="themeSubtitle" class="theme-subtitle">إيش ودك تختار؟</p>
+                <div class="theme-cards">
+                    <button type="button" id="themeCard-e" class="theme-card" data-logo-mode="background" data-bind-click="index-1">
+                        <img class="theme-card-logo" src="assets/athnta-logo.png" alt="" decoding="async">
+                        <span class="theme-card-shade" aria-hidden="true"></span>
+                        <span class="theme-card-content">
+                            <span class="theme-card-title">التطريز</span>
+                            <span class="theme-card-description" hidden></span>
+                            <span class="theme-card-action"><span class="theme-card-button-text">استكشف متجر التطريز</span><span aria-hidden="true">←</span></span>
                         </span>
                     </button>
-
-
-                    <button type="button" class="store-choice store-choice--printing" data-bind-click="index-2">
-
-                        <span class="store-choice-logo-wrap">
-                            <img src="assets/lavinta-logo.jpeg" alt="شعار LAVINTA" class="store-choice-logo">
-                        </span>
-
-                        <span class="store-choice-title">
-                            متجرنا المتخصص في الطباعة
-                        </span>
-
-                        <span class="store-choice-action">
-                            استكشف متجر الطباعة
-                            <span aria-hidden="true">←</span>
+                    <button type="button" id="themeCard-p" class="theme-card" data-logo-mode="background" data-bind-click="index-2">
+                        <img class="theme-card-logo" src="assets/lavinta-logo.jpeg" alt="" decoding="async">
+                        <span class="theme-card-shade" aria-hidden="true"></span>
+                        <span class="theme-card-content">
+                            <span class="theme-card-title">الطباعة</span>
+                            <span class="theme-card-description" hidden></span>
+                            <span class="theme-card-action"><span class="theme-card-button-text">استكشف متجر الطباعة</span><span aria-hidden="true">←</span></span>
                         </span>
                     </button>
-
                 </div>
             </div>
         </section>
@@ -88,7 +66,7 @@
                     </a>
                 </div>
 
-                <img id="brandLogo" src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="profile-logo"
+                <img id="brandLogo" src="assets/athnta-logo.png" alt="ATHNTA Logo" class="profile-logo"
                     data-bind-click="index-4" fetchpriority="high">
             </div>
 
@@ -178,6 +156,8 @@
     <script defer src="js/ui.js"></script>
     <script defer src="js/public.js"></script>
     <script defer src="js/index-bindings.js"></script>
+    <script defer src="js/theme-schema.js"></script>
+    <script defer src="js/theme-public.js"></script>
 </body>
 
 </html>

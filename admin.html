@@ -14,6 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/theme-admin.css">
 </head>
 
 <body>
@@ -25,7 +26,7 @@
 
     <header>
         <button class="logout-btn" data-bind-click="admin-1">خروج</button>
-        <img src="https://i.ibb.co/4nNNrTY5/5-Dk-XXIEg7i-UZlzdd-Mb-FCA1-EBP00-Wu-JWzy9hg-Ovj8.avif" class="logo">
+        <img src="assets/athnta-logo.png" class="logo">
     </header>
 
     <div class="admin-mode-tabs">
@@ -50,6 +51,8 @@
     <button id="btnCatsTab" data-bind-click="admin-5">
         التصنيفات
     </button>
+
+    <button type="button" id="btnThemeTab">تحكم بالثيم</button>
 
     <button id="btnReviewsTab" data-bind-click="admin-6">
         التقييمات والآراء
@@ -205,6 +208,33 @@
     </div>
 </div>
 
+
+<section id="themeTab" class="tab-content">
+    <h2>تحكم بالثيم</h2>
+    <p class="theme-note">عدّل وشاهد النتيجة مباشرة. المعاينة لا تغيّر الموقع حتى تضغط حفظ الثيم. إعدادات المتجرين هنا مستقلة عن تبويب إدارة المنتجات.</p>
+    <div class="theme-toolbar">
+        <button type="button" id="themeSave" disabled>حفظ الثيم للموقع</button>
+        <button type="button" id="themeUndo">تراجع</button><button type="button" id="themeRedo">إعادة</button>
+        <button type="button" id="themeReload">إعادة تحميل المحفوظ</button>
+        <button type="button" id="themeReset">استعادة الافتراضي</button>
+        <button type="button" id="themeDraft">استعادة مسودة الجهاز</button>
+        <button type="button" id="themeExport">تصدير الثيم</button>
+        <label class="theme-import-label">استيراد <input id="themeImport" type="file" accept="application/json,.json"></label>
+        <select id="themePreset" aria-label="تصاميم جاهزة"><option value="">تصاميم جاهزة</option value="gold">أسود وذهبي</option><option value="sand">درجات دافئة</option><option value="minimal">بسيط بدون إطارات</option></select>
+    </div>
+    <p id="themeStatus" class="theme-status" role="status" aria-live="polite">افتح التبويب لتحميل إعدادات الموقع</p>
+    <div class="theme-workspace">
+        <div id="themeFields" class="theme-settings"></div>
+        <div class="theme-preview-area">
+            <div class="theme-preview-controls">
+                <select id="themePreviewMode" aria-label="صفحة المعاينة"><option value="gateway">واجهة اختيار المتجر</option><option value="embroidery">داخل التطريز</option><option value="printing">داخل الطباعة</option></select>
+                <select id="themePreviewSize" aria-label="حجم المعاينة"><option value="mobile">جوال</option><option value="desktop">مساحة الكمبيوتر المتاحة</option></select>
+            </div>
+            <div id="themePreviewWrap" class="theme-preview-wrap" data-size="mobile"><iframe id="themePreview" title="معاينة الثيم" loading="lazy"></iframe></div>
+        </div>
+    </div>
+</section>
+
 <div class="modal" id="editModal">
     <div class="modal-content">
         <h2 style="color:var(--primary)">
@@ -281,6 +311,8 @@
     <script src="js/ui.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/admin-bindings.js"></script>
+    <script src="js/theme-schema.js"></script>
+    <script src="js/theme-admin.js"></script>
 </body>
 
 </html>
