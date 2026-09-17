@@ -53,8 +53,13 @@
         const timer = setTimeout(() => controller.abort(), timeout);
         try {
             const response = await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
-            if (response.status === 404 || response.status === 405 || !/application\/json/i.test(response.headers.get('content-type') || '')) {
-                throw new Error('خادم الإدارة غير متاح. افتح النسخة المحدثة على Vercel أو شغل Vercel dev محليا؛ Live Server لا يشغل ملفات api.');
+            const isJSON = /application\/json/i.test(response.headers.get('content-type') || '');
+            if (!isJSON && response.status >= 500) {
+                throw new Error('تعطلت وظيفة تسجيل الدخول على الخادم (HTTP ' + response.status + '). افتح Vercel Logs للمسار /api/admin-session لمعرفة سبب التعطل.');
+            }
+            if (response.status === 404 || response.status === 405 || !isJSON) {
+                const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+                throw new Error(local ? 'خادم الإدارة غير متاح محليا. Live Server لا يشغل api؛ استخدم Vercel dev أو رابط النشر.' : 'مسار الإدارة غير متاح في هذا النشر. تأكد من رفع مجلدي api وlib إلى جذر المشروع وإعادة النشر.');
             }
             let data;
             try { data = await response.json(); } catch { throw new Error('استجابة غير صالحة من الخادم'); }

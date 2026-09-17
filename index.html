@@ -107,7 +107,6 @@
             <section id="products-section">
                 <div class="products-header">
                     <h2 id="category-title">اسم القسم</h2>
-                    <button class="btn-back" data-bind-click="index-5">العودة للأقسام</button>
                 </div>
                 <div class="filters" id="filters-container"></div>
                 <div class="products-grid" id="products-grid"></div>
@@ -116,7 +115,6 @@
             <section id="reviews-section">
                 <div class="products-header">
                     <h2>آراء العملاء ⭐</h2>
-                    <button class="btn-back" data-bind-click="index-6">العودة للأقسام</button>
                 </div>
                 <div class="reviews-masonry" id="reviews-grid"></div>
             </section>
@@ -157,8 +155,8 @@
                 <div class="swiper modalSwiper">
                     <div class="swiper-wrapper" id="modalSwiperWrapper"></div>
                     <div class="swiper-pagination"></div>
-                    <div class="swiper-button-next"></div>
-                    <div class="swiper-button-prev"></div>
+                    <button type="button" class="swiper-button-next" aria-label="الصورة التالية"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+                    <button type="button" class="swiper-button-prev" aria-label="الصورة السابقة"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
                 </div>
                 <h3 id="modalProductTitle" class="modal-title">اسم المنتج</h3>
                 <a id="modalWhatsappBtn" href="#" class="modal-whatsapp-btn" target="_blank" rel="noopener noreferrer">

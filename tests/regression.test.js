@@ -287,10 +287,46 @@ test('store arrow returns from products and reviews to categories before the gat
 test('API errors explain missing local server and valid JSON remains usable',async()=>{
     const dom=browser('login',{}),w=dom.window;
     w.fetch=async()=>({status:404,headers:{get:()=> 'text/html'}});
-    await assert.rejects(w.StoreUI.fetchJSON('/api/admin-session'),/Live Server/);
+    await assert.rejects(w.StoreUI.fetchJSON('/api/admin-session'),/مسار الإدارة/);
+    w.fetch=async()=>({status:500,headers:{get:()=> 'text/plain'}});
+    await assert.rejects(w.StoreUI.fetchJSON('/api/admin-session'),/HTTP 500/);
     w.fetch=async()=>({status:200,ok:true,headers:{get:()=> 'application/json'},json:async()=>({ok:true})});
     assert.equal((await w.StoreUI.fetchJSON('/api/admin-session')).ok,true);
     w.fetch=async()=>({status:403,ok:false,headers:{get:()=> 'application/json'},json:async()=>({error:'ليس لديك صلاحية الإدارة'})});
     await assert.rejects(w.StoreUI.fetchJSON('/api/admin-session'),/صلاحية/);
+    dom.window.close();
+});
+
+
+test('missing SDK does not crash startup; unauthorized requests stay rejected',async()=>{
+    let imports=0;
+    const context={require:()=>{imports++;throw Object.assign(new Error('missing'),{code:'MODULE_NOT_FOUND'});},module:{exports:{}},process:{env:{}}};
+    vm.runInNewContext(read('lib/server-auth.js'),context);
+    assert.equal(imports,0);
+    const api=context.module.exports,missing=response();
+    await api.authorize({headers:{}},missing);
+    assert.equal(missing.statusCode,401);
+    assert.equal(imports,0);
+    const withToken=response();
+    assert.equal(await api.authorize({headers:{authorization:'Bearer test'}},withToken),null);
+    assert.equal(withToken.statusCode,500);
+});
+test('admin endpoint survives missing shared module and returns structured failure',async()=>{
+    const context={require:()=>{throw Object.assign(new Error('missing'),{code:'MODULE_NOT_FOUND'});},module:{exports:{}},console:{error:()=>{}}};
+    vm.runInNewContext(read('api/admin-session.js'),context);
+    const res=response();
+    await context.module.exports({method:'GET',headers:{}},res);
+    assert.equal(res.statusCode,500);
+});
+test('reviews retain full original URL in the clickable lightbox',async()=>{
+    const url='https://i.ibb.co/original.png';
+    const {db}=mockDB({reviews:[{id:'r',imageUrl:url}]});
+    const dom=browser('index',db),w=dom.window;
+    w.eval(read('js/public.js'));await w.enterStore('embroidery');await w.showReviews();
+    w.document.querySelector('.review-img-wrap').click();
+    assert.equal(w.document.getElementById('expandedReviewImg').src,url);
+    assert.ok(w.document.getElementById('reviewImgModal').classList.contains('active'));
+    assert.equal(w.document.querySelectorAll('[data-bind-click="index-5"],[data-bind-click="index-6"]').length,0);
+    assert.equal(w.document.querySelectorAll('.swiper-button-next svg,.swiper-button-prev svg').length,2);
     dom.window.close();
 });
