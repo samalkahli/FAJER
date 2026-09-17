@@ -47,6 +47,9 @@
     function top() { window.scrollTo({ top: 0, behavior: 'auto' }); }
     function setView(next) {
         view = next;
+        const back = document.querySelector('.store-back-btn');
+        const label = next === 'categories' ? 'العودة إلى قائمة المتاجر' : 'العودة إلى الأقسام';
+        if (back) { back.setAttribute('aria-label', label); back.title = label; }
         $('store-gateway').hidden = next !== 'gateway';
         $('store-app').hidden = next === 'gateway';
         for (const name of ['categories', 'products', 'reviews']) $(name + '-section').style.display = name === next ? 'block' : 'none';
@@ -102,6 +105,10 @@
     };
     window.enterStore = window.switchMode;
     window.backToCategories = categories;
+    window.goBack = function () {
+        if (view === 'products' || view === 'reviews') return categories();
+        return window.backToGateway();
+    };
     window.backToGateway = function (options = {}) {
         ++revision;
         setView('gateway');

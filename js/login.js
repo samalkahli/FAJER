@@ -12,7 +12,7 @@ async function login() {
         await athntaAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
         await athntaAuth.signInWithEmailAndPassword(email,password);
         const token=await athntaAuth.currentUser.getIdToken();
-        const url=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'https://athnta-ten.vercel.app/api/admin-session':'/api/admin-session';
+        const url='/api/admin-session';
         await StoreUI.fetchJSON(url,{headers:{Authorization:'Bearer '+token}});
         status.style.color='#28a745';status.textContent='تم الدخول';
         location.replace('admin.html');

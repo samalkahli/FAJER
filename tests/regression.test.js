@@ -129,7 +129,7 @@ test('administration renders unsafe names safely, preserves legacy product image
     const dom=browser('admin',db),w=dom.window;
     w.athntaAuth={currentUser:{getIdToken:async()=>'test'},onAuthStateChanged:fn=>authCallback=fn};
     w.firebase.firestore.FieldValue={arrayUnion:x=>[x]};
-    w.fetch=async()=>({ok:true,json:async()=>({ok:true})});
+    w.fetch=async()=>({status:200,ok:true,headers:{get:()=> 'application/json'},json:async()=>({ok:true})});
     w.eval(read('js/admin.js'));w.eval(read('js/admin-bindings.js'));
     await authCallback(w.athntaAuth.currentUser);
     assert.equal(w.document.querySelectorAll('[onclick],[onload],[onerror]').length,0);
@@ -151,7 +151,7 @@ test('admin rename rejects existing target without writing or deleting it',async
     db.runTransaction=fn=>fn({get:ref=>ref.get(),set:()=>writes++,delete:()=>writes++,update:()=>writes++});
     const dom=browser('admin',db),w=dom.window;
     w.athntaAuth={currentUser:{getIdToken:async()=>'test'},onAuthStateChanged:fn=>authCallback=fn};
-    w.fetch=async()=>({ok:true,json:async()=>({ok:true})});
+    w.fetch=async()=>({status:200,ok:true,headers:{get:()=> 'application/json'},json:async()=>({ok:true})});
     w.eval(read('js/admin.js'));await authCallback(w.athntaAuth.currentUser);
     w.prompt=()=> 'B';w.editCatName('A');await tick();await tick();
     assert.equal(writes,0);
@@ -267,4 +267,30 @@ test('gaxios multipart still works with patched uuid dependency, without network
     assert.equal(result.data,'ok');
     assert.match(headers['Content-Type'],/multipart\/related; boundary=[a-f0-9-]+/);
     assert.ok(body.includes('fixture'));
+});
+
+test('store arrow returns from products and reviews to categories before the gateway',async()=>{
+    const {db}=mockDB({categories:[{id:'A'}],products:[{id:'p',mainCategory:'A'}]});
+    const dom=browser('index',db),w=dom.window;
+    w.eval(read('js/public.js'));w.eval(read('js/index-bindings.js'));
+    await w.enterStore('embroidery');await w.showProducts('A');
+    const arrow=w.document.querySelector('.store-back-btn');
+    arrow.click();await tick();
+    assert.equal(w.document.getElementById('categories-section').style.display,'block');
+    assert.equal(w.document.getElementById('store-gateway').hidden,true);
+    await w.showReviews();arrow.click();await tick();
+    assert.equal(w.document.getElementById('categories-section').style.display,'block');
+    arrow.click();await tick();
+    assert.equal(w.document.getElementById('store-gateway').hidden,false);
+    dom.window.close();
+});
+test('API errors explain missing local server and valid JSON remains usable',async()=>{
+    const dom=browser('login',{}),w=dom.window;
+    w.fetch=async()=>({status:404,headers:{get:()=> 'text/html'}});
+    await assert.rejects(w.StoreUI.fetchJSON('/api/admin-session'),/Live Server/);
+    w.fetch=async()=>({status:200,ok:true,headers:{get:()=> 'application/json'},json:async()=>({ok:true})});
+    assert.equal((await w.StoreUI.fetchJSON('/api/admin-session')).ok,true);
+    w.fetch=async()=>({status:403,ok:false,headers:{get:()=> 'application/json'},json:async()=>({error:'ليس لديك صلاحية الإدارة'})});
+    await assert.rejects(w.StoreUI.fetchJSON('/api/admin-session'),/صلاحية/);
+    dom.window.close();
 });

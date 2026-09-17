@@ -53,11 +53,15 @@
         const timer = setTimeout(() => controller.abort(), timeout);
         try {
             const response = await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
+            if (response.status === 404 || response.status === 405 || !/application\/json/i.test(response.headers.get('content-type') || '')) {
+                throw new Error('خادم الإدارة غير متاح. افتح النسخة المحدثة على Vercel أو شغل Vercel dev محليا؛ Live Server لا يشغل ملفات api.');
+            }
             let data;
             try { data = await response.json(); } catch { throw new Error('استجابة غير صالحة من الخادم'); }
             if (!response.ok) throw new Error(data.error || 'تعذر إتمام الطلب');
             return data;
         } catch (error) {
+            if (error instanceof TypeError) throw new Error('تعذر الاتصال بخادم الإدارة. تحقق من الاتصال ومن تشغيل الخادم ونشر ملفات api.');
             if (error.name === 'AbortError') throw new Error('انتهت مهلة الاتصال. تحقق من الإنترنت ثم حاول مجددا');
             throw error;
         } finally { clearTimeout(timer); }

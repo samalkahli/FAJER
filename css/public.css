@@ -864,8 +864,46 @@ body[data-mode="printing"] {
 }
 
 .reviews-masonry {
-    column-count: 2;
-    column-gap: 14px;
+    column-count: 3;
+    column-gap: 22px;
+    padding: 12px 8px;
+}
+
+/* Uneven photo collage; preserve each screenshot's full aspect ratio. */
+.reviews-masonry .review-img-wrap {
+    width: 94%;
+    display: inline-block;
+    vertical-align: top;
+    transform: rotate(-1.5deg);
+    margin: 8px 2% 22px;
+}
+.reviews-masonry .review-img-wrap:nth-of-type(4n + 2) {
+    width: 84%;
+    margin-inline-start: 10%;
+    transform: rotate(2deg);
+}
+.reviews-masonry .review-img-wrap:nth-of-type(4n + 3) {
+    width: 98%;
+    margin-inline-start: 0;
+    transform: rotate(1deg);
+}
+.reviews-masonry .review-img-wrap:nth-of-type(4n) {
+    width: 89%;
+    transform: rotate(-2deg);
+}
+.reviews-masonry .review-img-wrap img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+}
+.reviews-masonry > .btn-back, .reviews-masonry > .empty-state {
+    column-span: all;
+    display: block;
+    margin: 20px auto;
+}
+@media (max-width: 700px) {
+    .reviews-masonry { column-count: 2; column-gap: 10px; }
 }
 
 .review-img-wrap {

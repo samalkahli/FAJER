@@ -12,7 +12,7 @@
     const cache = new Map();
     const col = (type, selected = mode) => db.collection(collections[selected][type]);
     const data = snap => snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-    const api = path => /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https://athnta-ten.vercel.app' + path : path;
+    const api = path => path;
     let toastTimer;
     function toast(text) {
         $('toast').textContent = text; $('toast').style.display = 'block';
