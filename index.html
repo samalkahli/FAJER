@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
     <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="css/store-header.css">
 </head>
 
 <body data-mode="gateway">
@@ -24,52 +25,44 @@
 
                 <span class="gateway-kicker">ATHNTA × LAVINTA</span>
 
-                <h1 id="gatewayTitle">الفن له أكثر من طريقة</h1>
 
                 <p class="gateway-description">
-                    بين خيط ينسج التفاصيل وطباعة تمنح الفكرة حضورها
-                    نصنع لك قطعًا تعبّر عن ذوقك وتترك أثرًا لا يُنسى
+
                 </p>
 
-                <div class="gateway-cards">
+                <div class="store-choices">
 
-                    <button type="button" class="gateway-card gateway-card--embroidery"
+                    <button type="button" class="store-choice store-choice--embroidery"
                         onclick="enterStore('embroidery')">
 
-                        <span class="gateway-logo-frame">
-                            <img src="https://i.ibb.co/XftPtTSg/image.png" alt="شعار ATHNTA" class="gateway-logo">
+                        <span class="store-choice-logo-wrap">
+                            <img src="https://i.ibb.co/XftPtTSg/image.png" alt="شعار ATHNTA" class="store-choice-logo">
                         </span>
 
-                        <span class="gateway-card-title">
+                        <span class="store-choice-title">
                             متجرنا المتخصص في التطريز
                         </span>
 
-                        <span class="gateway-card-description">
-                            تفاصيل تنسجها يد الفن
-                        </span>
-
-                        <span class="gateway-card-action">
+                        <span class="store-choice-action">
                             استكشف متجر التطريز
+                            <span aria-hidden="true">←</span>
                         </span>
                     </button>
 
-                    <button type="button" class="gateway-card gateway-card--printing" onclick="enterStore('printing')">
 
-                        <span class="gateway-logo-frame">
-                            <img src="assets/lavinta-logo.jpeg" alt="شعار LAVINTA"
-                                class="gateway-logo gateway-logo--lavinta">
+                    <button type="button" class="store-choice store-choice--printing" onclick="enterStore('printing')">
+
+                        <span class="store-choice-logo-wrap">
+                            <img src="assets/lavinta-logo.jpeg" alt="شعار LAVINTA" class="store-choice-logo">
                         </span>
 
-                        <span class="gateway-card-title">
+                        <span class="store-choice-title">
                             متجرنا المتخصص في الطباعة
                         </span>
 
-                        <span class="gateway-card-description">
-                            فكرتك بطابعك الخاص
-                        </span>
-
-                        <span class="gateway-card-action">
+                        <span class="store-choice-action">
                             استكشف متجر الطباعة
+                            <span aria-hidden="true">←</span>
                         </span>
                     </button>
 
@@ -80,8 +73,13 @@
         <div id="store-app" class="store-app" hidden>
             <div class="profile-header">
                 <div class="nav-box" id="mainNav">
-                    <img id="brandLogo" src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="profile-logo"
-                        onclick="backToCategories()" style="cursor:pointer;" fetchpriority="high">
+                    <button type="button" class="store-back-btn" onclick="backToGateway()"
+                        aria-label="العودة إلى قائمة المتاجر" title="العودة إلى قائمة المتاجر">
+
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M10 6l6 6-6 6M16 12H4"></path>
+                        </svg>
+                    </button>
                     <a href="https://wa.me/966552125258" class="nav-whatsapp" target="_blank" title="تواصل معنا">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -89,24 +87,14 @@
                         </svg>
                     </a>
                 </div>
-                <p class="profile-subtitle" id="subHeaderText">نصنع قطع فنية 🧵</p>
-                <button
-    type="button"
-    class="back-to-gateway-btn"
-    onclick="backToGateway()"
-    aria-label="فتح قائمة المتاجر">
 
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 6h16M4 12h16M4 18h16"></path>
-    </svg>
-
-    <span>قائمة المتاجر</span>
-</button>
+                <img id="brandLogo" src="https://i.ibb.co/XftPtTSg/image.png" alt="ATHNTA Logo" class="profile-logo"
+                    onclick="backToCategories()" fetchpriority="high">
             </div>
 
             <section id="categories-section">
 
-               
+
 
                 <h2 class="section-title" id="mainSectionTitle">
                     هنا أعمالنا المنفذة خصيصاً لكم

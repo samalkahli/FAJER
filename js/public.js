@@ -12,8 +12,7 @@ const brandThemes = {
         pageTitle: 'ATHNTA | المعرض',
         logo: 'https://i.ibb.co/XftPtTSg/image.png',
         logoAlt: 'ATHNTA Logo',
-        subtitle: 'نصنع قطع فنية 🧵',
-        sectionTitle: 'هنا أعمال التطريز المنفذة خصيصاً لكم',
+        sectionTitle: 'هنا أعمالنا المنفذة خصيصاً لكم',
         themeColor: '#050505'
     },
 
@@ -21,8 +20,7 @@ const brandThemes = {
         pageTitle: 'LAVINTA | الطباعة',
         logo: 'assets/lavinta-logo.jpeg',
         logoAlt: 'LAVINTA Logo',
-        subtitle: 'نطبع فكرتك بأسلوبك 🤍',
-        sectionTitle: 'هنا أعمال الطباعة المنفذة خصيصاً لكم',
+        sectionTitle: 'هنا أعمالنا المنفذة خصيصاً لكم',
         themeColor: '#5E4A3F'
     }
 };
@@ -34,17 +32,12 @@ function applyBrandTheme(mode) {
     document.title = theme.pageTitle;
 
     const logo = document.getElementById('brandLogo');
-    const subtitle = document.getElementById('subHeaderText');
     const sectionTitle = document.getElementById('mainSectionTitle');
     const themeColor = document.getElementById('themeColor');
 
     if (logo) {
         logo.src = theme.logo;
         logo.alt = theme.logoAlt;
-    }
-
-    if (subtitle) {
-        subtitle.innerText = theme.subtitle;
     }
 
     if (sectionTitle) {
@@ -66,7 +59,6 @@ window.backToCategories = function () {
     document.getElementById('products-section').style.display = 'none';
     document.getElementById('reviews-section').style.display = 'none';
     document.getElementById('reviewsBtnWrapper').style.display = 'block';
-    document.getElementById('subHeaderText').style.display = 'block';
 
     const nav = document.getElementById('mainNav');
 
@@ -229,7 +221,6 @@ document.addEventListener('click', closeMoreFilters);
 
 window.showProducts = (categoryId) => {
     document.getElementById('categories-section').style.display = 'none';
-    document.getElementById('subHeaderText').style.display = 'none';
     document.getElementById('reviewsBtnWrapper').style.display = 'none';
     document.getElementById('reviews-section').style.display = 'none';
     document.getElementById('products-section').style.display = 'block';
@@ -296,7 +287,6 @@ window.filterData = (mainCat, subCat, event) => {
 // فتح قسم الآراء
 window.showReviews = () => {
     document.getElementById('categories-section').style.display = 'none';
-    document.getElementById('subHeaderText').style.display = 'none';
     document.getElementById('products-section').style.display = 'none';
     document.getElementById('reviewsBtnWrapper').style.display = 'none';
 
@@ -409,7 +399,6 @@ window.switchMode = async function (mode, options = {}) {
     document.getElementById('products-section').style.display = 'none';
     document.getElementById('reviews-section').style.display = 'none';
     document.getElementById('reviewsBtnWrapper').style.display = 'block';
-    document.getElementById('subHeaderText').style.display = 'block';
 
     if (options.updateHistory !== false) {
         const url = new URL(window.location.href);
