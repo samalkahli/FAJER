@@ -47,6 +47,7 @@
     function top() { window.scrollTo({ top: 0, behavior: 'auto' }); }
     function setView(next) {
         view = next;
+        window.StoreAnalytics?.screen(next, mode, category);
         const back = document.querySelector('.store-back-btn');
         const label = next === 'categories' ? 'العودة إلى قائمة المتاجر' : 'العودة إلى الأقسام';
         if (back) { back.setAttribute('aria-label', label); back.title = label; }
@@ -236,6 +237,7 @@
     }
     async function openProduct(product) {
         openModal($('productModal'));
+        window.StoreAnalytics?.item(mode, product);
         const ticket = modalRevision;
         const urls = U.images(product);
         $('modalSwiperWrapper').style.overflowX = '';
