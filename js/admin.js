@@ -8,7 +8,7 @@
         printing: { categories: 'printCategories', products: 'printProducts', reviews: 'printReviews' }
     };
     let mode = 'embroidery', ready = false, busy = false, loading = false, generation = 0, sortable = null, lastActivity = Date.now();
-    let cats = [], products = [], reviews = [], currentImages = [], editMode = null, activeTab = 'productsTab';
+    let cats = [], products = [], reviews = [], currentImages = [], editMode = null, activeTab = document.getElementById('dashboardTab') ? 'dashboardTab' : 'productsTab';
     const cache = new Map();
     const col = (type, selected = mode) => db.collection(collections[selected][type]);
     const data = snap => snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
@@ -39,6 +39,7 @@
     window.logout = async () => {
         if (busy) { toast('انتظر اكتمال العملية الحالية'); return; }
         ready = false; cache.clear(); localStorage.removeItem('at');
+        window.themeAdminReady=false; window.dispatchEvent(new Event('admin-signed-out'));
         await auth.signOut(); location.replace('login.html');
     };
     for (const event of ['pointerdown','keydown','touchstart']) document.addEventListener(event, () => { lastActivity = Date.now(); }, { passive: true });
@@ -247,9 +248,18 @@
         $('editModal').classList.remove('active'); editMode=null;
     });
     window.switchTab=(e,id) => {
+        if (busy) return;
         activeTab=id;
-        document.querySelectorAll('.tabs button').forEach(el=>el.classList.toggle('active',el=== (e ? e.currentTarget : $('btnProductsTab'))));
+        const buttons={dashboardTab:'btnDashboardTab',reportsTab:'btnReportsTab',productsTab:'btnProductsTab',catsTab:'btnCatsTab',reviewsTab:'btnReviewsTab',themeTab:'btnThemeTab'};
+        document.querySelectorAll('.tabs button').forEach(el=>el.classList.toggle('active',el.id===buttons[id]));
         document.querySelectorAll('.tab-content').forEach(el=>el.classList.toggle('active',el.id===id));
+        const titles={dashboardTab:'نظرة عامة',reportsTab:'التقارير والزيارات',productsTab:'إدارة المنتجات',catsTab:'إدارة التصنيفات',reviewsTab:'آراء العملاء',themeTab:'التحكم بالثيم'};
+        if($('adminPageTitle'))$('adminPageTitle').textContent=titles[id]||'الإدارة';
+        document.body.dataset.adminTab=id;
+        document.querySelector('.admin-mode-tabs').hidden=!['productsTab','catsTab','reviewsTab'].includes(id);
+        $('currentModeTitle').hidden=!['productsTab','catsTab','reviewsTab'].includes(id);
+        window.dispatchEvent(new CustomEvent('admin-tab-change',{detail:{id,mode}}));
+        if(ready&&['productsTab','catsTab','reviewsTab'].includes(id))return init();
     };
     function accordion(title, group) {
         const wrap=U.node('div'), head=U.node('div','accordion-header'), content=U.node('div','accordion-content '+group);
@@ -297,6 +307,7 @@
                 const b=accordion('↳ '+sub,'sub-content'); b.head.classList.add('sub-header');
                 group.filter(p=>(p.subCategory || 'عام')===sub).forEach(p=>{
                     const card=U.node('div','list-item'), row=U.node('div','item-row'), actions=U.node('div','btn-group-large');
+                    card.dataset.search=String([p.name,p.mainCategory,p.subCategory].join(' ')).toLocaleLowerCase();
                     row.append(U.img(U.images(p)[0],p.name),U.node('strong','',p.name));
                     actions.append(U.button('تعديل','edit-btn',()=>openEdit(p)),U.button('حذف','danger-btn',()=>window.delP(p.id)));
                     card.append(row,actions); b.content.append(card);
@@ -307,6 +318,7 @@
         }
         $('productsList').replaceChildren(...nodes);
         if (!nodes.length) $('productsList').append(U.node('p','','لا توجد منتجات'));
+        window.dispatchEvent(new Event('admin-list-rendered'));
         $('reviewsAdminList').replaceChildren(...reviews.map(r=>{
             const wrap=U.node('div','edit-img-wrap'), img=U.img(r.imageUrl,'رأي عميل');
             img.style.cssText='width:100px;height:100px;object-fit:cover';
@@ -335,22 +347,32 @@
         window.closeModal(); mode=next;
         ['Embroidery','Printing'].forEach(label=>$('admin'+label+'Tab').classList.toggle('active',mode===label.toLowerCase()));
         $('currentModeTitle').textContent=mode==='printing'?'إدارة منتجات وأقسام الطباعة':'إدارة منتجات وأقسام التطريز';
-        window.switchTab(null,'productsTab');
+        activeTab='productsTab';
+        document.querySelectorAll('.tabs button').forEach(el=>el.classList.toggle('active',el.id==='btnProductsTab'));
+        document.querySelectorAll('.tab-content').forEach(el=>el.classList.toggle('active',el.id==='productsTab'));
+        document.body.dataset.adminTab='productsTab';
+        if($('adminPageTitle'))$('adminPageTitle').textContent='إدارة المنتجات';
+        if($('adminProductSearch'))$('adminProductSearch').value='';
+        window.dispatchEvent(new CustomEvent('admin-tab-change',{detail:{id:'productsTab',mode}}));
         for(const id of ['productName','newMainCat','newSubCat']) $(id).value='';
         for(const args of [['productFile','prodPrevContainer','prodDZ'],['catFile','catPrevContainer','catDZ'],['reviewFile','revPrevContainer','revDZ']]) clearUpload(...args);
         for(const id of ['productsList','categoriesAdminList','reviewsAdminList']) $(id).replaceChildren();
         await init();
     };
     if (!auth || !db) { document.body.style.display='block'; toast('تعذر تشغيل Firebase. أعد تحميل الصفحة'); return; }
+    window.refreshAdminData=()=>{if(ready&&!busy&&!loading)return init(true);};
+    if($('dashboardTab'))window.switchTab(null,'dashboardTab');
     auth.onAuthStateChanged(async user=>{
         const check=++generation;
         ready=false; window.themeAdminReady=false;
+        window.dispatchEvent(new Event('admin-signed-out'));
         if (!user) { location.replace('login.html'); return; }
         try {
             const token=await user.getIdToken();
             await U.fetchJSON(api('/api/admin-session'),{headers:{Authorization:'Bearer '+token}});
             if (check!==generation) return;
-            ready=true; window.themeAdminReady=true; window.dispatchEvent(new Event('theme-admin-ready')); document.body.style.display='block'; await init();
+            ready=true; window.themeAdminReady=true; window.dispatchEvent(new Event('theme-admin-ready')); document.body.style.display='block';
+            if(['productsTab','catsTab','reviewsTab'].includes(activeTab))await init();
         } catch {
             document.body.style.display='block';
             document.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);

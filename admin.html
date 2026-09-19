@@ -15,18 +15,19 @@
 
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/theme-admin.css">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 
-<body>
+<body class="admin-pro">
 
     <div id="uploadProgress">
         <div id="pBar"></div>
     </div>
     <div id="toast" class="toast">تم الإجراء بنجاح! ✅</div>
 
-    <header>
-        <button class="logout-btn" data-bind-click="admin-1">خروج</button>
-        <img src="assets/athnta-logo.png" class="logo">
+    <header class="admin-topbar">
+        <div><span class="eyebrow">ATHNTA × LAVINTA</span><h1 id="adminPageTitle">نظرة عامة</h1></div>
+        <div class="topbar-actions"><a class="quiet-link" href="index.html" target="_blank" rel="noopener">فتح المعرض ↗</a><button class="logout-btn" data-bind-click="admin-1">تسجيل الخروج</button></div>
     </header>
 
     <div class="admin-mode-tabs">
@@ -43,8 +44,11 @@
         إدارة منتجات وأقسام التطريز
     </h2>
 
-    <div class="tabs">
-    <button class="active" id="btnProductsTab" data-bind-click="admin-4">
+    <nav class="tabs" aria-label="أقسام الإدارة">
+    <div class="sidebar-brand"><span class="brand-mark">A / L</span><strong>مساحة الإدارة</strong><small>معرضان · رؤية واحدة</small></div>
+    <button class="active" id="btnDashboardTab" type="button">◈ نظرة عامة</button>
+    <button id="btnReportsTab" type="button">▥ التقارير والزيارات</button>
+    <button id="btnProductsTab" data-bind-click="admin-4">
         المنتجات
     </button>
 
@@ -57,9 +61,31 @@
     <button id="btnReviewsTab" data-bind-click="admin-6">
         التقييمات والآراء
     </button>
-</div>
+</nav>
 
-<div id="productsTab" class="tab-content active">
+<section id="dashboardTab" class="tab-content active">
+    <div class="dashboard-hero"><div><span class="eyebrow">كل التفاصيل في مكان واحد</span><h2>صورة أوضح لأعمالك</h2><p>تابع محتوى المعرضين، راجع جودة البيانات، وانتقل لإدارة أعمالك.</p></div><div class="hero-badge"><span class="live-dot"></span><span id="contentConnection" role="status">بانتظار التحقق من الحساب</span></div></div>
+    <div class="dashboard-tools"><label>نطاق المحتوى<select id="dashStore"><option value="all">كل المعارض</option><option value="embroidery">ATHNTA · التطريز</option><option value="printing">LAVINTA · الطباعة</option></select></label><button id="contentRefresh" type="button">تحديث البيانات ↻</button><span id="contentUpdated" class="muted">لم تصل البيانات بعد</span></div>
+    <div id="contentMetrics" class="metric-grid" aria-live="polite"></div>
+    <div class="dashboard-columns"><article class="panel"><div class="panel-head"><h2>مقارنة المعرضين</h2><span class="muted">المحتوى الحالي</span></div><div id="storeComparison"></div></article><article class="panel"><div class="panel-head"><h2>جودة المحتوى</h2><span class="muted">ملاحظات قابلة للمعالجة</span></div><div id="contentHealth"></div></article></div>
+    <article class="panel"><div class="panel-head"><h2>آخر الأعمال المضافة</h2><button type="button" id="quickProducts">إدارة المنتجات ←</button></div><div id="recentProducts" class="recent-grid"></div></article>
+    <article class="panel"><div class="panel-head"><h2>توزيع المنتجات على التصنيفات</h2><span class="muted">حسب النطاق المختار</span></div><div id="categoryBars" class="bars-list"></div></article>
+</section>
+
+<section id="reportsTab" class="tab-content">
+    <div class="section-intro"><span class="eyebrow">من الزيارة إلى الاهتمام</span><h2>تقارير المعارض</h2><p>المحتوى من Firebase، وأداء الزيارات من Google Analytics.</p></div>
+    <div class="dashboard-tools"><label>فترة التقرير<select id="reportDays"><option value="7">آخر 7 أيام</option><option value="30" selected>آخر 30 يومًا</option><option value="90">آخر 90 يومًا</option></select></label><label>المعرض<select id="reportStore"><option value="all">كل المعارض</option><option value="embroidery">ATHNTA · التطريز</option><option value="printing">LAVINTA · الطباعة</option></select></label><button type="button" id="reportRefresh">تحديث التقرير ↻</button><label class="auto-control"><input type="checkbox" id="reportAuto" checked> تحديث كل دقيقة</label><button type="button" id="reportExport" disabled>تصدير CSV</button><button type="button" id="reportPrint">طباعة التقرير</button></div>
+    <p id="reportStatus" class="report-status" role="status" aria-live="polite">بانتظار تحميل التقرير</p>
+    <div id="analyticsSetup" class="setup-callout" hidden><h3>أكمل ربط تقارير الزيارات</h3><p>تسجيل الزيارات يعمل بمعرّف القياس. عرضها هنا يحتاج إضافة حساب الخدمة بصلاحية مشاهد في Analytics وتحديد رقم الموقع GA4_PROPERTY_ID في Vercel.</p><a href="https://analytics.google.com/" target="_blank" rel="noopener">فتح Google Analytics ↗</a><p>الخطوات التفصيلية في دليل README-AR المرفق.</p></div>
+    <div id="analyticsMetrics" class="metric-grid"></div>
+    <article class="panel"><div class="panel-head"><h2>حركة الدخول للمعرضين</h2><span class="muted">مرات الدخول اليومية · ليست مستخدمين فريدين</span></div><div id="trafficChart" class="traffic-chart"></div></article>
+    <div class="dashboard-columns"><article class="panel"><div class="panel-head"><h2>أداء كل معرض</h2></div><div id="analyticsStores"></div></article><article class="panel"><div class="panel-head"><h2>مصادر الزيارات</h2><span class="muted">جلسات الموقع بالكامل</span></div><div id="analyticsSources"></div></article></div>
+    <article class="panel"><div class="panel-head"><h2>المنتجات الأكثر مشاهدة</h2><span class="muted">حسب بيانات التتبع المتاحة</span></div><div id="analyticsItems"></div></article>
+    <article class="panel"><div class="panel-head"><h2>تقرير المحتوى</h2><button type="button" id="contentExport" disabled>تصدير المنتجات CSV</button></div><p class="muted">الإجماليات للمحتوى الحالي. الإضافات ضمن الفترة حسب تاريخ الإنشاء؛ السجلات بلا تاريخ تظهر منفصلة. لا توجد بيانات طلبات أو مبيعات في هذا المعرض.</p><div id="contentReport"></div></article>
+</section>
+
+<div id="productsTab" class="tab-content">
+    <div class="management-toolbar"><div><span class="eyebrow">كتالوج الأعمال</span><h2>المنتجات</h2></div><label>البحث في المنتجات<input type="search" id="adminProductSearch" placeholder="اسم المنتج أو التصنيف" autocomplete="off"></label><button type="button" id="managementRefresh">تحديث القائمة ↻</button></div>
     <div class="admin-box">
         <h2>إضافة منتج ✨</h2>
 
@@ -313,6 +339,7 @@
     <script src="js/admin-bindings.js"></script>
     <script src="js/theme-schema.js"></script>
     <script src="js/theme-admin.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 
 </html>

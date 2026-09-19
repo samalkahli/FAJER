@@ -132,6 +132,7 @@ test('administration renders unsafe names safely, preserves legacy product image
     w.fetch=async()=>({status:200,ok:true,headers:{get:()=> 'application/json'},json:async()=>({ok:true})});
     w.eval(read('js/admin.js'));w.eval(read('js/admin-bindings.js'));
     await authCallback(w.athntaAuth.currentUser);
+    await w.switchTab(null,'productsTab');
     assert.equal(w.document.querySelectorAll('[onclick],[onload],[onerror]').length,0);
     assert.ok(w.document.getElementById('productsList').textContent.includes(evil));
     w.document.querySelector('#productsList .edit-btn').click();

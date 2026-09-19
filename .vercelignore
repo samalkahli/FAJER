@@ -1,11 +1,4 @@
 tests/
-DEPLOY-AR.md
-AUDIT-AR.md
-firestore.rules.template
+README-AR.md
 .git/
 node_modules/
-
-THEME-START-AR.md
-LOGIN-FIX-AR.md
-FIXES-V2-AR.md
-FIXES-V3-AR.md
