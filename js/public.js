@@ -248,6 +248,7 @@
         $('modalProductTitle').textContent = product.name || '';
         const message = 'السلام عليكم، أود الاستفسار عن منتج ' + modes[mode].name + ': ' + product.name + ' في قسم ' + product.mainCategory;
         $('modalWhatsappBtn').href = 'https://wa.me/966552125258?text=' + encodeURIComponent(message);
+        window.StoreContacts?.product(message);
         try {
             if (!window.Swiper) await script('https://cdn.jsdelivr.net/npm/swiper@10.3.1/swiper-bundle.min.js');
             if (ticket !== modalRevision) return;

@@ -250,10 +250,10 @@
     window.switchTab=(e,id) => {
         if (busy) return;
         activeTab=id;
-        const buttons={dashboardTab:'btnDashboardTab',reportsTab:'btnReportsTab',productsTab:'btnProductsTab',catsTab:'btnCatsTab',reviewsTab:'btnReviewsTab',themeTab:'btnThemeTab'};
+        const buttons={contactsTab:'btnContactsTab',dashboardTab:'btnDashboardTab',reportsTab:'btnReportsTab',productsTab:'btnProductsTab',catsTab:'btnCatsTab',reviewsTab:'btnReviewsTab',themeTab:'btnThemeTab'};
         document.querySelectorAll('.tabs button').forEach(el=>el.classList.toggle('active',el.id===buttons[id]));
         document.querySelectorAll('.tab-content').forEach(el=>el.classList.toggle('active',el.id===id));
-        const titles={dashboardTab:'نظرة عامة',reportsTab:'التقارير والزيارات',productsTab:'إدارة المنتجات',catsTab:'إدارة التصنيفات',reviewsTab:'آراء العملاء',themeTab:'التحكم بالثيم'};
+        const titles={contactsTab:'التواصل والروابط',dashboardTab:'نظرة عامة',reportsTab:'التقارير والزيارات',productsTab:'إدارة المنتجات',catsTab:'إدارة التصنيفات',reviewsTab:'آراء العملاء',themeTab:'التحكم بالثيم'};
         if($('adminPageTitle'))$('adminPageTitle').textContent=titles[id]||'الإدارة';
         document.body.dataset.adminTab=id;
         document.querySelector('.admin-mode-tabs').hidden=!['productsTab','catsTab','reviewsTab'].includes(id);

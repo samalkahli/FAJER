@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/theme-admin.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/contacts.css">
 </head>
 
 <body class="admin-pro">
@@ -57,12 +58,18 @@
     </button>
 
     <button type="button" id="btnThemeTab">تحكم بالثيم</button>
+    <button type="button" id="btnContactsTab">التواصل والروابط</button>
 
     <button id="btnReviewsTab" data-bind-click="admin-6">
         التقييمات والآراء
     </button>
 </nav>
 
+<section id="contactsTab" class="tab-content">
+ <div class="section-intro"><h2>التواصل والروابط</h2><p>إعدادات مستقلة لكل معرض. اكتب الأرقام مع رمز الدولة بدون الصفر المحلي. الرابط الفارغ لا يظهر للزوار.</p></div>
+ <div class="dashboard-tools"><button id="contactSave" type="button" disabled>حفظ روابط المتجرين</button><button id="contactReload" type="button">إعادة تحميل المحفوظ</button></div>
+ <p id="contactStatus" class="report-status" role="status">اختر التبويب لتحميل الإعدادات</p><div id="contactFields"></div>
+</section>
 <section id="dashboardTab" class="tab-content active">
     <div class="dashboard-hero"><div><span class="eyebrow">كل التفاصيل في مكان واحد</span><h2>صورة أوضح لأعمالك</h2><p>تابع محتوى المعرضين، راجع جودة البيانات، وانتقل لإدارة أعمالك.</p></div><div class="hero-badge"><span class="live-dot"></span><span id="contentConnection" role="status">بانتظار التحقق من الحساب</span></div></div>
     <div class="dashboard-tools"><label>نطاق المحتوى<select id="dashStore"><option value="all">كل المعارض</option><option value="embroidery">ATHNTA · التطريز</option><option value="printing">LAVINTA · الطباعة</option></select></label><button id="contentRefresh" type="button">تحديث البيانات ↻</button><span id="contentUpdated" class="muted">لم تصل البيانات بعد</span></div>
@@ -340,6 +347,8 @@
     <script src="js/theme-schema.js"></script>
     <script src="js/theme-admin.js"></script>
     <script src="js/dashboard.js"></script>
+    <script src="js/contact-schema.js"></script>
+    <script src="js/contact-admin.js"></script>
 </body>
 
 </html>
